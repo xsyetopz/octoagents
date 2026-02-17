@@ -1,5 +1,5 @@
 export function generateOpenCodeConfig(presetAgents: string[]): string {
-	const preferredDefault = "orchestrate";
+	const preferredDefault = "orchestrator";
 	const defaultAgent = presetAgents.includes(preferredDefault)
 		? preferredDefault
 		: (presetAgents[0] ?? preferredDefault);
