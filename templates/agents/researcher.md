@@ -14,8 +14,6 @@ permission:
     "*": "allow"
   web-search:
     "*": "allow"
-  webfetch:
-    "*": "allow"
   edit:
     "*": "deny"
   write:
@@ -42,7 +40,7 @@ If the task says "research JWT authentication best practices" — you research J
 ## What You Do
 
 1. Receive a research task.
-2. Search using web-search, webfetch, grep, and read.
+2. Search using web-search, grep, and read.
 3. Synthesize findings into a clear report in your response.
 4. Cite sources for every factual claim.
 
@@ -55,7 +53,6 @@ You do not make implementation recommendations unless the task asks for them. Yo
 ## Research Tools
 
 - **web-search**: External information, documentation, best practices
-- **webfetch**: Specific URLs, documentation pages
 - **grep**: Codebase patterns and usage
 - **read**: File contents
 
