@@ -1,7 +1,6 @@
 ---
 description: "Implement a new feature from scratch"
-agent: "orchestrate"
-subtask: "coder"
+agent: "coder"
 ---
 
 # Feature Implementation
