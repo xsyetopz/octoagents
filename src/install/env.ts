@@ -44,7 +44,7 @@ export async function installBun(): Promise<void> {
 	try {
 		await $`curl -fsSL https://bun.sh/install | bash`;
 		console.log(
-			"Bun installed successfully. Please restart your shell and run the install script again.",
+			"Bun installed successfully. Please restart your shell and run install script again",
 		);
 		process.exit(0);
 	} catch (error) {
@@ -56,8 +56,8 @@ export async function installBun(): Promise<void> {
 export function checkPlatform(): void {
 	const platform = process.platform;
 	if (platform === "win32") {
-		console.warn("Windows detected. This framework requires macOS/Linux.");
-		console.warn("Please use WSL2 on Windows to install this framework.");
+		console.warn("Windows detected. This framework requires macOS/Linux");
+		console.warn("Please use WSL2 on Windows to install this framework");
 		process.exit(1);
 	}
 }
@@ -68,9 +68,41 @@ export function hasSyntheticApiKey(): boolean {
 		return true;
 	}
 
+	const authPath = `${getHomeDir()}/.local/share/opencode/auth.json`;
+	try {
+		const authContents = readFileSync(authPath, "utf-8").trim();
+		if (authContents) {
+			const authJson = JSON.parse(authContents) as {
+				synthetic?: { key?: string };
+			};
+			if (authJson.synthetic?.key?.trim()) {
+				return true;
+			}
+		}
+	} catch (error) {
+		console.warn(
+			"No valid auth.json found for synthetic API key detection:",
+			error,
+		);
+	}
+
 	const secretsPath = `${getHomeDir()}/.secrets/synthetic-api-key`;
 	try {
 		return readFileSync(secretsPath, "utf-8").trim().length > 0;
+	} catch {
+		return false;
+	}
+}
+
+export function hasOpenCodeAuthJson(): boolean {
+	const authPath = `${getHomeDir()}/.local/share/opencode/auth.json`;
+	try {
+		const contents = readFileSync(authPath, "utf-8").trim();
+		if (!contents) {
+			return false;
+		}
+		JSON.parse(contents);
+		return true;
 	} catch {
 		return false;
 	}
