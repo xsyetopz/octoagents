@@ -1,7 +1,22 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
-import { readTextFile } from "../src/utils/files.ts";
+
+async function _readTextFile(path: string): Promise<string> {
+	try {
+		const file = Bun.file(path);
+		if (!(await file.exists())) {
+			throw new Error(`File not found: ${path}`);
+		}
+		return await file.text();
+	} catch (error) {
+		throw new Error(
+			`Failed to read file ${path}: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
+	}
+}
 
 const _getSecret = async (
 	fileName: string,
@@ -9,7 +24,7 @@ const _getSecret = async (
 ): Promise<string | undefined> => {
 	const secretsPath = join(homedir(), ".secrets");
 	try {
-		const content = await readTextFile(join(secretsPath, fileName));
+		const content = await _readTextFile(join(secretsPath, fileName));
 		return content.trim();
 	} catch (_error) {
 		console.debug(`Secret file ${fileName} not found, using ${envVar} env var`);

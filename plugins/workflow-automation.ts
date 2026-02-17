@@ -1,6 +1,33 @@
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
-import { readTextFile, writeTextFile } from "../src/utils/files.ts";
+
+async function _readTextFile(path: string): Promise<string> {
+	try {
+		const file = Bun.file(path);
+		if (!(await file.exists())) {
+			throw new Error(`File not found: ${path}`);
+		}
+		return await file.text();
+	} catch (error) {
+		throw new Error(
+			`Failed to read file ${path}: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
+	}
+}
+
+async function _writeTextFile(path: string, content: string): Promise<void> {
+	try {
+		await Bun.write(path, content);
+	} catch (error) {
+		throw new Error(
+			`Failed to write file ${path}: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
+	}
+}
 
 const BRANCH_INDICATOR_REGEX = /^\* /;
 const FILENAME_WITH_EXT_REGEX = /^(.*)\.(.+)$/;
@@ -89,7 +116,7 @@ async function _executeFileTemplate(
 ): Promise<unknown> {
 	try {
 		const templatePath = join(context.directory, args.template);
-		let content = await readTextFile(templatePath);
+		let content = await _readTextFile(templatePath);
 
 		if (args.vars) {
 			for (const [key, value] of Object.entries(args.vars)) {
@@ -99,7 +126,7 @@ async function _executeFileTemplate(
 		}
 
 		const outputPath = join(context.directory, args.output);
-		await writeTextFile(outputPath, content);
+		await _writeTextFile(outputPath, content);
 
 		return {
 			success: true,

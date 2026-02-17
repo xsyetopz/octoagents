@@ -1,5 +1,20 @@
 import { tool } from "@opencode-ai/plugin";
-import { readTextFile } from "../src/utils/files.ts";
+
+async function _readTextFile(path: string): Promise<string> {
+	try {
+		const file = Bun.file(path);
+		if (!(await file.exists())) {
+			throw new Error(`File not found: ${path}`);
+		}
+		return await file.text();
+	} catch (error) {
+		throw new Error(
+			`Failed to read file ${path}: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
+	}
+}
 
 async function _checkSemgrep(): Promise<void> {
 	try {
@@ -87,7 +102,7 @@ async function _executeMetricsComplexity(
 
 	for (const file of files) {
 		const filePath = `${context.directory as string}/${file}`;
-		const content = await readTextFile(filePath);
+		const content = await _readTextFile(filePath);
 		const complexity = _calculateCyclomaticComplexity(content);
 		const lines = content.split("\n").length;
 
@@ -121,7 +136,7 @@ async function _executeMetricsDependencies(
 
 	for (const file of files) {
 		const filePath = `${context.directory as string}/${file}`;
-		const content = await readTextFile(filePath);
+		const content = await _readTextFile(filePath);
 
 		const importMatch = content.matchAll(/import\s+.*?from\s+['"](.*?)['"]/g);
 		for (const match of importMatch) {

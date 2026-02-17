@@ -1,6 +1,35 @@
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
-import { fileOrDirExists, readTextFile } from "../src/utils/files.ts";
+
+async function _fileOrDirExists(path: string): Promise<boolean> {
+	const file = Bun.file(path);
+	if (await file.exists()) {
+		return true;
+	}
+
+	try {
+		await Bun.$`test -d ${path}`.quiet();
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+async function _readTextFile(path: string): Promise<string> {
+	try {
+		const file = Bun.file(path);
+		if (!(await file.exists())) {
+			throw new Error(`File not found: ${path}`);
+		}
+		return await file.text();
+	} catch (error) {
+		throw new Error(
+			`Failed to read file ${path}: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
+	}
+}
 
 const TOML_NAME_REGEX = /name\s*=\s*"([^"]+)"/;
 const TOML_VERSION_REGEX = /version\s*=\s*"([^"]+)"/;
@@ -23,9 +52,9 @@ async function _executeFileStats(
 	for await (const file of globber.scan({ cwd: context.directory })) {
 		const filePath = join(context.directory, file);
 		try {
-			const exists = await fileOrDirExists(filePath);
+			const exists = await _fileOrDirExists(filePath);
 			if (exists) {
-				const content = await readTextFile(filePath);
+				const content = await _readTextFile(filePath);
 				const lines = content.split("\n").length;
 				const extension = file.split(".").pop() || "";
 
@@ -118,7 +147,7 @@ async function _executePackageInfo(
 
 	const found: string[] = [];
 	for (const file of packageFiles) {
-		const exists = await fileOrDirExists(join(context.directory, file));
+		const exists = await _fileOrDirExists(join(context.directory, file));
 		if (exists) {
 			found.push(file);
 		}
@@ -128,7 +157,7 @@ async function _executePackageInfo(
 
 	for (const file of found) {
 		const path = join(context.directory, file);
-		const content = await readTextFile(path);
+		const content = await _readTextFile(path);
 		_parseManifestFile(file, path, content, info);
 	}
 
