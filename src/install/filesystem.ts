@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { $ } from "bun";
 
@@ -12,13 +12,23 @@ export async function ensureDirectory(path: string): Promise<void> {
 	}
 }
 
+export function ensureDirectorySync(path: string): void {
+	try {
+		mkdirSync(path, { recursive: true });
+	} catch (error) {
+		console.warn(
+			`Failed to create directory ${path}: ${(error as Error).message}`,
+		);
+	}
+}
+
 export async function createOpenCodeStructure(
 	opencodeDir: string,
 ): Promise<void> {
-	await ensureDirectory(`${opencodeDir}/.opencode/agents`);
-	await ensureDirectory(`${opencodeDir}/.opencode/plugins`);
-	await ensureDirectory(`${opencodeDir}/.opencode/commands`);
-	await ensureDirectory(`${opencodeDir}/.opencode/meta`);
+	await ensureDirectory(`${opencodeDir}/agents`);
+	await ensureDirectory(`${opencodeDir}/plugins`);
+	await ensureDirectory(`${opencodeDir}/commands`);
+	await ensureDirectory(`${opencodeDir}/meta`);
 }
 
 export function copyPlugins(
@@ -27,6 +37,7 @@ export function copyPlugins(
 	opencodeDir: string,
 ): void {
 	const targetDir = join(opencodeDir, "plugins");
+	ensureDirectorySync(targetDir);
 
 	presetTools.forEach((tool) => {
 		const sourcePath = join(installerDir, `plugins/${tool}.ts`);
@@ -47,6 +58,7 @@ export function copyCommands(
 	opencodeDir: string,
 ): void {
 	const targetDir = join(opencodeDir, "commands");
+	ensureDirectorySync(targetDir);
 
 	presetCommands.forEach((command) => {
 		const sourcePath = join(installerDir, `templates/commands/${command}.md`);
@@ -67,6 +79,7 @@ export function copyMetaTemplates(
 ): void {
 	const sourceDir = join(installerDir, "meta");
 	const targetDir = join(opencodeDir, "meta");
+	ensureDirectorySync(targetDir);
 
 	const metaFiles = [
 		"agent-template.md",
