@@ -10,7 +10,7 @@ const AVAILABLE_TOOLS = [
 ];
 
 const AVAILABLE_COMMANDS = [
-	"feature-implementation",
+	"add-feature",
 	"bug-fix",
 	"refactoring",
 	"api-endpoint",
@@ -64,7 +64,7 @@ export const PRESET_STOCK: Preset = {
 		"workflow-automation",
 	],
 	commands: [
-		"feature-implementation",
+		"add-feature",
 		"bug-fix",
 		"code-review",
 		"security-audit",
@@ -80,7 +80,7 @@ export const PRESET_MICRO: Preset = {
 	agents: ["orchestrate", "coder", "explorer", "researcher"],
 	tools: ["code-analysis", "project-intelligence", "workflow-automation"],
 	commands: [
-		"feature-implementation",
+		"add-feature",
 		"bug-fix",
 		"code-review",
 		"test-coverage",
@@ -94,7 +94,7 @@ export const PRESET_MINI: Preset = {
 	agents: ["orchestrate", "coder", "reviewer", "tester", "explorer"],
 	tools: ["code-analysis", "security-scanning", "project-intelligence"],
 	commands: [
-		"feature-implementation",
+		"add-feature",
 		"bug-fix",
 		"code-review",
 		"security-audit",
@@ -109,12 +109,7 @@ export const PRESET_NANO: Preset = {
 	description: "Lightweight starter with core functionality",
 	agents: ["orchestrate", "coder", "explorer"],
 	tools: ["code-analysis", "project-intelligence"],
-	commands: [
-		"feature-implementation",
-		"bug-fix",
-		"code-review",
-		"add-documentation",
-	],
+	commands: ["add-feature", "bug-fix", "code-review", "add-documentation"],
 };
 
 export const PRESET_PICO: Preset = {
@@ -122,7 +117,7 @@ export const PRESET_PICO: Preset = {
 	description: "Barebones for advanced users who build custom systems",
 	agents: ["orchestrate", "coder"],
 	tools: [],
-	commands: ["feature-implementation", "bug-fix"],
+	commands: ["add-feature", "bug-fix"],
 };
 
 export const PRESETS: Preset[] = [
