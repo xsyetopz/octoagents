@@ -29,6 +29,7 @@ export async function createOpenCodeStructure(
 	await ensureDirectory(`${opencodeDir}/plugins`);
 	await ensureDirectory(`${opencodeDir}/commands`);
 	await ensureDirectory(`${opencodeDir}/meta`);
+	await ensureDirectory(`${opencodeDir}/skills`);
 }
 
 export function copyPlugins(
@@ -40,14 +41,23 @@ export function copyPlugins(
 	ensureDirectorySync(targetDir);
 
 	presetTools.forEach((tool) => {
-		const sourcePath = join(installerDir, `plugins/${tool}.ts`);
+		const toolsPath = join(installerDir, `tools/${tool}.ts`);
+		const pluginsPath = join(installerDir, `plugins/${tool}.ts`);
+
+		let sourcePath = toolsPath;
+		try {
+			readFileSync(toolsPath, "utf-8");
+		} catch {
+			sourcePath = pluginsPath;
+		}
+
 		try {
 			const content = readFileSync(sourcePath, "utf-8");
 			const targetPath = join(targetDir, `${tool}.ts`);
 			writeFileSync(targetPath, content);
 			console.log(`Created: ${targetPath}`);
 		} catch (_error) {
-			console.warn(`Plugin ${tool} not found, skipping...`);
+			console.warn(`Tool ${tool} not found in tools/ or plugins/, skipping...`);
 		}
 	});
 }
@@ -93,4 +103,22 @@ export function copyMetaTemplates(
 		writeFileSync(targetPath, content);
 		console.log(`Created: ${targetPath}`);
 	});
+}
+
+export async function copySkills(
+	installerDir: string,
+	opencodeDir: string,
+): Promise<void> {
+	const sourceDir = join(installerDir, "skills");
+	const targetDir = join(opencodeDir, "skills");
+	ensureDirectorySync(targetDir);
+
+	try {
+		await $`cp -r ${sourceDir}/* ${targetDir}/`.quiet();
+		console.log(`Created: ${targetDir}/ (skills copied)`);
+	} catch (error) {
+		console.debug(
+			`Failed to copy skills: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
 }
