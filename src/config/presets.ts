@@ -1,13 +1,18 @@
 import type { Preset } from "../types/index.ts";
 
 const AVAILABLE_TOOLS = [
+	"check-deps",
 	"code-analysis",
-	"development-utilities",
-	"external-integration",
-	"project-intelligence",
-	"security-scanning",
+	"file-stats",
+	"git-status",
+	"github-create-issue",
+	"github-create-pr",
+	"github-list-issues",
+	"github-search-code",
+	"http-request",
+	"semgrep-scan",
+	"slack-notify",
 	"web-search",
-	"workflow-automation",
 ];
 
 const AVAILABLE_COMMANDS = [
