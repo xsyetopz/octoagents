@@ -1,5 +1,4 @@
 #!/usr/bin/env bun
-import { writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { AGENTS } from "./config/agents.ts";
 import { PRESETS } from "./config/presets.ts";
@@ -25,7 +24,11 @@ import { getResolvedModel } from "./install/models.ts";
 import { selectPreset } from "./install/presets.ts";
 import { generateAgentMarkdown } from "./install/template-render.ts";
 import { checkForUpdate } from "./install/update.ts";
-import { backupExistingInstall, getOpenCodePath } from "./utils/files.ts";
+import {
+	backupExistingInstall,
+	getOpenCodePath,
+	writeTextFile,
+} from "./utils/files.ts";
 import { getAvailableModels } from "./utils/models.ts";
 
 const INSTALLER_DIR = join(process.cwd());
@@ -91,8 +94,8 @@ async function _main(): Promise<void> {
 		}
 	}
 
-	const hasSynthetic = hasSyntheticApiKey();
-	const hasOpenCodeAuth = hasOpenCodeAuthJson();
+	const hasSynthetic = await hasSyntheticApiKey();
+	const hasOpenCodeAuth = await hasOpenCodeAuthJson();
 	console.log(
 		hasSynthetic
 			? "\n✓ Synthetic API key detected"
@@ -127,14 +130,14 @@ async function _main(): Promise<void> {
 	await createOpenCodeStructure(installRoot);
 
 	if (selectedPreset.commands.length > 0) {
-		copyCommands(selectedPreset.commands, INSTALLER_DIR, installRoot);
+		await copyCommands(selectedPreset.commands, INSTALLER_DIR, installRoot);
 	}
-	copyMetaTemplates(INSTALLER_DIR, installRoot);
+	await copyMetaTemplates(INSTALLER_DIR, installRoot);
 	await copySkills(INSTALLER_DIR, installRoot);
 
 	const config = generateOpenCodeConfig(selectedPreset.agents);
 	const configPath = getOpenCodePath(installRoot, "opencode.jsonc");
-	writeFileSync(configPath, config);
+	await writeTextFile(configPath, config);
 	console.log(`Created: ${configPath}`);
 
 	const availableModelsResult = await getAvailableModels();
@@ -160,15 +163,19 @@ async function _main(): Promise<void> {
 			availableModels,
 		);
 
-		const markdown = generateAgentMarkdown(agent, resolvedModel, INSTALLER_DIR);
+		const markdown = await generateAgentMarkdown(
+			agent,
+			resolvedModel,
+			INSTALLER_DIR,
+		);
 		const agentPath = getOpenCodePath(installRoot, `agents/${agent.name}.md`);
 
-		writeFileSync(agentPath, markdown);
+		await writeTextFile(agentPath, markdown);
 		console.log(`Created: ${agentPath}`);
 	}
 
 	if (selectedPreset.tools.length > 0) {
-		copyPlugins(selectedPreset.tools, INSTALLER_DIR, installRoot);
+		await copyPlugins(selectedPreset.tools, INSTALLER_DIR, installRoot);
 	}
 
 	console.log("\n✓ Installation complete!");
