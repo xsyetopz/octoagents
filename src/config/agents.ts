@@ -1,7 +1,7 @@
 import type { AgentConfig } from "../types/index.ts";
 
 export const ORCHESTRATOR: AgentConfig = {
-	name: "orchestrate",
+	name: "orchestrator",
 	description: "Primary orchestrator that delegates to specialist agents",
 	mode: "primary",
 	primaryModel: {
