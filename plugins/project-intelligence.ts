@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
 
@@ -69,40 +69,40 @@ function _processEntry(
 	}
 }
 
-function _executeProjectStructure(
+async function _executeProjectStructure(
 	_args: { maxDepth?: number },
 	context: { directory: string },
-): unknown {
+): Promise<unknown> {
 	const maxDepth = _args.maxDepth || 3;
 	const rootInfo = _scanDirectory(context.directory, maxDepth);
 
-	const packageFiles = [
-		"package.json",
-		"pyproject.toml",
-		"Cargo.toml",
-		"go.mod",
-		"pom.xml",
-		"composer.json",
-		"Gemfile",
-	];
-
-	const buildFiles = [
-		"Makefile",
-		"CMakeLists.txt",
-		"build.gradle",
-		"webpack.config.js",
-		"vite.config.ts",
-		"tsup.config.ts",
-	];
-
-	const configFiles = [
-		".gitignore",
-		".editorconfig",
-		"tsconfig.json",
-		"biome.json",
-		".eslintrc",
-		".prettierrc",
-	];
+	const fileCategories = {
+		package_managers: [
+			"package.json",
+			"pyproject.toml",
+			"Cargo.toml",
+			"go.mod",
+			"pom.xml",
+			"composer.json",
+			"Gemfile",
+		],
+		build_tools: [
+			"Makefile",
+			"CMakeLists.txt",
+			"build.gradle",
+			"webpack.config.js",
+			"vite.config.ts",
+			"tsup.config.ts",
+		],
+		config_files: [
+			".gitignore",
+			".editorconfig",
+			"tsconfig.json",
+			"biome.json",
+			".eslintrc",
+			".prettierrc",
+		],
+	};
 
 	const detectedFiles = {
 		package_managers: [] as string[],
@@ -110,30 +110,15 @@ function _executeProjectStructure(
 		config_files: [] as string[],
 	};
 
-	for (const file of packageFiles) {
-		try {
-			statSync(join(context.directory, file));
-			detectedFiles.package_managers.push(file);
-		} catch (_err) {
-			console.debug(`Package manifest not found: ${file}`);
-		}
-	}
-
-	for (const file of buildFiles) {
-		try {
-			statSync(join(context.directory, file));
-			detectedFiles.build_tools.push(file);
-		} catch (_err) {
-			console.debug(`Build file not found: ${file}`);
-		}
-	}
-
-	for (const file of configFiles) {
-		try {
-			statSync(join(context.directory, file));
-			detectedFiles.config_files.push(file);
-		} catch (_err) {
-			console.debug(`Config file not found: ${file}`);
+	for (const [category, files] of Object.entries(fileCategories)) {
+		for (const file of files) {
+			try {
+				if (await Bun.file(join(context.directory, file)).exists()) {
+					detectedFiles[category as keyof typeof detectedFiles].push(file);
+				}
+			} catch (_err) {
+				console.debug(`File not found: ${file}`);
+			}
 		}
 	}
 
@@ -158,7 +143,7 @@ async function _executeCodeSearch(
 	for await (const file of globber.scan({ cwd: context.directory })) {
 		const filePath = join(context.directory, file);
 		try {
-			const content = readFileSync(filePath, "utf-8");
+			const content = await Bun.file(filePath).text();
 			const lines = content.split("\n");
 
 			for (let i = 0; i < lines.length; i++) {
@@ -191,17 +176,16 @@ async function _executeCodeSearch(
 	};
 }
 
-function _executeTechStack(
+async function _executeTechStack(
 	_args: Record<string, unknown>,
 	context: { directory: string },
-): unknown {
+): Promise<unknown> {
 	const stack: Record<string, unknown> = {};
 
 	try {
-		const pkgContent = readFileSync(
+		const pkgContent = await Bun.file(
 			join(context.directory, "package.json"),
-			"utf-8",
-		);
+		).text();
 		const pkg = JSON.parse(pkgContent);
 		const allDeps = {
 			...pkg.dependencies,
@@ -230,30 +214,27 @@ function _executeTechStack(
 		stack.javascript = {
 			runtime: pkg.engines?.node ? `Node ${pkg.engines.node}` : "Node.js",
 			frameworks: detectedFrameworks,
-			package_manager: (() => {
-				try {
-					statSync(join(context.directory, "pnpm-lock.yaml"));
+			package_manager: (async () => {
+				if (
+					await Bun.file(join(context.directory, "pnpm-lock.yaml")).exists()
+				) {
 					return "pnpm";
-				} catch (_pnpmErr) {
-					try {
-						statSync(join(context.directory, "yarn.lock"));
-						return "yarn";
-					} catch (_yarnErr) {
-						try {
-							statSync(join(context.directory, "bun.lockb"));
-							return "bun";
-						} catch (_bunErr) {
-							return "npm";
-						}
-					}
 				}
+				if (await Bun.file(join(context.directory, "yarn.lock")).exists()) {
+					return "yarn";
+				}
+				if (await Bun.file(join(context.directory, "bun.lockb")).exists()) {
+					return "bun";
+				}
+				return "npm";
 			})(),
 		};
 	} catch (_pkgErr) {
 		console.debug("No package.json found");
 	}
+
 	try {
-		readFileSync(join(context.directory, "pyproject.toml"), "utf-8");
+		await Bun.file(join(context.directory, "pyproject.toml")).text();
 		stack.python = {
 			package_manager: "pip/poetry",
 		};
@@ -262,7 +243,7 @@ function _executeTechStack(
 	}
 
 	try {
-		readFileSync(join(context.directory, "Cargo.toml"), "utf-8");
+		await Bun.file(join(context.directory, "Cargo.toml")).text();
 		stack.rust = {
 			package_manager: "cargo",
 		};
@@ -271,7 +252,7 @@ function _executeTechStack(
 	}
 
 	try {
-		readFileSync(join(context.directory, "go.mod"), "utf-8");
+		await Bun.file(join(context.directory, "go.mod")).text();
 		stack.go = {
 			package_manager: "go modules",
 		};
@@ -285,10 +266,10 @@ function _executeTechStack(
 	};
 }
 
-function _executeDocumentation(
+async function _executeDocumentation(
 	_args: Record<string, unknown>,
 	context: { directory: string },
-): unknown {
+): Promise<unknown> {
 	const docFiles = [
 		"README.md",
 		"CONTRIBUTING.md",
@@ -303,11 +284,14 @@ function _executeDocumentation(
 	for (const file of docFiles) {
 		try {
 			const filePath = join(context.directory, file);
-			const stat = statSync(filePath);
-			const content = readFileSync(filePath, "utf-8");
+			const fileObj = Bun.file(filePath);
+			if (!(await fileObj.exists())) {
+				continue;
+			}
+			const content = await fileObj.text();
 			found.push({
 				file,
-				size: stat.size,
+				size: fileObj.size,
 				lines: content.split("\n").length,
 			});
 		} catch (_docErr) {
