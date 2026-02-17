@@ -1,10 +1,10 @@
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
 	SHARED_BASH_ALLOWLIST_COMMANDS,
 	SHARED_BASH_DENYLIST_COMMANDS,
 } from "../config/agent-permissions.ts";
 import type { AgentConfig } from "../types/index.ts";
+import { readTextFile } from "../utils/files.ts";
 
 const DEFAULT_BASH_INDENT = "    ";
 
@@ -20,13 +20,13 @@ function _formatBashRules(
 		.join("\n");
 }
 
-export function generateAgentMarkdown(
+export async function generateAgentMarkdown(
 	agent: AgentConfig,
 	resolvedModel: string,
 	installerDir: string,
-): string {
+): Promise<string> {
 	const templatePath = join(installerDir, `templates/agents/${agent.name}.md`);
-	const template = readFileSync(templatePath, "utf-8");
+	const template = await readTextFile(templatePath);
 	const bashAllowlist = _formatBashRules(
 		SHARED_BASH_ALLOWLIST_COMMANDS,
 		DEFAULT_BASH_INDENT,

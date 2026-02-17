@@ -1,6 +1,7 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { $ } from "bun";
+import { readTextFile, writeTextFile } from "../utils/files.ts";
 
 export async function ensureDirectory(path: string): Promise<void> {
 	try {
@@ -32,61 +33,60 @@ export async function createOpenCodeStructure(
 	await ensureDirectory(`${opencodeDir}/skills`);
 }
 
-export function copyPlugins(
+export async function copyPlugins(
 	presetTools: string[],
 	installerDir: string,
 	opencodeDir: string,
-): void {
+): Promise<void> {
 	const targetDir = join(opencodeDir, "plugins");
 	ensureDirectorySync(targetDir);
 
-	presetTools.forEach((tool) => {
+	for (const tool of presetTools) {
 		const toolsPath = join(installerDir, `tools/${tool}.ts`);
 		const pluginsPath = join(installerDir, `plugins/${tool}.ts`);
 
 		let sourcePath = toolsPath;
-		try {
-			readFileSync(toolsPath, "utf-8");
-		} catch {
+		const toolsFile = Bun.file(toolsPath);
+		if (!(await toolsFile.exists())) {
 			sourcePath = pluginsPath;
 		}
 
 		try {
-			const content = readFileSync(sourcePath, "utf-8");
+			const content = await readTextFile(sourcePath);
 			const targetPath = join(targetDir, `${tool}.ts`);
-			writeFileSync(targetPath, content);
+			await writeTextFile(targetPath, content);
 			console.log(`Created: ${targetPath}`);
 		} catch (_error) {
 			console.warn(`Tool ${tool} not found in tools/ or plugins/, skipping...`);
 		}
-	});
+	}
 }
 
-export function copyCommands(
+export async function copyCommands(
 	presetCommands: string[],
 	installerDir: string,
 	opencodeDir: string,
-): void {
+): Promise<void> {
 	const targetDir = join(opencodeDir, "commands");
 	ensureDirectorySync(targetDir);
 
-	presetCommands.forEach((command) => {
+	for (const command of presetCommands) {
 		const sourcePath = join(installerDir, `templates/commands/${command}.md`);
 		try {
-			const content = readFileSync(sourcePath, "utf-8");
+			const content = await readTextFile(sourcePath);
 			const targetPath = join(targetDir, `${command}.md`);
-			writeFileSync(targetPath, content);
+			await writeTextFile(targetPath, content);
 			console.log(`Created: ${targetPath}`);
 		} catch (_error) {
 			console.warn(`Command ${command} not found, skipping...`);
 		}
-	});
+	}
 }
 
-export function copyMetaTemplates(
+export async function copyMetaTemplates(
 	installerDir: string,
 	opencodeDir: string,
-): void {
+): Promise<void> {
 	const sourceDir = join(installerDir, "meta");
 	const targetDir = join(opencodeDir, "meta");
 	ensureDirectorySync(targetDir);
@@ -96,13 +96,17 @@ export function copyMetaTemplates(
 		"command-template.md",
 		"tool-template.ts",
 	];
-	metaFiles.forEach((file) => {
+	for (const file of metaFiles) {
 		const sourcePath = join(sourceDir, file);
-		const content = readFileSync(sourcePath, "utf-8");
-		const targetPath = join(targetDir, file);
-		writeFileSync(targetPath, content);
-		console.log(`Created: ${targetPath}`);
-	});
+		try {
+			const content = await readTextFile(sourcePath);
+			const targetPath = join(targetDir, file);
+			await writeTextFile(targetPath, content);
+			console.log(`Created: ${targetPath}`);
+		} catch (_error) {
+			console.warn(`Meta template ${file} not found, skipping...`);
+		}
+	}
 }
 
 export async function copySkills(
