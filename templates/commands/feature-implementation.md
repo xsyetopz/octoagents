@@ -5,48 +5,38 @@ agent: "coder"
 
 # Feature Implementation
 
-## Task Description
+## Task
 
 Implement the following feature:
 
 {{feature_description}}
 
-## Current State
+## Process
 
-Let me first understand the current codebase structure:
+1. **Explore the codebase** — Understand existing structure and patterns.
+2. **Identify affected files** — Determine what needs to change.
+3. **Implement the feature** — Write the minimum code required.
+4. **Verify** — Build and run existing tests to confirm no regressions.
 
-*! find {{worktree}}/src -type f -name "*.ts" -o -name "*.js" -o -name "*.py" | head -20
+## Constraints
 
-## Implementation Plan
-
-1. **Analyze requirements** - Understand what needs to be built
-2. **Explore existing patterns** - Check similar implementations
-3. **Create/new files** - Set up necessary files and structure
-4. **Implement core logic** - Write the feature code
-5. **Add tests** - Verify functionality
-6. **Update documentation** - Document the new feature
+- Implement ONLY what is described in the feature description above.
+- Do NOT add tests unless the feature description explicitly requests them.
+- Do NOT add documentation unless the feature description explicitly requests it.
+- Do NOT refactor, rename, or reorganize existing code beyond what the feature requires.
+- Do NOT add example files, demo files, or configuration files not required by the feature.
+- Match existing code style and conventions exactly.
+- Make the smallest set of changes that delivers the feature.
 
 ## Context
 
 Project location: {{worktree}}
 Current framework: {{framework_info}}
 
-## Output Format
+## Output
 
-Provide:
+Report what was done:
 
-1. Files created/modified with locations
-2. Code snippets showing key implementations
-3. Test cases demonstrating functionality
-4. Instructions for verifying the implementation
-5. Any required configuration changes
-
-## Quality Checklist
-
-- [ ] Code follows existing patterns
-- [ ] Error handling implemented
-- [ ] Tests cover main cases
-- [ ] Documentation updated
-- [ ] No breaking changes to existing code
-
-Begin implementation by exploring the codebase structure, then creating the necessary files.
+1. Files created or modified (with paths)
+2. Brief description of changes made
+3. Build/test results confirming no regressions
