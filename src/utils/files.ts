@@ -41,18 +41,24 @@ export async function writeTextFile(
 	}
 }
 
-export async function backupExistingInstall(
-	installRoot: string,
-): Promise<void> {
+export async function backupExistingConfig(configPath: string): Promise<void> {
+	const file = Bun.file(configPath);
+	if (!(await file.exists())) {
+		return;
+	}
+
 	const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-	const backupDir = `${installRoot}.backup-${timestamp}`;
+	const backupPath = `${configPath}.backup-${timestamp}`;
 
 	try {
-		await $`test -d ${installRoot}`.quiet();
-		await $`mv ${installRoot} ${backupDir}`;
-		console.log(`Backed up existing install to ${backupDir}`);
-	} catch {
-		console.log("No existing install directory found, skipping backup...");
+		await Bun.write(backupPath, await file.text());
+		console.log(`Backed up existing config to ${backupPath}`);
+	} catch (error) {
+		throw new Error(
+			`Failed to back up config ${configPath}: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+		);
 	}
 }
 

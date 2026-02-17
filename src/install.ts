@@ -25,7 +25,7 @@ import { selectPreset } from "./install/presets.ts";
 import { generateAgentMarkdown } from "./install/template-render.ts";
 import { checkForUpdate } from "./install/update.ts";
 import {
-	backupExistingInstall,
+	backupExistingConfig,
 	getOpenCodePath,
 	writeTextFile,
 } from "./utils/files.ts";
@@ -126,7 +126,6 @@ async function _main(): Promise<void> {
 	const installRoot = selectInstallRoot(defaultGlobalRoot);
 	console.log(`\nInstall location: ${installRoot}`);
 
-	await backupExistingInstall(installRoot);
 	await createOpenCodeStructure(installRoot);
 
 	if (selectedPreset.commands.length > 0) {
@@ -137,6 +136,7 @@ async function _main(): Promise<void> {
 
 	const config = generateOpenCodeConfig(selectedPreset.agents);
 	const configPath = getOpenCodePath(installRoot, "opencode.jsonc");
+	await backupExistingConfig(configPath);
 	await writeTextFile(configPath, config);
 	console.log(`Created: ${configPath}`);
 
