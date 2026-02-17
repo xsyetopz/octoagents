@@ -26,7 +26,6 @@ const BUN_COMMANDS = [
 	"bun run test",
 ] as const;
 
-// Deno
 const DENO_COMMANDS = [
 	"deno install",
 	"deno task build",
@@ -35,7 +34,6 @@ const DENO_COMMANDS = [
 	"deno lint",
 ] as const;
 
-// Python
 const PYTHON_COMMANDS = [
 	"python -m build",
 	"pip install",
