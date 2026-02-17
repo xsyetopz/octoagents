@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
 
@@ -120,7 +119,7 @@ async function _checkHardcodedSecrets(
 
 		try {
 			const filePath = join(directory, file);
-			const content = readFileSync(filePath, "utf-8");
+			const content = await Bun.file(filePath).text();
 			const lines = content.split("\n");
 
 			for (let i = 0; i < lines.length; i++) {
@@ -164,8 +163,10 @@ async function _executeDependencyCheck(
 	}> = [];
 
 	try {
-		readFileSync(join(context.directory, "package.json"), "utf-8");
-		await _checkNpmAudit(findings, context.directory);
+		const pkgFile = Bun.file(join(context.directory, "package.json"));
+		if (await pkgFile.exists()) {
+			await _checkNpmAudit(findings, context.directory);
+		}
 	} catch (_pkgError) {
 		console.debug("No package.json found for dependency check");
 	}
