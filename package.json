@@ -1,21 +1,22 @@
 {
   "name": "octoagents",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "OpenCode Agentic Framework - Specialized agents, tools, and commands",
   "type": "module",
   "scripts": {
+    "install:agents": "bun run build && bun run install.js",
     "biome:check": "biome check . --write --unsafe --max-diagnostics 16384",
     "biome:format": "biome format . --write --max-diagnostics 16384",
     "biome:lint": "biome lint . --write --unsafe --max-diagnostics 16384",
-    "build": "bun build src/install.ts --outdir . --target bun --outfile install.js"
+    "build": "bun build src/install.ts --outdir . --target bun --format cjs --minify"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "1.2.4",
+    "@opencode-ai/plugin": "1.2.6",
     "zod": "4.3.6",
-    "glob": "^11.0.0"
+    "glob": "^13.0.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.1",
+    "@biomejs/biome": "^2.4.2",
     "@types/bun": "^1.3.9",
     "@types/node": "^25.2.3",
     "typescript": "^5.9.3"
