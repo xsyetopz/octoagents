@@ -103,17 +103,6 @@ async function _main(): Promise<void> {
 			: "✗ No OpenCode auth.json detected",
 	);
 
-	const availableModelsResult = await getAvailableModels();
-	const availableModels = availableModelsResult.map(
-		(m) => `${m.provider}/${m.model}`,
-	);
-
-	if (availableModels.length > 0) {
-		console.log(`Found ${availableModels.length} available models`);
-	} else {
-		console.log("No models detected, will use default assignments");
-	}
-
 	const selectedPresetName = selectPreset(PRESETS, PRESET_ARG);
 	const selectedPreset = PRESETS.find((p) => p.name === selectedPresetName);
 
@@ -130,6 +119,27 @@ async function _main(): Promise<void> {
 
 	await backupExistingInstall(installRoot);
 	await createOpenCodeStructure(installRoot);
+
+	if (selectedPreset.commands.length > 0) {
+		copyCommands(selectedPreset.commands, INSTALLER_DIR, installRoot);
+	}
+	copyMetaTemplates(INSTALLER_DIR, installRoot);
+
+	const config = generateOpenCodeConfig(selectedPreset.agents);
+	const configPath = getOpenCodePath(installRoot, "opencode.jsonc");
+	writeFileSync(configPath, config);
+	console.log(`Created: ${configPath}`);
+
+	const availableModelsResult = await getAvailableModels();
+	const availableModels = availableModelsResult.map(
+		(m) => `${m.provider}/${m.model}`,
+	);
+
+	if (availableModels.length > 0) {
+		console.log(`Found ${availableModels.length} available models`);
+	} else {
+		console.log("No models detected, will use default assignments");
+	}
 
 	const agentConfigs = AGENTS.filter((a) =>
 		selectedPreset.agents.includes(a.name),
@@ -153,16 +163,6 @@ async function _main(): Promise<void> {
 	if (selectedPreset.tools.length > 0) {
 		copyPlugins(selectedPreset.tools, INSTALLER_DIR, installRoot);
 	}
-	if (selectedPreset.commands.length > 0) {
-		copyCommands(selectedPreset.commands, INSTALLER_DIR, installRoot);
-	}
-
-	copyMetaTemplates(INSTALLER_DIR, installRoot);
-
-	const config = generateOpenCodeConfig(selectedPreset.agents);
-	const configPath = getOpenCodePath(installRoot, "opencode.jsonc");
-	writeFileSync(configPath, config);
-	console.log(`Created: ${configPath}`);
 
 	console.log("\n✓ Installation complete!");
 	console.log(`\nPreset: ${selectedPresetName}`);
