@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { AGENTS } from "./config/agents.ts";
 import { PRESETS } from "./config/presets.ts";
 import { generateOpenCodeConfig } from "./install/config.ts";
@@ -9,6 +9,7 @@ import {
 	checkOpenCodeInstalled,
 	checkPlatform,
 	getHomeDir,
+	hasOpenCodeAuthJson,
 	hasSyntheticApiKey,
 	installBun,
 	installOpenCode,
@@ -32,15 +33,50 @@ const PRESET_ARG = process.argv.find((arg) =>
 	PRESETS.some((p) => p.name === arg),
 );
 
-async function main(): Promise<void> {
-	console.log("OctoAgents Framework - OpenCode Agentic Framework Installer\n");
+function selectInstallRoot(defaultGlobalRoot: string): string {
+	console.log("\nSelect install location:");
+	console.log("  1) Global (~/.config/opencode)");
+	console.log("  2) Project (./.opencode)");
+	console.log("  3) Custom path");
 
-	await checkPlatform();
+	const input = prompt("Enter location number (1-3):");
+	const index = Number.parseInt(input || "1", 10) - 1;
+
+	if (Number.isNaN(index) || index < 0 || index > 2) {
+		console.log("Invalid selection - using global install location...");
+		return defaultGlobalRoot;
+	}
+
+	switch (index) {
+		case 0:
+			return defaultGlobalRoot;
+		case 1:
+			return join(process.cwd(), ".opencode");
+		case 2:
+			break;
+		default:
+			return defaultGlobalRoot;
+	}
+
+	const customInput = prompt("Enter custom install path:")?.trim();
+	if (!customInput) {
+		console.log("Invalid custom path - using global install location...");
+		return defaultGlobalRoot;
+	}
+
+	return isAbsolute(customInput)
+		? customInput
+		: join(process.cwd(), customInput);
+}
+
+async function _main(): Promise<void> {
+	console.log("OctoAgents Framework Installer\n");
+
+	checkPlatform();
 
 	if (!(await checkBunAvailable())) {
 		await installBun();
 	}
-
 	if (!(await checkOpenCodeInstalled())) {
 		await installOpenCode();
 	}
@@ -55,10 +91,16 @@ async function main(): Promise<void> {
 	}
 
 	const hasSynthetic = hasSyntheticApiKey();
+	const hasOpenCodeAuth = hasOpenCodeAuthJson();
 	console.log(
 		hasSynthetic
 			? "\n✓ Synthetic API key detected"
-			: "\n✗ No Synthetic API key - using OpenCode Zen models",
+			: "\n✗ No Synthetic API key - using OpenCode Zen models...",
+	);
+	console.log(
+		hasOpenCodeAuth
+			? "✓ OpenCode auth.json detected"
+			: "✗ No OpenCode auth.json detected",
 	);
 
 	const availableModelsResult = await getAvailableModels();
@@ -82,9 +124,12 @@ async function main(): Promise<void> {
 
 	console.log(`\nInstalling '${selectedPresetName}' preset...`);
 
-	await backupExistingInstall();
-	const opencodeDir = join(getHomeDir(), ".config/opencode");
-	await createOpenCodeStructure(opencodeDir);
+	const defaultGlobalRoot = join(getHomeDir(), ".config/opencode");
+	const installRoot = selectInstallRoot(defaultGlobalRoot);
+	console.log(`\nInstall location: ${installRoot}`);
+
+	await backupExistingInstall(installRoot);
+	await createOpenCodeStructure(installRoot);
 
 	const agentConfigs = AGENTS.filter((a) =>
 		selectedPreset.agents.includes(a.name),
@@ -99,24 +144,23 @@ async function main(): Promise<void> {
 		);
 
 		const markdown = generateAgentMarkdown(agent, resolvedModel, INSTALLER_DIR);
-		const agentPath = getOpenCodePath(`agents/${agent.name}.md`);
+		const agentPath = getOpenCodePath(installRoot, `agents/${agent.name}.md`);
 
 		writeFileSync(agentPath, markdown);
 		console.log(`Created: ${agentPath}`);
 	}
 
 	if (selectedPreset.tools.length > 0) {
-		copyPlugins(selectedPreset.tools, INSTALLER_DIR, opencodeDir);
+		copyPlugins(selectedPreset.tools, INSTALLER_DIR, installRoot);
 	}
-
 	if (selectedPreset.commands.length > 0) {
-		copyCommands(selectedPreset.commands, INSTALLER_DIR, opencodeDir);
+		copyCommands(selectedPreset.commands, INSTALLER_DIR, installRoot);
 	}
 
-	copyMetaTemplates(INSTALLER_DIR, opencodeDir);
+	copyMetaTemplates(INSTALLER_DIR, installRoot);
 
 	const config = generateOpenCodeConfig(selectedPreset.agents);
-	const configPath = getOpenCodePath("opencode.json");
+	const configPath = getOpenCodePath(installRoot, "opencode.json");
 	writeFileSync(configPath, config);
 	console.log(`Created: ${configPath}`);
 
@@ -134,7 +178,7 @@ async function main(): Promise<void> {
 	console.log("To change preset, run: bun install [preset-name]");
 }
 
-main().catch((error) => {
+_main().catch((error) => {
 	console.error("Installation failed:", error);
 	process.exit(1);
 });
