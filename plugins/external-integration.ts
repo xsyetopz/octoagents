@@ -320,7 +320,8 @@ function _createJiraApiTool() {
 	};
 }
 
-export function externalIntegration(_ctx: Record<string, unknown>) {
+// biome-ignore lint/style/noDefaultExport: OpenCode plugin loader expects default export
+export default function externalIntegration(_ctx: Record<string, unknown>) {
 	return {
 		tool: {
 			"external.http-request": _createHttpRequestTool(),

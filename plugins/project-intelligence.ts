@@ -404,7 +404,8 @@ function _createDocumentationTool() {
 	};
 }
 
-export function projectIntelligence(_ctx: Record<string, unknown>) {
+// biome-ignore lint/style/noDefaultExport: OpenCode plugin loader expects default export
+export default function projectIntelligence(_ctx: Record<string, unknown>) {
 	return {
 		tool: {
 			"project.structure": _createProjectStructureTool(),

@@ -296,7 +296,8 @@ function _createRunScriptTool() {
 	};
 }
 
-export function developmentUtilities(_ctx: Record<string, unknown>) {
+// biome-ignore lint/style/noDefaultExport: OpenCode plugin loader expects default export
+export default function developmentUtilities(_ctx: Record<string, unknown>) {
 	return {
 		tool: {
 			"dev.file-stats": _createFileStatsTool(),

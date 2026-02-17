@@ -267,7 +267,8 @@ function _createLintingTool() {
 	};
 }
 
-export function codeAnalysis(_ctx: Record<string, unknown>) {
+// biome-ignore lint/style/noDefaultExport: OpenCode plugin loader expects default export
+export default function codeAnalysisPlugin(_ctx: Record<string, unknown>) {
 	return {
 		tool: {
 			"metrics.complexity": _createComplexityTool(),

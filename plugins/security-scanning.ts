@@ -384,7 +384,8 @@ function _createPermissionCheckTool() {
 	};
 }
 
-export function securityScanning(_ctx: Record<string, unknown>) {
+// biome-ignore lint/style/noDefaultExport: OpenCode plugin loader expects default export
+export default function securityScanning(_ctx: Record<string, unknown>) {
 	return {
 		tool: {
 			"security.semgrep-scan": _createSemgrepScanTool(),

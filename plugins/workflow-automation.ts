@@ -376,7 +376,8 @@ function _createCiStatusTool() {
 	};
 }
 
-export function workflowAutomation(_ctx: Record<string, unknown>) {
+// biome-ignore lint/style/noDefaultExport: OpenCode plugin loader expects default export
+export default function workflowAutomation(_ctx: Record<string, unknown>) {
 	return {
 		tool: {
 			"workflow.git-commit": _createGitCommitTool(),
