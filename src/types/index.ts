@@ -53,6 +53,5 @@ export interface OpenCodeConfig {
 	model?: string;
 	defaultAgent?: string;
 	permission?: PermissionRule;
-	subagents?: Record<string, boolean>;
 	agent?: Record<string, OpenCodeAgentConfig>;
 }
