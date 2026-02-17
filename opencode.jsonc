@@ -1,0 +1,38 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"mcp": {
+		"context7": {
+			"type": "remote",
+			"url": "https://mcp.context7.com/mcp",
+			"headers": {
+				"CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+			},
+			"enabled": true
+		},
+		"octocode": {
+			"type": "local",
+			"command": [
+				"bunx",
+				"--bun",
+				"octocode-mcp@latest"
+			],
+			"environment": {
+				"GITHUB_TOKEN": "${GITHUB_TOKEN}"
+			},
+			"enabled": true
+		},
+		"peekaboo": {
+			"type": "local",
+			"command": [
+				"bunx",
+				"--bun",
+				"-y",
+				"@steipete/peekaboo-mcp"
+			],
+			"environment": {
+				"PEEKABOO_AI_PROVIDERS": "${PEEKABOO_AI_PROVIDERS}"
+			},
+			"enabled": true
+		}
+	}
+}

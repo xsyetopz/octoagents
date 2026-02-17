@@ -1,0 +1,140 @@
+#!/usr/bin/env bun
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { AGENTS } from "./config/agents.ts";
+import { PRESETS } from "./config/presets.ts";
+import { generateOpenCodeConfig } from "./install/config.ts";
+import {
+	checkBunAvailable,
+	checkOpenCodeInstalled,
+	checkPlatform,
+	getHomeDir,
+	hasSyntheticApiKey,
+	installBun,
+	installOpenCode,
+} from "./install/env.ts";
+import {
+	copyCommands,
+	copyMetaTemplates,
+	copyPlugins,
+	createOpenCodeStructure,
+} from "./install/filesystem.ts";
+import { getResolvedModel } from "./install/models.ts";
+import { selectPreset } from "./install/presets.ts";
+import { generateAgentMarkdown } from "./install/template-render.ts";
+import { checkForUpdate } from "./install/update.ts";
+import { backupExistingInstall, getOpenCodePath } from "./utils/files.ts";
+import { getAvailableModels } from "./utils/models.ts";
+
+const INSTALLER_DIR = join(process.cwd());
+const UPDATE_FLAG = process.argv.includes("--update");
+const PRESET_ARG = process.argv.find((arg) =>
+	PRESETS.some((p) => p.name === arg),
+);
+
+async function main(): Promise<void> {
+	console.log("OctoAgents Framework - OpenCode Agentic Framework Installer\n");
+
+	await checkPlatform();
+
+	if (!(await checkBunAvailable())) {
+		await installBun();
+	}
+
+	if (!(await checkOpenCodeInstalled())) {
+		await installOpenCode();
+	}
+
+	if (UPDATE_FLAG) {
+		console.log("Checking for updates...");
+		const latestVersion = await checkForUpdate();
+		if (latestVersion) {
+			console.log(`Latest version: ${latestVersion}`);
+			console.log("Current version: 1.0.0");
+		}
+	}
+
+	const hasSynthetic = hasSyntheticApiKey();
+	console.log(
+		hasSynthetic
+			? "\n✓ Synthetic API key detected"
+			: "\n✗ No Synthetic API key - using OpenCode Zen models",
+	);
+
+	const availableModelsResult = await getAvailableModels();
+	const availableModels = availableModelsResult.map(
+		(m) => `${m.provider}/${m.model}`,
+	);
+
+	if (availableModels.length > 0) {
+		console.log(`Found ${availableModels.length} available models`);
+	} else {
+		console.log("No models detected, will use default assignments");
+	}
+
+	const selectedPresetName = selectPreset(PRESETS, PRESET_ARG);
+	const selectedPreset = PRESETS.find((p) => p.name === selectedPresetName);
+
+	if (!selectedPreset) {
+		console.error("Invalid preset selection");
+		process.exit(1);
+	}
+
+	console.log(`\nInstalling '${selectedPresetName}' preset...`);
+
+	await backupExistingInstall();
+	const opencodeDir = join(getHomeDir(), ".config/opencode");
+	await createOpenCodeStructure(opencodeDir);
+
+	const agentConfigs = AGENTS.filter((a) =>
+		selectedPreset.agents.includes(a.name),
+	);
+	for (const agent of agentConfigs) {
+		const resolvedModel = getResolvedModel(
+			agent.primaryModel.provider,
+			agent.primaryModel.model,
+			agent.fallbackModel.provider,
+			agent.fallbackModel.model,
+			availableModels,
+		);
+
+		const markdown = generateAgentMarkdown(agent, resolvedModel, INSTALLER_DIR);
+		const agentPath = getOpenCodePath(`agents/${agent.name}.md`);
+
+		writeFileSync(agentPath, markdown);
+		console.log(`Created: ${agentPath}`);
+	}
+
+	if (selectedPreset.tools.length > 0) {
+		copyPlugins(selectedPreset.tools, INSTALLER_DIR, opencodeDir);
+	}
+
+	if (selectedPreset.commands.length > 0) {
+		copyCommands(selectedPreset.commands, INSTALLER_DIR, opencodeDir);
+	}
+
+	copyMetaTemplates(INSTALLER_DIR, opencodeDir);
+
+	const config = generateOpenCodeConfig(selectedPreset.agents);
+	const configPath = getOpenCodePath("opencode.json");
+	writeFileSync(configPath, config);
+	console.log(`Created: ${configPath}`);
+
+	console.log("\n✓ Installation complete!");
+	console.log(`\nPreset: ${selectedPresetName}`);
+	console.log(`Agents: ${agentConfigs.map((a) => a.name).join(", ")}`);
+	console.log(`Tools: ${selectedPreset.tools.length}`);
+	console.log(`Commands: ${selectedPreset.commands.length}`);
+	console.log("\nNext steps:");
+	console.log("  1. Restart OpenCode to load the new agents");
+	console.log("  2. Use 'opencode agents list' to verify installation");
+	console.log("  3. Select 'orchestrate' agent to use the framework");
+
+	console.log("\nTo update the framework, run: bun install --update");
+	console.log("To change preset, run: bun install [preset-name]");
+}
+
+main().catch((error) => {
+	console.error("Installation failed:", error);
+	process.exit(1);
+});
