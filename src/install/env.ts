@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
 import { $ } from "bun";
+import { readTextFile } from "../utils/files.ts";
 
 export function getHomeDir(): string {
 	return (
@@ -62,7 +62,7 @@ export function checkPlatform(): void {
 	}
 }
 
-export function hasSyntheticApiKey(): boolean {
+export async function hasSyntheticApiKey(): Promise<boolean> {
 	const envKey = process.env["SYNTHETIC_API_KEY"];
 	if (envKey) {
 		return true;
@@ -70,34 +70,32 @@ export function hasSyntheticApiKey(): boolean {
 
 	const authPath = `${getHomeDir()}/.local/share/opencode/auth.json`;
 	try {
-		const authContents = readFileSync(authPath, "utf-8").trim();
-		if (authContents) {
-			const authJson = JSON.parse(authContents) as {
-				synthetic?: { key?: string };
-			};
-			if (authJson.synthetic?.key?.trim()) {
-				return true;
-			}
+		const authContents = (await readTextFile(authPath)).trim();
+		const authJson = JSON.parse(authContents) as {
+			synthetic?: { key?: string };
+		};
+		if (authJson.synthetic?.key?.trim()) {
+			return true;
 		}
 	} catch (error) {
-		console.warn(
-			"No valid auth.json found for synthetic API key detection:",
-			error,
+		console.debug(
+			`No valid auth.json for synthetic API key: ${error instanceof Error ? error.message : String(error)}`,
 		);
 	}
 
 	const secretsPath = `${getHomeDir()}/.secrets/synthetic-api-key`;
 	try {
-		return readFileSync(secretsPath, "utf-8").trim().length > 0;
+		const content = (await readTextFile(secretsPath)).trim();
+		return content.length > 0;
 	} catch {
 		return false;
 	}
 }
 
-export function hasOpenCodeAuthJson(): boolean {
+export async function hasOpenCodeAuthJson(): Promise<boolean> {
 	const authPath = `${getHomeDir()}/.local/share/opencode/auth.json`;
 	try {
-		const contents = readFileSync(authPath, "utf-8").trim();
+		const contents = (await readTextFile(authPath)).trim();
 		if (!contents) {
 			return false;
 		}
