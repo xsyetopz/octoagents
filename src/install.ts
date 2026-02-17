@@ -160,7 +160,7 @@ async function _main(): Promise<void> {
 	copyMetaTemplates(INSTALLER_DIR, installRoot);
 
 	const config = generateOpenCodeConfig(selectedPreset.agents);
-	const configPath = getOpenCodePath(installRoot, "opencode.json");
+	const configPath = getOpenCodePath(installRoot, "opencode.jsonc");
 	writeFileSync(configPath, config);
 	console.log(`Created: ${configPath}`);
 
