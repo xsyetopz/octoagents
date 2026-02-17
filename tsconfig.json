@@ -43,7 +43,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "study",
+    "docs",
     ".opencode"
   ],
   "include": [
