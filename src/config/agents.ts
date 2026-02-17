@@ -14,7 +14,7 @@ export const ORCHESTRATOR: AgentConfig = {
 	},
 	temperature: 0.3,
 	steps: 10,
-	color: "primary",
+	color: "#0d6efd",
 	subagents: [
 		"coder",
 		"reviewer",
@@ -42,7 +42,7 @@ export const CODER: AgentConfig = {
 	},
 	temperature: 0.2,
 	steps: 8,
-	color: "success",
+	color: "#198754",
 };
 
 export const REVIEWER: AgentConfig = {
@@ -60,7 +60,7 @@ export const REVIEWER: AgentConfig = {
 	},
 	temperature: 0.1,
 	steps: 6,
-	color: "warning",
+	color: "#ffc107",
 };
 
 export const TESTER: AgentConfig = {
@@ -77,7 +77,7 @@ export const TESTER: AgentConfig = {
 	},
 	temperature: 0.2,
 	steps: 6,
-	color: "info",
+	color: "#0dcaf0",
 };
 
 export const EXPLORER: AgentConfig = {
@@ -94,7 +94,7 @@ export const EXPLORER: AgentConfig = {
 	},
 	temperature: 0.3,
 	steps: 5,
-	color: "success",
+	color: "#198754",
 };
 
 export const RESEARCHER: AgentConfig = {
@@ -111,7 +111,7 @@ export const RESEARCHER: AgentConfig = {
 	},
 	temperature: 0.4,
 	steps: 4,
-	color: "success",
+	color: "#198754",
 };
 
 export const IMPLEMENTER: AgentConfig = {
@@ -128,7 +128,7 @@ export const IMPLEMENTER: AgentConfig = {
 	},
 	temperature: 0.2,
 	steps: 6,
-	color: "success",
+	color: "#198754",
 };
 
 export const PLANNER: AgentConfig = {
@@ -145,7 +145,7 @@ export const PLANNER: AgentConfig = {
 	},
 	temperature: 0.5,
 	steps: 8,
-	color: "primary",
+	color: "#0d6efd",
 };
 
 export const DOCUMENTER: AgentConfig = {
@@ -162,7 +162,7 @@ export const DOCUMENTER: AgentConfig = {
 	},
 	temperature: 0.4,
 	steps: 5,
-	color: "info",
+	color: "#0dcaf0",
 };
 
 export const AUDITOR: AgentConfig = {
@@ -179,7 +179,7 @@ export const AUDITOR: AgentConfig = {
 	},
 	temperature: 0.1,
 	steps: 6,
-	color: "danger",
+	color: "#dc3545",
 };
 
 export const AGENTS: AgentConfig[] = [
