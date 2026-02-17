@@ -18,6 +18,7 @@ import {
 	copyCommands,
 	copyMetaTemplates,
 	copyPlugins,
+	copySkills,
 	createOpenCodeStructure,
 } from "./install/filesystem.ts";
 import { getResolvedModel } from "./install/models.ts";
@@ -129,6 +130,7 @@ async function _main(): Promise<void> {
 		copyCommands(selectedPreset.commands, INSTALLER_DIR, installRoot);
 	}
 	copyMetaTemplates(INSTALLER_DIR, installRoot);
+	await copySkills(INSTALLER_DIR, installRoot);
 
 	const config = generateOpenCodeConfig(selectedPreset.agents);
 	const configPath = getOpenCodePath(installRoot, "opencode.jsonc");
