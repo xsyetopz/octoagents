@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.1/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.2/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -87,7 +87,12 @@
 				"useForOf": "info",
 				"useFragmentSyntax": "warn",
 				"useLiteralEnumMembers": "warn",
-				"useNamingConvention": "warn",
+				// "useNamingConvention": {
+				// 	"level": "warn",
+				// 	"options": {
+				// 		"strictCase": false
+				// 	}
+				// },
 				"useNodeAssertStrict": "error",
 				"useShorthandAssign": "info",
 				"useThrowNewError": "error",
@@ -117,7 +122,10 @@
 		}
 	},
 	"javascript": {
-		"globals": ["Bun", "$"],
+		"globals": [
+			"Bun",
+			"$"
+		],
 		"formatter": {
 			"quoteStyle": "double"
 		}
