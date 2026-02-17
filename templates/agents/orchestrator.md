@@ -4,7 +4,7 @@ mode: {{mode}}
 model: {{model}}
 temperature: {{temperature}}
 steps: {{steps}}
-color: {{color}}
+color: "{{color}}"
 {{#subagents}}subagents:
 {{#each subagents}}
   {{this}}: true

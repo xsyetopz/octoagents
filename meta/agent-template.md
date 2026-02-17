@@ -4,7 +4,7 @@ mode: "primary" | "subagent" | "all"
 model: "provider/model"
 temperature: 0.3
 steps: 8
-color: "#0d6efd" | "#198754" | "#ffc107" | "#dc3545" | "#0dcaf0"
+color: "#0d6efd | #198754 | #ffc107 | #dc3545 | #0dcaf0"
 permission:
   read:
     "*": "allow" | "ask" | "deny"
