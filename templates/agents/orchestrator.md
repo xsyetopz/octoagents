@@ -36,9 +36,9 @@ permission:
     "git log": "allow"
     "*": "ask"
 ---
-# Orchestrate Agent
+# Orchestrator Agent
 
-You are the Orchestrate agent.
+You are the Orchestrator agent.
 
 ## Your Role
 
