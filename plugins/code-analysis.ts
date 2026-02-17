@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import { tool } from "@opencode-ai/plugin";
-import { glob } from "glob";
 
 async function _checkSemgrep(): Promise<void> {
 	try {
@@ -65,11 +64,20 @@ function _getComplexityAssessment(complexity: number): {
 	};
 }
 
+async function _globFiles(pattern: string, cwd: string): Promise<string[]> {
+	const globber = new Bun.Glob(pattern);
+	const files: string[] = [];
+	for await (const file of globber.scan({ cwd })) {
+		files.push(file);
+	}
+	return files;
+}
+
 async function _executeMetricsComplexity(
 	args: { target: string; threshold?: number },
 	context: { directory: string },
 ): Promise<unknown> {
-	const files = await glob(args.target, { cwd: context.directory });
+	const files = await _globFiles(args.target, context.directory);
 	const results: unknown[] = [];
 	const threshold = args.threshold ?? 10;
 
@@ -105,7 +113,7 @@ async function _executeMetricsDependencies(
 	args: { target: string },
 	context: { directory: string },
 ): Promise<unknown> {
-	const files = await glob(args.target, { cwd: context.directory });
+	const files = await _globFiles(args.target, context.directory);
 	const dependencies = new Map<string, Set<string>>();
 
 	for (const file of files) {
