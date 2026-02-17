@@ -18,6 +18,7 @@ import {
 	copyMetaTemplates,
 	copyPlugins,
 	copySkills,
+	copyTools,
 	createOpenCodeStructure,
 } from "./install/filesystem.ts";
 import { getResolvedModel } from "./install/models.ts";
@@ -133,6 +134,9 @@ async function _main(): Promise<void> {
 	}
 	await copyMetaTemplates(INSTALLER_DIR, installRoot);
 	await copySkills(INSTALLER_DIR, installRoot);
+	if (selectedPreset.tools.length > 0) {
+		await copyTools(selectedPreset.tools, INSTALLER_DIR, installRoot);
+	}
 
 	const config = generateOpenCodeConfig(selectedPreset.agents);
 	const configPath = getOpenCodePath(installRoot, "opencode.jsonc");
@@ -174,14 +178,15 @@ async function _main(): Promise<void> {
 		console.log(`Created: ${agentPath}`);
 	}
 
-	if (selectedPreset.tools.length > 0) {
-		await copyPlugins(selectedPreset.tools, INSTALLER_DIR, installRoot);
+	if (selectedPreset.plugins.length > 0) {
+		await copyPlugins(selectedPreset.plugins, INSTALLER_DIR, installRoot);
 	}
 
 	console.log("\n✓ Installation complete!");
 	console.log(`\nPreset: ${selectedPresetName}`);
 	console.log(`Agents: ${agentConfigs.map((a) => a.name).join(", ")}`);
 	console.log(`Tools: ${selectedPreset.tools.length}`);
+	console.log(`Plugins: ${selectedPreset.plugins.length}`);
 	console.log(`Commands: ${selectedPreset.commands.length}`);
 	console.log("\nNext steps:");
 	console.log("  1. Restart OpenCode to load the new agents");

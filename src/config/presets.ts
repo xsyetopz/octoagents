@@ -2,7 +2,6 @@ import type { Preset } from "../types/index.ts";
 
 const AVAILABLE_TOOLS = [
 	"check-deps",
-	"code-analysis",
 	"file-stats",
 	"git-status",
 	"github-create-issue",
@@ -13,6 +12,15 @@ const AVAILABLE_TOOLS = [
 	"semgrep-scan",
 	"slack-notify",
 	"web-search",
+];
+
+const AVAILABLE_PLUGINS = [
+	"code-analysis",
+	"development-utilities",
+	"external-integration",
+	"project-intelligence",
+	"security-scanning",
+	"workflow-automation",
 ];
 
 const AVAILABLE_COMMANDS = [
@@ -48,6 +56,7 @@ export const PRESET_FULL: Preset = {
 		"tester",
 	],
 	tools: AVAILABLE_TOOLS,
+	plugins: AVAILABLE_PLUGINS,
 	commands: AVAILABLE_COMMANDS,
 };
 
@@ -63,11 +72,11 @@ export const PRESET_STOCK: Preset = {
 		"reviewer",
 		"tester",
 	],
-	tools: [
+	tools: ["web-search"],
+	plugins: [
 		"code-analysis",
 		"project-intelligence",
 		"security-scanning",
-		"web-search",
 		"workflow-automation",
 	],
 	commands: [
@@ -84,12 +93,8 @@ export const PRESET_MICRO: Preset = {
 	name: "micro",
 	description: "Speed-optimized for fast execution",
 	agents: ["coder", "explorer", "orchestrator", "researcher"],
-	tools: [
-		"code-analysis",
-		"project-intelligence",
-		"web-search",
-		"workflow-automation",
-	],
+	tools: ["web-search"],
+	plugins: ["code-analysis", "project-intelligence", "workflow-automation"],
 	commands: [
 		"add-documentation",
 		"add-feature",
@@ -103,12 +108,8 @@ export const PRESET_MINI: Preset = {
 	name: "mini",
 	description: "Balanced default for everyday use",
 	agents: ["coder", "explorer", "orchestrator", "reviewer", "tester"],
-	tools: [
-		"code-analysis",
-		"project-intelligence",
-		"security-scanning",
-		"web-search",
-	],
+	tools: ["web-search"],
+	plugins: ["code-analysis", "project-intelligence", "security-scanning"],
 	commands: [
 		"add-documentation",
 		"add-feature",
@@ -123,7 +124,8 @@ export const PRESET_NANO: Preset = {
 	name: "nano",
 	description: "Lightweight starter with core functionality",
 	agents: ["coder", "explorer", "orchestrator"],
-	tools: ["code-analysis", "project-intelligence", "web-search"],
+	tools: ["web-search"],
+	plugins: ["code-analysis", "project-intelligence"],
 	commands: ["add-documentation", "add-feature", "fix-bug", "review-code"],
 };
 
@@ -132,6 +134,7 @@ export const PRESET_PICO: Preset = {
 	description: "Barebones for advanced users who build custom systems",
 	agents: ["coder", "orchestrator"],
 	tools: ["web-search"],
+	plugins: [],
 	commands: ["add-feature", "fix-bug"],
 };
 

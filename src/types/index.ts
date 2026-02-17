@@ -8,6 +8,7 @@ export interface Preset {
 	description: string;
 	agents: string[];
 	tools: string[];
+	plugins: string[];
 	commands: string[];
 }
 

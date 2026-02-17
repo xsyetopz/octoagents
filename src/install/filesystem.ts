@@ -27,37 +27,63 @@ export async function createOpenCodeStructure(
 	opencodeDir: string,
 ): Promise<void> {
 	await ensureDirectory(`${opencodeDir}/agents`);
+	await ensureDirectory(`${opencodeDir}/tools`);
 	await ensureDirectory(`${opencodeDir}/plugins`);
 	await ensureDirectory(`${opencodeDir}/commands`);
 	await ensureDirectory(`${opencodeDir}/meta`);
 	await ensureDirectory(`${opencodeDir}/skills`);
 }
 
-export async function copyPlugins(
+export async function copyTools(
 	presetTools: string[],
+	installerDir: string,
+	opencodeDir: string,
+): Promise<void> {
+	const targetDir = join(opencodeDir, "tools");
+	ensureDirectorySync(targetDir);
+
+	for (const tool of presetTools) {
+		const toolsPath = join(installerDir, `tools/${tool}.ts`);
+		const toolsFile = Bun.file(toolsPath);
+		if (!(await toolsFile.exists())) {
+			console.warn(`Tool ${tool} not found in tools/, skipping...`);
+			continue;
+		}
+
+		try {
+			const content = await readTextFile(toolsPath);
+			const targetPath = join(targetDir, `${tool}.ts`);
+			await writeTextFile(targetPath, content);
+			console.log(`Created: ${targetPath}`);
+		} catch (_error) {
+			console.warn(`Tool ${tool} failed to copy, skipping...`);
+		}
+	}
+}
+
+export async function copyPlugins(
+	presetPlugins: string[],
 	installerDir: string,
 	opencodeDir: string,
 ): Promise<void> {
 	const targetDir = join(opencodeDir, "plugins");
 	ensureDirectorySync(targetDir);
 
-	for (const tool of presetTools) {
-		const toolsPath = join(installerDir, `tools/${tool}.ts`);
-		const pluginsPath = join(installerDir, `plugins/${tool}.ts`);
-
-		let sourcePath = toolsPath;
-		const toolsFile = Bun.file(toolsPath);
-		if (!(await toolsFile.exists())) {
-			sourcePath = pluginsPath;
+	for (const plugin of presetPlugins) {
+		const pluginsPath = join(installerDir, `plugins/${plugin}.ts`);
+		const pluginsFile = Bun.file(pluginsPath);
+		if (!(await pluginsFile.exists())) {
+			console.warn(`Plugin ${plugin} not found in plugins/, skipping...`);
+			continue;
 		}
 
 		try {
-			const content = await readTextFile(sourcePath);
-			const targetPath = join(targetDir, `${tool}.ts`);
+			const content = await readTextFile(pluginsPath);
+			const targetPath = join(targetDir, `${plugin}.ts`);
 			await writeTextFile(targetPath, content);
 			console.log(`Created: ${targetPath}`);
 		} catch (_error) {
-			console.warn(`Tool ${tool} not found in tools/ or plugins/, skipping...`);
+			console.warn(`Plugin ${plugin} failed to copy, skipping...`);
 		}
 	}
 }
