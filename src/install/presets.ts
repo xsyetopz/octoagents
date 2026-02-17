@@ -22,7 +22,7 @@ export function selectPreset(
 	const index = Number.parseInt(input || "1", 10) - 1;
 
 	if (Number.isNaN(index) || index < 0 || index >= presets.length) {
-		console.log("Invalid selection. Using 'stock' preset.");
+		console.log("Invalid selection - using 'stock' preset...");
 		return "stock";
 	}
 

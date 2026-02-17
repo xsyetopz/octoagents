@@ -48,7 +48,7 @@ const _searchWeb = async (apiKey: string, query: string) => {
 
 const _formatResults = (query: string, results: SearchResult[]) => {
 	if (!results || results.length === 0) {
-		return "No results found for this query.";
+		return "No results found for this query";
 	}
 
 	const formattedResults = results

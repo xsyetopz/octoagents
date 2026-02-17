@@ -230,7 +230,7 @@ function _createDependenciesTool() {
 function _createLintingTool() {
 	return {
 		description:
-			"Run linter and report issues. Supports eslint, flake8, ruff, and other linters.",
+			"Run linter and report issues. Supports eslint, flake8, ruff, and other linters",
 		args: {
 			target: tool.schema.string().describe("File or directory to lint"),
 			linter: tool.schema
