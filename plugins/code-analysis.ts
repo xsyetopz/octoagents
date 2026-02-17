@@ -19,6 +19,8 @@ async function _checkComplexityTool(): Promise<void> {
 	}
 }
 
+const LINTER_SPLIT_REGEX = /\s+/;
+
 function _calculateCyclomaticComplexity(code: string): number {
 	const patterns = [
 		/\bif\b/g,
@@ -77,6 +79,8 @@ async function _executeMetricsComplexity(
 	args: { target: string; threshold?: number },
 	context: { directory: string },
 ): Promise<unknown> {
+	await _checkComplexityTool();
+
 	const files = await _globFiles(args.target, context.directory);
 	const results: unknown[] = [];
 	const threshold = args.threshold ?? 10;
@@ -157,6 +161,11 @@ async function _executeAnalysisLinting(
 	args: { target: string; linter: string },
 	context: { directory: string },
 ): Promise<unknown> {
+	const linter = args.linter.trim().split(LINTER_SPLIT_REGEX)[0];
+	if (linter === "semgrep") {
+		await _checkSemgrep();
+	}
+
 	const result = await Bun.$`cd ${
 		context.directory as string
 	} && ${args.linter} ${args.target}`;
@@ -258,10 +267,7 @@ function _createLintingTool() {
 	};
 }
 
-export async function codeAnalysis(_ctx: Record<string, unknown>) {
-	await _checkSemgrep();
-	await _checkComplexityTool();
-
+export function codeAnalysis(_ctx: Record<string, unknown>) {
 	return {
 		tool: {
 			"metrics.complexity": _createComplexityTool(),
