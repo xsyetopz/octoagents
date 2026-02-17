@@ -1,7 +1,7 @@
 ---
 description: "[Concise description of what this command does]"
 agent: "orchestrate" | "coder" | "reviewer" | "tester" | "explorer" | ...
-subtask: "specific-agent-for-execution"
+subtask: true | false
 ---
 
 # [Command Name]
