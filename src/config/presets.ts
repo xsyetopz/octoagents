@@ -28,6 +28,7 @@ const AVAILABLE_COMMANDS = [
 	"optimize-performance",
 	"refactor-code",
 	"review-code",
+	"unslop",
 	"update-readme",
 ];
 
