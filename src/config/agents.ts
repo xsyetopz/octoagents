@@ -13,7 +13,7 @@ export const ORCHESTRATOR: AgentConfig = {
 		model: "kimi-k2.5-free",
 	},
 	temperature: 0.3,
-	steps: 10,
+	steps: 50,
 	color: "#0d6efd",
 	subagents: [
 		"coder",
@@ -41,7 +41,7 @@ export const CODER: AgentConfig = {
 		model: "big-pickle",
 	},
 	temperature: 0.2,
-	steps: 8,
+	steps: 30,
 	color: "#198754",
 };
 
@@ -59,7 +59,7 @@ export const REVIEWER: AgentConfig = {
 		model: "big-pickle",
 	},
 	temperature: 0.1,
-	steps: 6,
+	steps: 20,
 	color: "#ffc107",
 };
 
@@ -76,7 +76,7 @@ export const TESTER: AgentConfig = {
 		model: "big-pickle",
 	},
 	temperature: 0.2,
-	steps: 6,
+	steps: 25,
 	color: "#0dcaf0",
 };
 
@@ -93,7 +93,7 @@ export const EXPLORER: AgentConfig = {
 		model: "minimax-m2.5-free",
 	},
 	temperature: 0.3,
-	steps: 5,
+	steps: 20,
 	color: "#198754",
 };
 
@@ -110,7 +110,7 @@ export const RESEARCHER: AgentConfig = {
 		model: "minimax-m2.5-free",
 	},
 	temperature: 0.4,
-	steps: 4,
+	steps: 20,
 	color: "#198754",
 };
 
@@ -127,7 +127,7 @@ export const IMPLEMENTER: AgentConfig = {
 		model: "big-pickle",
 	},
 	temperature: 0.2,
-	steps: 6,
+	steps: 30,
 	color: "#198754",
 };
 
@@ -144,7 +144,7 @@ export const PLANNER: AgentConfig = {
 		model: "gpt-5-nano",
 	},
 	temperature: 0.5,
-	steps: 8,
+	steps: 25,
 	color: "#0d6efd",
 };
 
@@ -161,7 +161,7 @@ export const DOCUMENTER: AgentConfig = {
 		model: "kimi-k2.5-free",
 	},
 	temperature: 0.4,
-	steps: 5,
+	steps: 20,
 	color: "#0dcaf0",
 };
 
@@ -178,7 +178,7 @@ export const AUDITOR: AgentConfig = {
 		model: "big-pickle",
 	},
 	temperature: 0.1,
-	steps: 6,
+	steps: 20,
 	color: "#dc3545",
 };
 
