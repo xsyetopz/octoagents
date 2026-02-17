@@ -3,7 +3,6 @@ export async function checkForUpdate(): Promise<string | undefined> {
 	const ApiUrl = `https://api.github.com/repos/${Repo}/releases/latest`;
 
 	type GitHubRelease = {
-		// biome-ignore lint/style/useNamingConvention: GitHub API uses snake_case fields
 		tag_name?: string;
 	};
 

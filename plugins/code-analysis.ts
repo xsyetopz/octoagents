@@ -103,7 +103,6 @@ async function _executeMetricsComplexity(
 	return {
 		scanned: files.length,
 		threshold,
-		// biome-ignore lint/style/useNamingConvention: snake_case output for tool consumers
 		high_complexity: results.length,
 		files: results,
 	};
@@ -139,15 +138,12 @@ async function _executeMetricsDependencies(
 
 	return {
 		scanned: files.length,
-		// biome-ignore lint/style/useNamingConvention: snake_case output for tool consumers
 		total_unique_dependencies: allDependencies.size,
-		// biome-ignore lint/style/useNamingConvention: snake_case output for tool consumers
 		dependencies_by_file: Object.fromEntries(
 			Array.from(dependencies.entries()).map(
 				([file, deps]): [string, string[]] => [file, Array.from(deps)],
 			),
 		),
-		// biome-ignore lint/style/useNamingConvention: snake_case output for tool consumers
 		top_dependencies: Array.from(allDependencies).reduce<
 			Record<string, number>
 		>((acc, dep) => {
@@ -170,7 +166,6 @@ async function _executeAnalysisLinting(
 		exitCode: result.exitCode,
 		output: result.stdout.toString(),
 		errors: result.stderr.toString(),
-		// biome-ignore lint/style/useNamingConvention: snake_case output for tool consumers
 		has_issues: result.exitCode !== 0,
 	};
 }

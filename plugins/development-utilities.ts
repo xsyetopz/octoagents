@@ -51,15 +51,10 @@ async function _executeFileStats(
 	}, {});
 
 	return {
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		file_count: files.length,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		total_lines: totalLines,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		total_size_bytes: totalSize,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		by_extension: extensionCounts,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		largest_files: files
 			.sort((a, b) => b.lines - a.lines)
 			.slice(0, 10)
@@ -93,13 +88,9 @@ async function _executeGitChanges(
 			});
 
 		return {
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			has_changes: parsedStatus.length > 0,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			modified_files: parsedStatus.filter((f) => f.status.includes("M")).length,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			new_files: parsedStatus.filter((f) => f.status.includes("?")).length,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			deleted_files: parsedStatus.filter((f) => f.status.includes("D")).length,
 			files: parsedStatus,
 			diff,
@@ -144,7 +135,6 @@ function _executePackageInfo(
 	}
 
 	return {
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		detected_manifests: found,
 		...info,
 	};
@@ -203,7 +193,6 @@ async function _executeRunScript(
 		const shellResult = result as Awaited<ReturnType<typeof Bun.$>>;
 		return {
 			command: args.command,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			exit_code: shellResult.exitCode,
 			output: shellResult.stdout?.toString() || "",
 			errors: shellResult.stderr?.toString() || "",

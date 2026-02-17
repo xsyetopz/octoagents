@@ -40,7 +40,6 @@ async function _executeHttpRequest(args: {
 
 		return {
 			status: response.status,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			status_text: response.statusText,
 			ok: response.ok,
 			headers: Object.fromEntries(response.headers.entries()),
@@ -74,9 +73,7 @@ async function _executeGithubApi(args: {
 		url,
 		method: args.method || "GET",
 		headers: {
-			// biome-ignore lint/style/useNamingConvention: standard HTTP header name
 			Authorization: `Bearer ${token}`,
-			// biome-ignore lint/style/useNamingConvention: standard HTTP header Accept
 			Accept: "application/vnd.github+json",
 			"X-GitHub-Api-Version": "2022-11-28",
 		},
@@ -176,9 +173,7 @@ async function _executeJiraApi(args: {
 		url,
 		method: args.method || "GET",
 		headers: {
-			// biome-ignore lint/style/useNamingConvention: standard HTTP header name
 			Authorization: `Basic ${auth}`,
-			// biome-ignore lint/style/useNamingConvention: standard HTTP header Accept
 			Accept: "application/json",
 			"Content-Type": "application/json",
 		},

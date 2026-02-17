@@ -55,7 +55,6 @@ async function _executeSemgrepScan(
 
 		if (!output) {
 			return {
-				// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 				findings_count: 0,
 				findings: [],
 			};
@@ -64,7 +63,6 @@ async function _executeSemgrepScan(
 		const findings = JSON.parse(output);
 
 		return {
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			findings_count: findings.results?.length || 0,
 			findings: findings.results || [],
 			errors: findings.errors || [],
@@ -175,7 +173,6 @@ async function _executeDependencyCheck(
 	await _checkHardcodedSecrets(findings, context.directory);
 
 	return {
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		findings_count: findings.length,
 		findings: findings.slice(0, 100),
 	};
@@ -209,9 +206,7 @@ async function _executeSecurityHeaders(
 		return {
 			url: args.url,
 			headers: securityHeaders,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			missing_headers: missing,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			security_score: ((7 - missing.length) / 7) * 100,
 		};
 	} catch (error) {
@@ -245,7 +240,6 @@ async function _executePermissionCheck(
 	}
 
 	return {
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		issues_count: issues.length,
 		issues,
 	};

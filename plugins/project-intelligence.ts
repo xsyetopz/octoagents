@@ -105,11 +105,8 @@ function _executeProjectStructure(
 	];
 
 	const detectedFiles = {
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		package_managers: [] as string[],
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		build_tools: [] as string[],
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		config_files: [] as string[],
 	};
 
@@ -141,11 +138,8 @@ function _executeProjectStructure(
 	}
 
 	return {
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		total_files: rootInfo.files,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		total_directories: rootInfo.directories,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		total_size_bytes: rootInfo.totalSize,
 		detected: detectedFiles,
 	};
@@ -186,9 +180,7 @@ async function _executeCodeSearch(
 
 	return {
 		pattern: args.pattern,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		match_count: matches.length,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		files_searched: matches.reduce((acc, m) => {
 			if (!acc.includes(m.file)) {
 				acc.push(m.file);
@@ -238,7 +230,6 @@ function _executeTechStack(
 		stack.javascript = {
 			runtime: pkg.engines?.node ? `Node ${pkg.engines.node}` : "Node.js",
 			frameworks: detectedFrameworks,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			package_manager: (() => {
 				try {
 					statSync(join(context.directory, "pnpm-lock.yaml"));
@@ -264,7 +255,6 @@ function _executeTechStack(
 	try {
 		readFileSync(join(context.directory, "pyproject.toml"), "utf-8");
 		stack.python = {
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			package_manager: "pip/poetry",
 		};
 	} catch (_pyErr) {
@@ -274,7 +264,6 @@ function _executeTechStack(
 	try {
 		readFileSync(join(context.directory, "Cargo.toml"), "utf-8");
 		stack.rust = {
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			package_manager: "cargo",
 		};
 	} catch (_rustErr) {
@@ -284,7 +273,6 @@ function _executeTechStack(
 	try {
 		readFileSync(join(context.directory, "go.mod"), "utf-8");
 		stack.go = {
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			package_manager: "go modules",
 		};
 	} catch (_goErr) {
@@ -328,13 +316,9 @@ function _executeDocumentation(
 	}
 
 	return {
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		documentation_files: found,
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		has_readme: found.some((f) => f.file === "README.md"),
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		has_contributing: found.some((f) => f.file === "CONTRIBUTING.md"),
-		// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 		has_license: found.some((f) => f.file === "LICENSE"),
 	};
 }

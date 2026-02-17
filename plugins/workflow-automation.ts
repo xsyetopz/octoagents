@@ -104,7 +104,6 @@ function _executeFileTemplate(
 		return {
 			success: true,
 			output: args.output,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			variables_replaced: Object.keys(args.vars || {}).length,
 		};
 	} catch (error) {
@@ -148,9 +147,7 @@ async function _executeBatchRename(
 		}
 
 		return {
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			files_renamed: renamed.length,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			dry_run: args.dryRun,
 			renamed,
 		};
@@ -234,9 +231,7 @@ async function _executeCiStatus(
 		return {
 			branch,
 			remote,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			ci_configs: detectedCi,
-			// biome-ignore lint/style/useNamingConvention: snake_case for tool output
 			has_ci: detectedCi.length > 0,
 		};
 	} catch (error) {
