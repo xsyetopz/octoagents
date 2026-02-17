@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
 import { tool } from "@opencode-ai/plugin";
+import { readTextFile } from "../src/utils/files.ts";
 
 async function _checkSemgrep(): Promise<void> {
 	try {
@@ -83,7 +83,7 @@ async function _executeMetricsComplexity(
 
 	for (const file of files) {
 		const filePath = `${context.directory as string}/${file}`;
-		const content = readFileSync(filePath, "utf-8");
+		const content = await readTextFile(filePath);
 		const complexity = _calculateCyclomaticComplexity(content);
 		const lines = content.split("\n").length;
 
@@ -117,7 +117,7 @@ async function _executeMetricsDependencies(
 
 	for (const file of files) {
 		const filePath = `${context.directory as string}/${file}`;
-		const content = readFileSync(filePath, "utf-8");
+		const content = await readTextFile(filePath);
 
 		const importMatch = content.matchAll(/import\s+.*?from\s+['"](.*?)['"]/g);
 		for (const match of importMatch) {

@@ -1,6 +1,6 @@
-import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
+import { fileOrDirExists, readTextFile } from "../src/utils/files.ts";
 
 const TOML_NAME_REGEX = /name\s*=\s*"([^"]+)"/;
 const TOML_VERSION_REGEX = /version\s*=\s*"([^"]+)"/;
@@ -23,16 +23,16 @@ async function _executeFileStats(
 	for await (const file of globber.scan({ cwd: context.directory })) {
 		const filePath = join(context.directory, file);
 		try {
-			const stat = statSync(filePath);
-			if (stat.isFile()) {
-				const content = readFileSync(filePath, "utf-8");
+			const exists = await fileOrDirExists(filePath);
+			if (exists) {
+				const content = await readTextFile(filePath);
 				const lines = content.split("\n").length;
 				const extension = file.split(".").pop() || "";
 
 				files.push({
 					path: file,
 					lines,
-					size: stat.size,
+					size: content.length,
 					extension,
 				});
 			}
@@ -102,10 +102,10 @@ async function _executeGitChanges(
 	}
 }
 
-function _executePackageInfo(
+async function _executePackageInfo(
 	_args: Record<string, unknown>,
 	context: { directory: string },
-): unknown {
+): Promise<unknown> {
 	const packageFiles = [
 		"package.json",
 		"pyproject.toml",
@@ -116,21 +116,19 @@ function _executePackageInfo(
 		"Gemfile",
 	];
 
-	const found = packageFiles.filter((file) => {
-		try {
-			statSync(join(context.directory, file));
-			return true;
-		} catch (_error) {
-			console.debug(`Manifest file not found: ${file}`);
-			return false;
+	const found: string[] = [];
+	for (const file of packageFiles) {
+		const exists = await fileOrDirExists(join(context.directory, file));
+		if (exists) {
+			found.push(file);
 		}
-	});
+	}
 
 	const info: Record<string, unknown> = {};
 
 	for (const file of found) {
 		const path = join(context.directory, file);
-		const content = readFileSync(path, "utf-8");
+		const content = await readTextFile(path);
 		_parseManifestFile(file, path, content, info);
 	}
 

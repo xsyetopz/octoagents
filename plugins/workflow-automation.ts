@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
+import { readTextFile, writeTextFile } from "../src/utils/files.ts";
 
 const BRANCH_INDICATOR_REGEX = /^\* /;
 const FILENAME_WITH_EXT_REGEX = /^(.*)\.(.+)$/;
@@ -83,13 +83,13 @@ async function _executeBranchList(context: {
 	return { branches };
 }
 
-function _executeFileTemplate(
+async function _executeFileTemplate(
 	args: { template: string; output: string; vars?: Record<string, string> },
 	context: { directory: string },
-): unknown {
+): Promise<unknown> {
 	try {
 		const templatePath = join(context.directory, args.template);
-		let content = readFileSync(templatePath, "utf-8");
+		let content = await readTextFile(templatePath);
 
 		if (args.vars) {
 			for (const [key, value] of Object.entries(args.vars)) {
@@ -99,7 +99,7 @@ function _executeFileTemplate(
 		}
 
 		const outputPath = join(context.directory, args.output);
-		writeFileSync(outputPath, content);
+		await writeTextFile(outputPath, content);
 
 		return {
 			success: true,

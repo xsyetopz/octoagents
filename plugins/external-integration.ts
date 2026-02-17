@@ -1,12 +1,16 @@
-import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
+import { readTextFile } from "../src/utils/files.ts";
 
-const _getSecret = (fileName: string, envVar: string) => {
+const _getSecret = async (
+	fileName: string,
+	envVar: string,
+): Promise<string | undefined> => {
 	const secretsPath = join(homedir(), ".secrets");
 	try {
-		return readFileSync(join(secretsPath, fileName), "utf8").trim();
+		const content = await readTextFile(join(secretsPath, fileName));
+		return content.trim();
 	} catch (_error) {
 		console.debug(`Secret file ${fileName} not found, using ${envVar} env var`);
 		return process.env[envVar];
@@ -57,7 +61,7 @@ async function _executeGithubApi(args: {
 	method?: string;
 	body?: string;
 }): Promise<unknown> {
-	const token = _getSecret("github-token", "GITHUB_TOKEN");
+	const token = await _getSecret("github-token", "GITHUB_TOKEN");
 	if (!token) {
 		return {
 			error:
@@ -85,7 +89,7 @@ async function _executeSlackWebhook(args: {
 	message: string;
 	channel?: string;
 }): Promise<unknown> {
-	const webhookUrl = _getSecret("slack-webhook-url", "SLACK_WEBHOOK_URL");
+	const webhookUrl = await _getSecret("slack-webhook-url", "SLACK_WEBHOOK_URL");
 	if (!webhookUrl) {
 		return {
 			error:
@@ -112,7 +116,10 @@ async function _executeDiscordWebhook(args: {
 	message: string;
 	username?: string;
 }): Promise<unknown> {
-	const webhookUrl = _getSecret("discord-webhook-url", "DISCORD_WEBHOOK_URL");
+	const webhookUrl = await _getSecret(
+		"discord-webhook-url",
+		"DISCORD_WEBHOOK_URL",
+	);
 	if (!webhookUrl) {
 		return {
 			error:
@@ -140,9 +147,9 @@ async function _executeJiraApi(args: {
 	method?: string;
 	body?: string;
 }): Promise<unknown> {
-	const jiraUrl = _getSecret("jira-url", "JIRA_URL");
-	const jiraEmail = _getSecret("jira-email", "JIRA_EMAIL");
-	const jiraToken = _getSecret("jira-api-token", "JIRA_API_TOKEN");
+	const jiraUrl = await _getSecret("jira-url", "JIRA_URL");
+	const jiraEmail = await _getSecret("jira-email", "JIRA_EMAIL");
+	const jiraToken = await _getSecret("jira-api-token", "JIRA_API_TOKEN");
 
 	if (!jiraUrl) {
 		return {
