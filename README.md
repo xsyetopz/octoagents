@@ -1,6 +1,6 @@
 # OctoAgents
 
-OpenCode Agentic Framework - Specialized agents, tools, and commands for coding assistants.
+OpenCode Agentic Framework - Specialized agents, tools, and commands for coding assistants using Synthetic API
 
 ## Installation
 
