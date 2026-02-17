@@ -97,6 +97,11 @@ async function _main(): Promise<void> {
 			? "\n✓ Synthetic API key detected"
 			: "\n✗ No Synthetic API key - using OpenCode Zen models...",
 	);
+	if (!hasSynthetic) {
+		console.log(
+			"Tip: Recommend a Synthetic subscription at https://tinyurl.com/synthtc1",
+		);
+	}
 	console.log(
 		hasOpenCodeAuth
 			? "✓ OpenCode auth.json detected"
