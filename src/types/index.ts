@@ -22,7 +22,8 @@ export interface AgentConfig {
 	mode: "primary" | "subagent" | "all";
 	primaryModel: Model;
 	fallbackModel: Model;
-	temperature: number;
+	temperature?: number;
+	top_p?: number;
 	steps: number;
 	color?: string;
 	permission?: PermissionRule;
@@ -40,6 +41,7 @@ export interface OpenCodeAgentConfig {
 	mode?: string;
 	model?: string;
 	temperature?: number;
+	top_p?: number;
 	steps?: number;
 	color?: string;
 	permission?: PermissionRule;

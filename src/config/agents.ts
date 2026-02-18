@@ -6,7 +6,7 @@ export const ORCHESTRATOR: AgentConfig = {
 	mode: "primary",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:moonshotai/Kimi-K2.5",
+		model: "hf:nvidia/Kimi-K2.5-NVFP4",
 	},
 	fallbackModel: {
 		provider: "opencode",
@@ -34,13 +34,14 @@ export const CODER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:Qwen/Qwen2.5-Coder-32B-Instruct",
+		model: "hf:deepseek-ai/DeepSeek-V3.2",
 	},
 	fallbackModel: {
 		provider: "opencode",
 		model: "big-pickle",
 	},
 	temperature: 0.2,
+	top_p: 0.9,
 	steps: 30,
 	color: "#198754",
 };
@@ -51,14 +52,15 @@ export const REVIEWER: AgentConfig = {
 		"Specialized in code review, security analysis, and quality assessment",
 	mode: "subagent",
 	primaryModel: {
-		provider: "synthetic",
-		model: "hf:zai-org/GLM-4.7",
+		provider: "opencode",
+		model: "glm-5-free",
 	},
 	fallbackModel: {
 		provider: "opencode",
 		model: "big-pickle",
 	},
 	temperature: 0.1,
+	top_p: 0.85,
 	steps: 20,
 	color: "#ffc107",
 };
@@ -69,13 +71,14 @@ export const TESTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:deepseek-ai/DeepSeek-V3.2",
+		model: "hf:zai-org/GLM-4.7",
 	},
 	fallbackModel: {
 		provider: "opencode",
 		model: "big-pickle",
 	},
-	temperature: 0.2,
+	temperature: 0.1,
+	top_p: 0.8,
 	steps: 25,
 	color: "#0dcaf0",
 };
@@ -86,7 +89,7 @@ export const EXPLORER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:MiniMaxAI/MiniMax-M2.5",
+		model: "hf:MiniMaxAI/MiniMax-M2.1",
 	},
 	fallbackModel: {
 		provider: "opencode",
@@ -103,11 +106,11 @@ export const RESEARCHER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:MiniMaxAI/MiniMax-M2.5",
+		model: "hf:nvidia/Kimi-K2.5-NVFP4",
 	},
 	fallbackModel: {
 		provider: "opencode",
-		model: "minimax-m2.5-free",
+		model: "kimi-k2.5-free",
 	},
 	temperature: 0.4,
 	steps: 20,
@@ -120,13 +123,13 @@ export const IMPLEMENTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:Qwen/Qwen2.5-Coder-32B-Instruct",
+		model: "hf:MiniMaxAI/MiniMax-M2.1",
 	},
 	fallbackModel: {
 		provider: "opencode",
-		model: "big-pickle",
+		model: "minimax-m2.5-free",
 	},
-	temperature: 0.2,
+	temperature: 0.15,
 	steps: 30,
 	color: "#198754",
 };
@@ -143,7 +146,8 @@ export const PLANNER: AgentConfig = {
 		provider: "opencode",
 		model: "gpt-5-nano",
 	},
-	temperature: 0.5,
+	temperature: 0.45,
+	top_p: 0.95,
 	steps: 25,
 	color: "#0d6efd",
 };
@@ -154,13 +158,13 @@ export const DOCUMENTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:moonshotai/Kimi-K2.5",
+		model: "hf:nvidia/Kimi-K2.5-NVFP4",
 	},
 	fallbackModel: {
 		provider: "opencode",
 		model: "kimi-k2.5-free",
 	},
-	temperature: 0.4,
+	temperature: 0.35,
 	steps: 20,
 	color: "#0dcaf0",
 };
@@ -178,6 +182,7 @@ export const AUDITOR: AgentConfig = {
 		model: "big-pickle",
 	},
 	temperature: 0.1,
+	top_p: 0.75,
 	steps: 20,
 	color: "#dc3545",
 };
