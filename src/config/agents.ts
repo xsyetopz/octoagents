@@ -69,7 +69,7 @@ export const TESTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:Qwen/Qwen2.5-Coder-32B-Instruct",
+		model: "hf:meta-llama/Llama-3.3-70B-Instruct",
 	},
 	fallbackModel: {
 		provider: "opencode",
