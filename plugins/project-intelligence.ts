@@ -229,19 +229,19 @@ async function _executeTechStack(
 					);
 					return "pnpm";
 				} catch (_err) {
-					// Continue to next check
+					console.debug("pnpm-lock.yaml not found");
 				}
 				try {
 					await access(join(context.directory, "yarn.lock"), constants.F_OK);
 					return "yarn";
 				} catch (_err) {
-					// Continue to next check
+					console.debug("yarn.lock not found");
 				}
 				try {
 					await access(join(context.directory, "bun.lockb"), constants.F_OK);
 					return "bun";
 				} catch (_err) {
-					// Continue to npm default
+					console.debug("bun.lockb not found");
 				}
 				return "npm";
 			})(),
