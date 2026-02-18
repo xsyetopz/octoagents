@@ -69,7 +69,7 @@ export const TESTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:meta-llama/Llama-3.3-70B-Instruct",
+		model: "hf:deepseek-ai/DeepSeek-V3.2",
 	},
 	fallbackModel: {
 		provider: "opencode",
