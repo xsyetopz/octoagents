@@ -34,7 +34,7 @@ export const CODER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:Qwen/Qwen3-Coder-480B-A35B-Instruct",
+		model: "hf:Qwen/Qwen2.5-Coder-32B-Instruct",
 	},
 	fallbackModel: {
 		provider: "opencode",
@@ -69,7 +69,7 @@ export const TESTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:Qwen/Qwen3-Coder-480B-A35B-Instruct",
+		model: "hf:Qwen/Qwen2.5-Coder-32B-Instruct",
 	},
 	fallbackModel: {
 		provider: "opencode",
@@ -120,7 +120,7 @@ export const IMPLEMENTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:Qwen/Qwen3-Coder-480B-A35B-Instruct",
+		model: "hf:Qwen/Qwen2.5-Coder-32B-Instruct",
 	},
 	fallbackModel: {
 		provider: "opencode",
