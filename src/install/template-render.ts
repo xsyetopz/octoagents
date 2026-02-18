@@ -51,7 +51,22 @@ export async function generateAgentMarkdown(
 	if (agent.top_p !== undefined) {
 		result = result.replace(/{{top_p}}/g, agent.top_p.toString());
 	} else {
-		result = result.replace(/^[ \t]*top_p:[ \t]*{{top_p}}[ \t]*$/gm, "");
+		result = result.replace(/^[ \t]*top_p:[ \t]*{{top_p}}[ \t]*\n?$/gm, "");
+	}
+
+	if (agent.subagents && agent.subagents.length > 0) {
+		const subagentLines = agent.subagents
+			.map((name) => `  ${name}: true`)
+			.join("\n");
+		result = result.replace(
+			/{{#subagents}}[\s\S]*?{{\/subagents}}/g,
+			`subagents:\n${subagentLines}`,
+		);
+	} else {
+		result = result.replace(
+			/^[ \t]*{{#subagents}}[\s\S]*?{{\/subagents}}[ \t]*$/gm,
+			"",
+		);
 	}
 
 	return result;
