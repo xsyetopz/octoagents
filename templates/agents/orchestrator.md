@@ -3,6 +3,7 @@ description: "{{description}}"
 mode: {{mode}}
 model: {{model}}
 temperature: {{temperature}}
+top_p: {{top_p}}
 steps: {{steps}}
 color: "{{color}}"
 {{#subagents}}subagents:

@@ -38,13 +38,21 @@ export async function generateAgentMarkdown(
 		"deny",
 	);
 
-	return template
+	let result = template
 		.replace(/{{description}}/g, agent.description)
 		.replace(/{{mode}}/g, agent.mode)
 		.replace(/{{model}}/g, resolvedModel)
-		.replace(/{{temperature}}/g, agent.temperature.toString())
+		.replace(/{{temperature}}/g, agent.temperature?.toString() ?? "")
 		.replace(/{{steps}}/g, agent.steps.toString())
 		.replace(/{{color}}/g, agent.color ?? "success")
 		.replace(/^[ \t]*{{bash_denylist}}[ \t]*$/gm, bashDenylist)
 		.replace(/^[ \t]*{{bash_allowlist}}[ \t]*$/gm, bashAllowlist);
+
+	if (agent.top_p !== undefined) {
+		result = result.replace(/{{top_p}}/g, agent.top_p.toString());
+	} else {
+		result = result.replace(/^[ \t]*top_p:[ \t]*{{top_p}}[ \t]*$/gm, "");
+	}
+
+	return result;
 }
