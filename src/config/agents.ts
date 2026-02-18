@@ -6,7 +6,7 @@ export const ORCHESTRATOR: AgentConfig = {
 	mode: "primary",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:nvidia/Kimi-K2.5-NVFP4",
+		model: "hf:moonshotai/Kimi-K2.5",
 	},
 	fallbackModel: {
 		provider: "opencode",
@@ -106,7 +106,7 @@ export const RESEARCHER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:nvidia/Kimi-K2.5-NVFP4",
+		model: "hf:moonshotai/Kimi-K2.5",
 	},
 	fallbackModel: {
 		provider: "opencode",
@@ -158,7 +158,7 @@ export const DOCUMENTER: AgentConfig = {
 	mode: "subagent",
 	primaryModel: {
 		provider: "synthetic",
-		model: "hf:nvidia/Kimi-K2.5-NVFP4",
+		model: "hf:moonshotai/Kimi-K2.5",
 	},
 	fallbackModel: {
 		provider: "opencode",
