@@ -1,9 +1,15 @@
+import { exec } from "node:child_process";
+import { constants } from "node:fs";
+import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { promisify } from "node:util";
 import { tool } from "@opencode-ai/plugin";
+
+const execAsync = promisify(exec);
 
 async function _checkSemgrep(): Promise<boolean> {
 	try {
-		await Bun.$`which semgrep`.quiet();
+		await execAsync("which semgrep");
 		return true;
 	} catch (_error) {
 		console.debug("Semgrep not found in PATH");
@@ -14,7 +20,7 @@ async function _checkSemgrep(): Promise<boolean> {
 async function _installSemgrep(): Promise<void> {
 	console.log("Installing semgrep...");
 	try {
-		await Bun.$`brew install semgrep`.quiet();
+		await execAsync("brew install semgrep");
 		console.log("Semgrep installed successfully");
 	} catch (error) {
 		console.error(
@@ -49,8 +55,8 @@ async function _executeSemgrepScan(
 			command += ` --config ${rules}`;
 		}
 
-		const result = await Bun.$`${command}`;
-		const output = result.stdout.toString();
+		const result = await execAsync(command);
+		const output = result.stdout;
 
 		if (!output) {
 			return {
@@ -78,9 +84,8 @@ async function _checkNpmAudit(
 	directory: string,
 ): Promise<void> {
 	try {
-		const auditResult =
-			await Bun.$`cd ${directory} && npm audit --json`.quiet();
-		const audit = JSON.parse(auditResult.stdout.toString());
+		const auditResult = await execAsync(`cd ${directory} && npm audit --json`);
+		const audit = JSON.parse(auditResult.stdout);
 
 		if (audit.vulnerabilities) {
 			for (const [name, vuln] of Object.entries(audit.vulnerabilities)) {
@@ -110,16 +115,19 @@ async function _checkHardcodedSecrets(
 		/token\s*[=:]\s*['"][^'"]+['"]/gi,
 	];
 
-	const globber = new Bun.Glob("**/*.{ts,js,py,go,rs,java,rb,php,env}");
+	const { glob } = await import("glob");
+	const files = await glob("**/*.{ts,js,py,go,rs,java,rb,php,env}", {
+		cwd: directory,
+	});
 
-	for await (const file of globber.scan({ cwd: directory })) {
+	for (const file of files) {
 		if (file.includes("node_modules") || file.includes(".git")) {
 			continue;
 		}
 
 		try {
 			const filePath = join(directory, file);
-			const content = await Bun.file(filePath).text();
+			const content = await readFile(filePath, "utf-8");
 			const lines = content.split("\n");
 
 			for (let i = 0; i < lines.length; i++) {
@@ -163,20 +171,25 @@ async function _executeDependencyCheck(
 	}> = [];
 
 	try {
-		const pkgFile = Bun.file(join(context.directory, "package.json"));
-		if (await pkgFile.exists()) {
+		const pkgPath = join(context.directory, "package.json");
+		try {
+			await access(pkgPath, constants.F_OK);
 			await _checkNpmAudit(findings, context.directory);
+		} catch (_accessErr) {
+			console.debug("No package.json found for dependency check");
 		}
-	} catch (_pkgError) {
-		console.debug("No package.json found for dependency check");
+
+		await _checkHardcodedSecrets(findings, context.directory);
+
+		return {
+			findings_count: findings.length,
+			findings: findings.slice(0, 100),
+		};
+	} catch (error) {
+		return {
+			error: error instanceof Error ? error.message : String(error),
+		};
 	}
-
-	await _checkHardcodedSecrets(findings, context.directory);
-
-	return {
-		findings_count: findings.length,
-		findings: findings.slice(0, 100),
-	};
 }
 
 async function _executeSecurityHeaders(
@@ -228,9 +241,10 @@ async function _executePermissionCheck(
 	}> = [];
 
 	try {
-		const globber = new Bun.Glob(args.target);
+		const { glob } = await import("glob");
+		const files = await glob(args.target, { cwd: context.directory });
 
-		for await (const file of globber.scan({ cwd: context.directory })) {
+		for (const file of files) {
 			const filePath = join(context.directory, file);
 			await _checkFilePermissions(filePath, file, issues);
 		}
@@ -252,8 +266,9 @@ async function _checkFilePermissions(
 	issues: Array<{ file: string; permissions: string; issue: string }>,
 ): Promise<void> {
 	try {
-		const result = await Bun.$`stat -f '%A' ${filePath}`.quiet();
-		const perms = result.stdout.toString().trim();
+		const { stat } = await import("node:fs/promises");
+		const stats = await stat(filePath);
+		const perms = (stats.mode & 0o777).toString(8);
 
 		if (perms.endsWith("6") || perms.endsWith("7")) {
 			issues.push({

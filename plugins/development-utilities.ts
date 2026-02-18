@@ -1,27 +1,23 @@
+import { constants } from "node:fs";
+import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
 
 async function _fileOrDirExists(path: string): Promise<boolean> {
-	const file = Bun.file(path);
-	if (await file.exists()) {
-		return true;
-	}
-
 	try {
-		await Bun.$`test -d ${path}`.quiet();
+		await access(path, constants.F_OK);
 		return true;
-	} catch {
+	} catch (_err) {
 		return false;
 	}
 }
 
 async function _readTextFile(path: string): Promise<string> {
 	try {
-		const file = Bun.file(path);
-		if (!(await file.exists())) {
+		if (!(await _fileOrDirExists(path))) {
 			throw new Error(`File not found: ${path}`);
 		}
-		return await file.text();
+		return await readFile(path, "utf-8");
 	} catch (error) {
 		throw new Error(
 			`Failed to read file ${path}: ${
@@ -47,9 +43,10 @@ async function _executeFileStats(
 	context: { directory: string },
 ): Promise<unknown> {
 	const files: FileStats[] = [];
-	const globber = new Bun.Glob(args.pattern);
+	const { glob } = await import("glob");
+	const matchedFiles = await glob(args.pattern, { cwd: context.directory });
 
-	for await (const file of globber.scan({ cwd: context.directory })) {
+	for (const file of matchedFiles) {
 		const filePath = join(context.directory, file);
 		try {
 			const exists = await _fileOrDirExists(filePath);
@@ -96,16 +93,20 @@ async function _executeGitChanges(
 	context: { directory: string },
 ): Promise<unknown> {
 	try {
-		const statusResult = await Bun.$`cd ${
-			context.directory as string
-		} && git status --porcelain`.quiet();
+		const { exec } = await import("node:child_process");
+		const { promisify } = await import("node:util");
+		const execAsync = promisify(exec);
 
-		const diffResult = await Bun.$`cd ${
-			context.directory as string
-		} && git diff --stat`.quiet();
+		const statusResult = await execAsync(
+			`cd ${context.directory as string} && git status --porcelain`,
+		);
 
-		const status = statusResult.stdout.toString();
-		const diff = diffResult.stdout.toString();
+		const diffResult = await execAsync(
+			`cd ${context.directory as string} && git diff --stat`,
+		);
+
+		const status = statusResult.stdout;
+		const diff = diffResult.stdout;
 
 		const parsedStatus = status
 			.split("\n")
@@ -210,20 +211,23 @@ async function _executeRunScript(
 	const timeoutMs = args.timeout || 30000;
 
 	try {
+		const { exec } = await import("node:child_process");
+		const { promisify } = await import("node:util");
+		const execAsync = promisify(exec);
+
 		const result = await Promise.race([
-			Bun.$`cd ${context.directory as string} && ${args.command}`,
-			new Promise((_, reject) =>
+			execAsync(`cd ${context.directory as string} && ${args.command}`),
+			new Promise<never>((_, reject) =>
 				setTimeout(() => reject(new Error("Command timeout")), timeoutMs),
 			),
 		]);
 
-		const shellResult = result as Awaited<ReturnType<typeof Bun.$>>;
 		return {
 			command: args.command,
-			exit_code: shellResult.exitCode,
-			output: shellResult.stdout?.toString() || "",
-			errors: shellResult.stderr?.toString() || "",
-			success: shellResult.exitCode === 0,
+			exit_code: 0,
+			output: result.stdout || "",
+			errors: result.stderr || "",
+			success: true,
 		};
 	} catch (error) {
 		return {

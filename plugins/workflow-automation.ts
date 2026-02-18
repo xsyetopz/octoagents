@@ -1,13 +1,27 @@
+import { exec } from "node:child_process";
+import { constants } from "node:fs";
+import { access, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { promisify } from "node:util";
 import { tool } from "@opencode-ai/plugin";
+
+const execAsync = promisify(exec);
+
+async function _fileExists(path: string): Promise<boolean> {
+	try {
+		await access(path, constants.F_OK);
+		return true;
+	} catch (_err) {
+		return false;
+	}
+}
 
 async function _readTextFile(path: string): Promise<string> {
 	try {
-		const file = Bun.file(path);
-		if (!(await file.exists())) {
+		if (!(await _fileExists(path))) {
 			throw new Error(`File not found: ${path}`);
 		}
-		return await file.text();
+		return await readFile(path, "utf-8");
 	} catch (error) {
 		throw new Error(
 			`Failed to read file ${path}: ${
@@ -19,7 +33,7 @@ async function _readTextFile(path: string): Promise<string> {
 
 async function _writeTextFile(path: string, content: string): Promise<void> {
 	try {
-		await Bun.write(path, content);
+		await writeFile(path, content, "utf-8");
 	} catch (error) {
 		throw new Error(
 			`Failed to write file ${path}: ${
@@ -41,14 +55,15 @@ async function _executeGitCommit(
 	try {
 		const files = args.files || ".";
 
-		await Bun.$`cd ${context.directory as string} && git add ${files}`;
-		const result =
-			await Bun.$`cd ${context.directory as string} && git commit -m ${args.message}`;
+		await execAsync(`cd ${context.directory as string} && git add ${files}`);
+		const result = await execAsync(
+			`cd ${context.directory as string} && git commit -m "${args.message}"`,
+		);
 
 		return {
-			success: result.exitCode === 0,
+			success: true,
 			message: args.message,
-			output: result.stdout.toString(),
+			output: result.stdout,
 		};
 	} catch (error) {
 		return {
@@ -88,22 +103,23 @@ async function _executeBranchCreateOrSwitch(
 	}
 
 	const checkoutArg = args.action === "create" ? "-b" : "";
-	const result = await Bun.$`cd ${
-		context.directory as string
-	} && git checkout ${checkoutArg} ${args.branch}`;
+	const cmd =
+		`cd ${context.directory as string} && git checkout ${checkoutArg} ${args.branch}`.trim();
+	const result = await execAsync(cmd);
 
 	return {
-		success: result.exitCode === 0,
-		output: result.stdout.toString() || "",
+		success: true,
+		output: result.stdout || "",
 	};
 }
 
 async function _executeBranchList(context: {
 	directory: string;
 }): Promise<unknown> {
-	const result = await Bun.$`cd ${context.directory as string} && git branch`;
+	const result = await execAsync(
+		`cd ${context.directory as string} && git branch`,
+	);
 	const branches = result.stdout
-		.toString()
 		.split("\n")
 		.filter((b) => b.trim())
 		.map((b) => b.trim().replace(BRANCH_INDICATOR_REGEX, ""));
@@ -145,10 +161,11 @@ async function _executeBatchRename(
 	context: { directory: string },
 ): Promise<unknown> {
 	try {
-		const globber = new Bun.Glob(args.pattern);
+		const { glob } = await import("glob");
+		const files = await glob(args.pattern, { cwd: context.directory });
 		const renamed: Array<{ from: string; to: string }> = [];
 
-		for await (const file of globber.scan({ cwd: context.directory })) {
+		for (const file of files) {
 			const match = file.match(FILENAME_WITH_EXT_REGEX);
 			if (!match) {
 				continue;
@@ -166,9 +183,10 @@ async function _executeBatchRename(
 				renamed.push({ from: file, to: newName });
 
 				if (!args.dryRun) {
+					const { rename } = await import("node:fs/promises");
 					const oldPath = join(context.directory, file);
 					const newPath = join(context.directory, newName);
-					await Bun.$`mv ${oldPath} ${newPath}`;
+					await rename(oldPath, newPath);
 				}
 			}
 		}
@@ -189,11 +207,18 @@ async function _executeGitCommand(
 	directory: string,
 	command: string,
 ): Promise<{ exitCode: number; stdout: string }> {
-	const result = await Bun.$`cd ${directory} && ${command}`.quiet();
-	return {
-		exitCode: result.exitCode,
-		stdout: result.stdout.toString().trim(),
-	};
+	try {
+		const result = await execAsync(`cd ${directory} && ${command}`);
+		return {
+			exitCode: 0,
+			stdout: result.stdout.trim(),
+		};
+	} catch (error: unknown) {
+		return {
+			exitCode: 1,
+			stdout: error instanceof Error ? error.message : String(error),
+		};
+	}
 }
 
 async function _checkFileExists(
@@ -201,9 +226,10 @@ async function _checkFileExists(
 	file: string,
 ): Promise<boolean> {
 	try {
-		const result = await Bun.$`cd ${directory} && test -e ${file}`.quiet();
-		return result.exitCode === 0;
-	} catch {
+		const filePath = join(directory, file);
+		await access(filePath, constants.F_OK);
+		return true;
+	} catch (_err) {
 		return false;
 	}
 }

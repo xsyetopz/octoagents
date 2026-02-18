@@ -113,9 +113,10 @@ async function _executeProjectStructure(
 	for (const [category, files] of Object.entries(fileCategories)) {
 		for (const file of files) {
 			try {
-				if (await Bun.file(join(context.directory, file)).exists()) {
-					detectedFiles[category as keyof typeof detectedFiles].push(file);
-				}
+				const { access } = await import("node:fs/promises");
+				const { constants } = await import("node:fs");
+				await access(join(context.directory, file), constants.F_OK);
+				detectedFiles[category as keyof typeof detectedFiles].push(file);
 			} catch (_err) {
 				console.debug(`File not found: ${file}`);
 			}
@@ -135,15 +136,17 @@ async function _executeCodeSearch(
 	context: { directory: string },
 ): Promise<unknown> {
 	const filePattern = args.filePattern || "**/*.{ts,js,py,go,rs,java,rb,php}";
-	const globber = new Bun.Glob(filePattern);
+	const { glob } = await import("glob");
+	const files = await glob(filePattern, { cwd: context.directory });
 	const matches: Array<{ file: string; line: number; content: string }> = [];
 
 	const regex = new RegExp(args.pattern, "gi");
 
-	for await (const file of globber.scan({ cwd: context.directory })) {
+	for (const file of files) {
 		const filePath = join(context.directory, file);
 		try {
-			const content = await Bun.file(filePath).text();
+			const { readFile } = await import("node:fs/promises");
+			const content = await readFile(filePath, "utf-8");
 			const lines = content.split("\n");
 
 			for (let i = 0; i < lines.length; i++) {
@@ -183,9 +186,11 @@ async function _executeTechStack(
 	const stack: Record<string, unknown> = {};
 
 	try {
-		const pkgContent = await Bun.file(
+		const { readFile } = await import("node:fs/promises");
+		const pkgContent = await readFile(
 			join(context.directory, "package.json"),
-		).text();
+			"utf-8",
+		);
 		const pkg = JSON.parse(pkgContent);
 		const allDeps = {
 			...pkg.dependencies,
@@ -214,17 +219,29 @@ async function _executeTechStack(
 		stack.javascript = {
 			runtime: pkg.engines?.node ? `Node ${pkg.engines.node}` : "Node.js",
 			frameworks: detectedFrameworks,
-			package_manager: (async () => {
-				if (
-					await Bun.file(join(context.directory, "pnpm-lock.yaml")).exists()
-				) {
+			package_manager: await (async () => {
+				const { access } = await import("node:fs/promises");
+				const { constants } = await import("node:fs");
+				try {
+					await access(
+						join(context.directory, "pnpm-lock.yaml"),
+						constants.F_OK,
+					);
 					return "pnpm";
+				} catch (_err) {
+					// Continue to next check
 				}
-				if (await Bun.file(join(context.directory, "yarn.lock")).exists()) {
+				try {
+					await access(join(context.directory, "yarn.lock"), constants.F_OK);
 					return "yarn";
+				} catch (_err) {
+					// Continue to next check
 				}
-				if (await Bun.file(join(context.directory, "bun.lockb")).exists()) {
+				try {
+					await access(join(context.directory, "bun.lockb"), constants.F_OK);
 					return "bun";
+				} catch (_err) {
+					// Continue to npm default
 				}
 				return "npm";
 			})(),
@@ -234,7 +251,8 @@ async function _executeTechStack(
 	}
 
 	try {
-		await Bun.file(join(context.directory, "pyproject.toml")).text();
+		const { readFile } = await import("node:fs/promises");
+		await readFile(join(context.directory, "pyproject.toml"), "utf-8");
 		stack.python = {
 			package_manager: "pip/poetry",
 		};
@@ -243,7 +261,8 @@ async function _executeTechStack(
 	}
 
 	try {
-		await Bun.file(join(context.directory, "Cargo.toml")).text();
+		const { readFile } = await import("node:fs/promises");
+		await readFile(join(context.directory, "Cargo.toml"), "utf-8");
 		stack.rust = {
 			package_manager: "cargo",
 		};
@@ -252,7 +271,8 @@ async function _executeTechStack(
 	}
 
 	try {
-		await Bun.file(join(context.directory, "go.mod")).text();
+		const { readFile } = await import("node:fs/promises");
+		await readFile(join(context.directory, "go.mod"), "utf-8");
 		stack.go = {
 			package_manager: "go modules",
 		};
@@ -284,14 +304,12 @@ async function _executeDocumentation(
 	for (const file of docFiles) {
 		try {
 			const filePath = join(context.directory, file);
-			const fileObj = Bun.file(filePath);
-			if (!(await fileObj.exists())) {
-				continue;
-			}
-			const content = await fileObj.text();
+			const { readFile, stat } = await import("node:fs/promises");
+			const stats = await stat(filePath);
+			const content = await readFile(filePath, "utf-8");
 			found.push({
 				file,
-				size: fileObj.size,
+				size: stats.size,
 				lines: content.split("\n").length,
 			});
 		} catch (_docErr) {

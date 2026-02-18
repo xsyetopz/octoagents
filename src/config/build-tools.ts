@@ -33,8 +33,11 @@ export async function detectBuildTool(
 	projectPath: string,
 ): Promise<BuildTool | undefined> {
 	try {
-		const { stdout } = await Bun.$`ls ${projectPath}`;
-		const files = stdout.toString().split("\n");
+		const { exec } = await import("node:child_process");
+		const { promisify } = await import("node:util");
+		const execAsync = promisify(exec);
+		const { stdout } = await execAsync(`ls ${projectPath}`);
+		const files = stdout.split("\n");
 		const filesLower = files.map((f: string) => f.toLowerCase());
 
 		for (const tool of BUILD_TOOLS) {
@@ -54,7 +57,8 @@ export async function detectBuildTool(
 		}
 
 		return undefined;
-	} catch {
+	} catch (_err) {
+		// Return undefined if directory listing fails
 		return undefined;
 	}
 }

@@ -1,14 +1,24 @@
+import { constants } from "node:fs";
+import { access, readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
 
+async function _fileExists(path: string): Promise<boolean> {
+	try {
+		await access(path, constants.F_OK);
+		return true;
+	} catch (_err) {
+		return false;
+	}
+}
+
 async function _readTextFile(path: string): Promise<string> {
 	try {
-		const file = Bun.file(path);
-		if (!(await file.exists())) {
+		if (!(await _fileExists(path))) {
 			throw new Error(`File not found: ${path}`);
 		}
-		return await file.text();
+		return await readFile(path, "utf-8");
 	} catch (error) {
 		throw new Error(
 			`Failed to read file ${path}: ${

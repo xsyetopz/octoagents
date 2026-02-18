@@ -1,11 +1,11 @@
 import { mkdirSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { $ } from "bun";
 import { readTextFile, writeTextFile } from "../utils/files.ts";
 
 export async function ensureDirectory(path: string): Promise<void> {
 	try {
-		await $`mkdir -p ${path}`.quiet();
+		await mkdir(path, { recursive: true });
 	} catch (error) {
 		console.warn(
 			`Failed to create directory ${path}: ${(error as Error).message}`,
@@ -44,8 +44,11 @@ export async function copyTools(
 
 	for (const tool of presetTools) {
 		const toolsPath = join(installerDir, `tools/${tool}.ts`);
-		const toolsFile = Bun.file(toolsPath);
-		if (!(await toolsFile.exists())) {
+		const { access } = await import("node:fs/promises");
+		const { constants } = await import("node:fs");
+		try {
+			await access(toolsPath, constants.F_OK);
+		} catch (_err) {
 			console.warn(`Tool ${tool} not found in tools/, skipping...`);
 			continue;
 		}
@@ -71,8 +74,11 @@ export async function copyPlugins(
 
 	for (const plugin of presetPlugins) {
 		const pluginsPath = join(installerDir, `plugins/${plugin}.ts`);
-		const pluginsFile = Bun.file(pluginsPath);
-		if (!(await pluginsFile.exists())) {
+		const { access } = await import("node:fs/promises");
+		const { constants } = await import("node:fs");
+		try {
+			await access(pluginsPath, constants.F_OK);
+		} catch (_err) {
 			console.warn(`Plugin ${plugin} not found in plugins/, skipping...`);
 			continue;
 		}

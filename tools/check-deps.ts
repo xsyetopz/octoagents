@@ -1,11 +1,14 @@
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { tool } from "@opencode-ai/plugin";
-import { $ } from "bun";
+
+const execAsync = promisify(exec);
 
 const _checkDependencies = async (cwd?: string) => {
 	try {
-		const command = cwd ? $`cd ${cwd} && bun audit` : $`bun audit`;
-		const output = await command.text();
-		return output;
+		const command = cwd ? `cd ${cwd} && npm audit` : "npm audit";
+		const { stdout } = await execAsync(command);
+		return stdout;
 	} catch (error) {
 		const errorOutput = error instanceof Error ? error.message : String(error);
 		return errorOutput;

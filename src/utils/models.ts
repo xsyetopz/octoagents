@@ -1,4 +1,7 @@
-import { $ } from "bun";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
+
+const execAsync = promisify(exec);
 
 export interface ParsedModel {
 	provider: string;
@@ -7,10 +10,10 @@ export interface ParsedModel {
 
 export async function getAvailableModels(): Promise<ParsedModel[]> {
 	try {
-		const { stdout } = await $`opencode models`;
+		const { stdout } = await execAsync("opencode models");
 		const models: ParsedModel[] = [];
 
-		const lines = stdout.toString().split("\n");
+		const lines = stdout.split("\n");
 		for (const line of lines) {
 			const trimmed = line.trim();
 			if (!trimmed || trimmed.startsWith("krystian@")) {

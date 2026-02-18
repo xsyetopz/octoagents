@@ -1,11 +1,17 @@
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { tool } from "@opencode-ai/plugin";
-import { $ } from "bun";
+
+const execAsync = promisify(exec);
 
 const _getGitStatus = async () => {
 	try {
-		const status = await $`git status --short`.text();
-		const branch = await $`git rev-parse --abbrev-ref HEAD`.text();
-		return { status: status.trim(), branch: branch.trim() };
+		const statusResult = await execAsync("git status --short");
+		const branchResult = await execAsync("git rev-parse --abbrev-ref HEAD");
+		return {
+			status: statusResult.stdout.trim(),
+			branch: branchResult.stdout.trim(),
+		};
 	} catch (error) {
 		throw new Error(
 			`Git command failed: ${error instanceof Error ? error.message : String(error)}`,

@@ -1,5 +1,8 @@
-import { $ } from "bun";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { readTextFile } from "../utils/files.ts";
+
+const execAsync = promisify(exec);
 
 export function getHomeDir(): string {
 	return (
@@ -12,9 +15,9 @@ export function getHomeDir(): string {
 
 export async function checkOpenCodeInstalled(): Promise<boolean> {
 	try {
-		await $`which opencode`.quiet();
+		await execAsync("which opencode");
 		return true;
-	} catch {
+	} catch (_err) {
 		return false;
 	}
 }
@@ -22,7 +25,7 @@ export async function checkOpenCodeInstalled(): Promise<boolean> {
 export async function installOpenCode(): Promise<void> {
 	console.log("Installing OpenCode...");
 	try {
-		await $`bun install -g opencode`;
+		await execAsync("bun install -g opencode");
 		console.log("OpenCode installed successfully");
 	} catch (error) {
 		console.error("Failed to install OpenCode:", error);
@@ -32,9 +35,9 @@ export async function installOpenCode(): Promise<void> {
 
 export async function checkBunAvailable(): Promise<boolean> {
 	try {
-		await $`which bun`.quiet();
+		await execAsync("which bun");
 		return true;
-	} catch {
+	} catch (_err) {
 		return false;
 	}
 }
@@ -42,7 +45,7 @@ export async function checkBunAvailable(): Promise<boolean> {
 export async function installBun(): Promise<void> {
 	console.log("Installing Bun...");
 	try {
-		await $`curl -fsSL https://bun.sh/install | bash`;
+		await execAsync("curl -fsSL https://bun.sh/install | bash");
 		console.log(
 			"Bun installed successfully. Please restart your shell and run install script again",
 		);

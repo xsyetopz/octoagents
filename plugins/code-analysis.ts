@@ -1,12 +1,26 @@
+import { exec } from "node:child_process";
+import { constants } from "node:fs";
+import { access, readFile } from "node:fs/promises";
+import { promisify } from "node:util";
 import { tool } from "@opencode-ai/plugin";
+
+const execAsync = promisify(exec);
+
+async function _fileExists(path: string): Promise<boolean> {
+	try {
+		await access(path, constants.F_OK);
+		return true;
+	} catch (_err) {
+		return false;
+	}
+}
 
 async function _readTextFile(path: string): Promise<string> {
 	try {
-		const file = Bun.file(path);
-		if (!(await file.exists())) {
+		if (!(await _fileExists(path))) {
 			throw new Error(`File not found: ${path}`);
 		}
-		return await file.text();
+		return await readFile(path, "utf-8");
 	} catch (error) {
 		throw new Error(
 			`Failed to read file ${path}: ${
@@ -18,19 +32,19 @@ async function _readTextFile(path: string): Promise<string> {
 
 async function _checkSemgrep(): Promise<void> {
 	try {
-		await Bun.$`which semgrep`.quiet();
-	} catch {
+		await execAsync("which semgrep");
+	} catch (_err) {
 		console.log("Installing semgrep...");
-		await Bun.$`brew install semgrep`.quiet();
+		await execAsync("brew install semgrep");
 	}
 }
 
 async function _checkComplexityTool(): Promise<void> {
 	try {
-		await Bun.$`which complexity`.quiet();
-	} catch {
+		await execAsync("which complexity");
+	} catch (_err) {
 		console.log("Installing complexity-report...");
-		await Bun.$`bun install -g complexity-report`.quiet();
+		await execAsync("npm install -g complexity-report");
 	}
 }
 
@@ -82,12 +96,8 @@ function _getComplexityAssessment(complexity: number): {
 }
 
 async function _globFiles(pattern: string, cwd: string): Promise<string[]> {
-	const globber = new Bun.Glob(pattern);
-	const files: string[] = [];
-	for await (const file of globber.scan({ cwd })) {
-		files.push(file);
-	}
-	return files;
+	const { glob } = await import("glob");
+	return await glob(pattern, { cwd });
 }
 
 async function _executeMetricsComplexity(
@@ -181,17 +191,28 @@ async function _executeAnalysisLinting(
 		await _checkSemgrep();
 	}
 
-	const result = await Bun.$`cd ${
+	const command = `cd ${
 		context.directory as string
 	} && ${args.linter} ${args.target}`;
-
-	return {
-		command: `${args.linter} ${args.target}`,
-		exitCode: result.exitCode,
-		output: result.stdout.toString(),
-		errors: result.stderr.toString(),
-		has_issues: result.exitCode !== 0,
-	};
+	try {
+		const result = await execAsync(command);
+		return {
+			command: `${args.linter} ${args.target}`,
+			exitCode: 0,
+			output: result.stdout,
+			errors: result.stderr,
+			has_issues: false,
+		};
+	} catch (error: unknown) {
+		const err = error as { stdout?: string; stderr?: string };
+		return {
+			command: `${args.linter} ${args.target}`,
+			exitCode: 1,
+			output: err.stdout || "",
+			errors: err.stderr || "",
+			has_issues: true,
+		};
+	}
 }
 
 function _createComplexityTool() {

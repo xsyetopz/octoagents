@@ -1,9 +1,12 @@
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { tool } from "@opencode-ai/plugin";
-import { $ } from "bun";
+
+const execAsync = promisify(exec);
 
 const _checkSemgrep = async () => {
 	try {
-		await $`which semgrep`.quiet();
+		await execAsync("which semgrep");
 		return true;
 	} catch {
 		return false;
@@ -20,8 +23,8 @@ const _runSemgrep = async (path: string, rules?: string) => {
 
 	try {
 		const ruleArg = rules || "auto";
-		const output = await $`semgrep --config ${ruleArg} ${path}`.text();
-		return output;
+		const { stdout } = await execAsync(`semgrep --config ${ruleArg} ${path}`);
+		return stdout;
 	} catch (error) {
 		const errorOutput = error instanceof Error ? error.message : String(error);
 		return errorOutput;
