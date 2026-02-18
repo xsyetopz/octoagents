@@ -1,5 +1,5 @@
 import { mkdirSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import { cp, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { readTextFile, writeTextFile } from "../utils/files.ts";
 
@@ -150,7 +150,7 @@ export async function copySkills(
 	ensureDirectorySync(targetDir);
 
 	try {
-		await $`cp -r ${sourceDir}/* ${targetDir}/`.quiet();
+		await cp(sourceDir, targetDir, { recursive: true, force: true });
 		console.log(`Created: ${targetDir}/ (skills copied)`);
 	} catch (error) {
 		console.debug(
