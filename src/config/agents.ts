@@ -15,17 +15,6 @@ export const ORCHESTRATOR: AgentConfig = {
 	temperature: 0.3,
 	steps: 50,
 	color: "#0d6efd",
-	subagents: [
-		"coder",
-		"reviewer",
-		"tester",
-		"explorer",
-		"researcher",
-		"implementer",
-		"planner",
-		"documenter",
-		"auditor",
-	],
 };
 
 export const CODER: AgentConfig = {

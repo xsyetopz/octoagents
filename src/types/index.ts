@@ -27,7 +27,6 @@ export interface AgentConfig {
 	steps: number;
 	color?: string;
 	permission?: PermissionRule;
-	subagents?: string[];
 }
 
 export interface ToolConfig {
@@ -45,7 +44,6 @@ export interface OpenCodeAgentConfig {
 	steps?: number;
 	color?: string;
 	permission?: PermissionRule;
-	subagents?: Record<string, boolean>;
 	disable?: boolean;
 	description?: string;
 	prompt?: string;
