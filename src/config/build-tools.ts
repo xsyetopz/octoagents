@@ -58,7 +58,6 @@ export async function detectBuildTool(
 
 		return undefined;
 	} catch (_err) {
-		// Return undefined if directory listing fails
 		return undefined;
 	}
 }
