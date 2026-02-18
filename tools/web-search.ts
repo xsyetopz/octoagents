@@ -1,7 +1,19 @@
+import { constants } from "node:fs";
+import { access, readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { tool } from "@opencode-ai/plugin";
-import { readTextFile } from "../src/utils/files.ts";
+
+async function _readTextFile(path: string): Promise<string> {
+	try {
+		await access(path, constants.F_OK);
+		return await readFile(path, "utf-8");
+	} catch (error) {
+		throw new Error(
+			`Failed to read file ${path}: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+}
 
 interface SearchResult {
 	url: string;
@@ -20,9 +32,9 @@ const _getSecret = async (
 ): Promise<string | undefined> => {
 	const secretsPath = join(homedir(), ".secrets");
 	try {
-		const content = await readTextFile(join(secretsPath, fileName));
+		const content = await _readTextFile(join(secretsPath, fileName));
 		return content.trim();
-	} catch {
+	} catch (_error) {
 		return process.env[envVar];
 	}
 };
