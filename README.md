@@ -39,7 +39,7 @@ bun install:agents --update
 
 10 specialized agents with community-informed model assignments:
 
-- orchestrate, coder, reviewer, tester, explorer, researcher, implementer, planner, documenter, auditor
+- orchestrate, build, review, test, explore, research, implement, document, audit
 
 ## Requirements
 
