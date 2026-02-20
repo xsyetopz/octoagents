@@ -1,190 +1,129 @@
-import type { AgentConfig } from "../types/index.ts";
+type AgentMode = "primary" | "subagent" | "all";
 
-export const ORCHESTRATOR: AgentConfig = {
-	name: "orchestrator",
-	description: "Primary orchestrator that delegates to specialist agents",
-	mode: "primary",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:moonshotai/Kimi-K2.5",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "kimi-k2.5-free",
-	},
-	temperature: 0.3,
-	steps: 50,
-	color: "#0d6efd",
-};
+export interface AgentConfig {
+	name: string;
+	description: string;
+	mode: AgentMode;
+	model: string;
+	temperature: number;
+	top_p?: number;
+	steps: number;
+	color: string;
+}
 
-export const CODER: AgentConfig = {
-	name: "coder",
-	description: "Specialized in writing, modifying, and refactoring code",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:deepseek-ai/DeepSeek-V3.2",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "big-pickle",
-	},
-	temperature: 0.2,
-	top_p: 0.9,
-	steps: 30,
-	color: "#198754",
-};
-
-export const REVIEWER: AgentConfig = {
-	name: "reviewer",
-	description:
-		"Specialized in code review, security analysis, and quality assessment",
-	mode: "subagent",
-	primaryModel: {
-		provider: "opencode",
-		model: "glm-5-free",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "big-pickle",
-	},
-	temperature: 0.1,
-	top_p: 0.85,
-	steps: 20,
-	color: "#ffc107",
-};
-
-export const TESTER: AgentConfig = {
-	name: "tester",
-	description: "Specialized in writing, running, and analyzing tests",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:zai-org/GLM-4.7",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "big-pickle",
-	},
-	temperature: 0.1,
-	top_p: 0.8,
-	steps: 25,
-	color: "#0dcaf0",
-};
-
-export const EXPLORER: AgentConfig = {
-	name: "explorer",
-	description: "Fast, read-only codebase exploration and analysis",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:MiniMaxAI/MiniMax-M2.1",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "minimax-m2.5-free",
-	},
-	temperature: 0.3,
-	steps: 20,
-	color: "#198754",
-};
-
-export const RESEARCHER: AgentConfig = {
-	name: "researcher",
-	description: "Fast, parallel spammable researcher for information gathering",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:moonshotai/Kimi-K2.5",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "kimi-k2.5-free",
-	},
-	temperature: 0.4,
-	steps: 20,
-	color: "#198754",
-};
-
-export const IMPLEMENTER: AgentConfig = {
-	name: "implementer",
-	description: "Implementation specialist with reliable tool calls",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:MiniMaxAI/MiniMax-M2.1",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "minimax-m2.5-free",
-	},
-	temperature: 0.15,
-	steps: 30,
-	color: "#198754",
-};
-
-export const PLANNER: AgentConfig = {
-	name: "planner",
-	description: "Architecture design and technical planning specialist",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:deepseek-ai/DeepSeek-V3.2",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "gpt-5-nano",
-	},
-	temperature: 0.45,
-	top_p: 0.95,
-	steps: 25,
-	color: "#0d6efd",
-};
-
-export const DOCUMENTER: AgentConfig = {
-	name: "documenter",
-	description: "Documentation and comments specialist",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:moonshotai/Kimi-K2.5",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "kimi-k2.5-free",
-	},
-	temperature: 0.35,
-	steps: 20,
-	color: "#0dcaf0",
-};
-
-export const AUDITOR: AgentConfig = {
-	name: "auditor",
-	description: "Thorough security audit and vulnerability specialist",
-	mode: "subagent",
-	primaryModel: {
-		provider: "synthetic",
-		model: "hf:zai-org/GLM-4.7",
-	},
-	fallbackModel: {
-		provider: "opencode",
-		model: "big-pickle",
-	},
-	temperature: 0.1,
-	top_p: 0.75,
-	steps: 20,
-	color: "#dc3545",
-};
+function _createAgent(
+	name: string,
+	description: string,
+	model: string,
+	temperature: number,
+	steps: number,
+	color: string,
+	options?: { top_p?: number; mode?: AgentMode },
+): AgentConfig {
+	return {
+		name,
+		description,
+		mode: options?.mode ?? "subagent",
+		model,
+		temperature,
+		...(options?.top_p !== undefined && { top_p: options.top_p }),
+		steps,
+		color,
+	};
+}
 
 export const AGENTS: AgentConfig[] = [
-	ORCHESTRATOR,
-	CODER,
-	REVIEWER,
-	TESTER,
-	EXPLORER,
-	RESEARCHER,
-	IMPLEMENTER,
-	PLANNER,
-	DOCUMENTER,
-	AUDITOR,
+	_createAgent(
+		"orchestrate",
+		"Coordinates work by delegating to specialized agents",
+		"synthetic/hf:moonshotai/Kimi-K2.5",
+		0.3,
+		20,
+		"#0d6efd",
+		{ mode: "primary" },
+	),
+	_createAgent(
+		"build",
+		"Write new features and implementations",
+		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		0.2,
+		8,
+		"#198754",
+		{ top_p: 0.9 },
+	),
+	_createAgent(
+		"review",
+		"Code review, security analysis, quality checks",
+		"opencode/glm-5-free",
+		0.1,
+		6,
+		"#ffc107",
+		{ top_p: 0.85 },
+	),
+	_createAgent(
+		"test",
+		"Write and run tests",
+		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		0.2,
+		7,
+		"#0dcaf0",
+		{ top_p: 0.8 },
+	),
+	_createAgent(
+		"explore",
+		"Navigate and understand codebase structure",
+		"synthetic/hf:moonshotai/Kimi-K2.5",
+		0.3,
+		6,
+		"#6c757d",
+	),
+	_createAgent(
+		"implement",
+		"Complex multi-file features with verification",
+		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		0.3,
+		10,
+		"#6610f2",
+	),
+	_createAgent(
+		"debug",
+		"Find and fix bugs",
+		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		0.1,
+		8,
+		"#dc3545",
+	),
+	_createAgent(
+		"refactor",
+		"Restructure and improve existing code",
+		"synthetic/hf:moonshotai/Kimi-K2.5",
+		0.2,
+		8,
+		"#fd7e14",
+	),
+	_createAgent(
+		"document",
+		"Write documentation and explanatory content",
+		"synthetic/hf:MiniMaxAI/MiniMax-M2.1",
+		0.35,
+		6,
+		"#20c997",
+	),
+	_createAgent(
+		"audit",
+		"Deep security audits and vulnerability analysis",
+		"synthetic/hf:moonshotai/Kimi-K2.5",
+		0.1,
+		8,
+		"#6f42c1",
+		{ top_p: 0.75 },
+	),
+	_createAgent(
+		"research",
+		"Web searches and external documentation lookup",
+		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		0.4,
+		6,
+		"#0dcaf0",
+	),
 ];
