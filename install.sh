@@ -64,6 +64,11 @@ echo "Installing to: $INSTALL_DIR"
 echo
 
 mkdir -p "$INSTALL_DIR/agents"
+mkdir -p "$INSTALL_DIR/commands"
+mkdir -p "$INSTALL_DIR/skills"
+cp "$SCRIPT_DIR/templates/AGENTS.md" "$INSTALL_DIR/AGENTS.md"
+cp "$SCRIPT_DIR/templates/commands/"*.md "$INSTALL_DIR/commands/" 2>/dev/null || true
+cp "$SCRIPT_DIR/templates/skills/"*.md "$INSTALL_DIR/skills/" 2>/dev/null || true
 
 echo "Generating agents..."
 echo
