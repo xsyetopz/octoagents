@@ -1,6 +1,6 @@
 ---
 description: "Add or improve documentation for code"
-agent: "documenter"
+agent: "document"
 ---
 
 # Add Documentation

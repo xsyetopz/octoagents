@@ -1,6 +1,6 @@
 ---
 description: "Implement a new feature from scratch"
-agent: "coder"
+agent: "implement"
 ---
 
 # Feature Implementation

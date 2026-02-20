@@ -1,6 +1,6 @@
 ---
 description: "Remove AI-generated code artifacts and style inconsistencies"
-agent: "reviewer"
+agent: "review"
 ---
 
 # Code Cleanup: Remove AI Slop
