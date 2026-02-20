@@ -32,11 +32,14 @@ function _createAgent(
 	};
 }
 
+const DEEPSEEK_AI_DEEPSEEK_V3_2 = "synthetic/hf:deepseek-ai/DeepSeek-V3.2";
+const NVIDIA_KIMI_K2_5_NVFP4 = "synthetic/hf:nvidia/Kimi-K2.5-NVFP4";
+
 export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"orchestrate",
 		"Coordinates work by delegating to specialized agents",
-		"synthetic/hf:moonshotai/Kimi-K2.5",
+		NVIDIA_KIMI_K2_5_NVFP4,
 		0.3,
 		20,
 		"#0d6efd",
@@ -45,7 +48,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"build",
 		"Write new features and implementations",
-		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		DEEPSEEK_AI_DEEPSEEK_V3_2,
 		0.2,
 		8,
 		"#198754",
@@ -63,7 +66,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"test",
 		"Write and run tests",
-		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		DEEPSEEK_AI_DEEPSEEK_V3_2,
 		0.2,
 		7,
 		"#0dcaf0",
@@ -72,7 +75,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"explore",
 		"Navigate and understand codebase structure",
-		"synthetic/hf:moonshotai/Kimi-K2.5",
+		NVIDIA_KIMI_K2_5_NVFP4,
 		0.3,
 		6,
 		"#6c757d",
@@ -80,7 +83,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"implement",
 		"Complex multi-file features with verification",
-		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		DEEPSEEK_AI_DEEPSEEK_V3_2,
 		0.3,
 		10,
 		"#6610f2",
@@ -88,7 +91,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"debug",
 		"Find and fix bugs",
-		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		DEEPSEEK_AI_DEEPSEEK_V3_2,
 		0.1,
 		8,
 		"#dc3545",
@@ -96,7 +99,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"refactor",
 		"Restructure and improve existing code",
-		"synthetic/hf:moonshotai/Kimi-K2.5",
+		NVIDIA_KIMI_K2_5_NVFP4,
 		0.2,
 		8,
 		"#fd7e14",
@@ -112,7 +115,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"audit",
 		"Deep security audits and vulnerability analysis",
-		"synthetic/hf:moonshotai/Kimi-K2.5",
+		NVIDIA_KIMI_K2_5_NVFP4,
 		0.1,
 		8,
 		"#6f42c1",
@@ -121,7 +124,7 @@ export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"research",
 		"Web searches and external documentation lookup",
-		"synthetic/hf:deepseek-ai/DeepSeek-V3.2",
+		DEEPSEEK_AI_DEEPSEEK_V3_2,
 		0.4,
 		6,
 		"#0dcaf0",
