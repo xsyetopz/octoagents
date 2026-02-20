@@ -34,39 +34,6 @@ fi
 
 echo "[DEBUG] INSTALL_DIR is: $INSTALL_DIR"
 
-generate_agent() {
-    local name=$1
-    local description=$2
-    local mode=$3
-    local model=$4
-    local temperature=$5
-    local top_p=$6
-    local steps=$7
-    local color=$8
-    local template_path="$SCRIPT_DIR/templates/agents/${name}.md"
-    local output_path="$INSTALL_DIR/agents/${name}.md"
-
-    if [[ ! -f "$template_path" ]]; then
-        echo "Warning: Template not found for $name, skipping..."
-        return
-    fi
-
-    sed -e "s|{{description}}|$description|g" \
-        -e "s|{{mode}}|$mode|g" \
-        -e "s|{{model}}|$model|g" \
-        -e "s|{{temperature}}|$temperature|g" \
-        -e "s|{{top_p}}|$top_p|g" \
-        -e "s|{{steps}}|$steps|g" \
-        -e "s|{{color}}|$color|g" \
-        "$template_path" > "$output_path"
-
-    if [[ -z "$top_p" ]]; then
-        sed -i.bak '/^top_p:/d' "$output_path" && rm "${output_path}.bak"
-    fi
-
-    echo "Created: $output_path"
-}
-
 echo "Installing to: $INSTALL_DIR"
 echo
 
@@ -82,7 +49,7 @@ for skillfile in "$SCRIPT_DIR/templates/skills/"*.md; do
     fi
 done
 
-echo "Generating agents..."
+echo "Generating agents, commands, and skills..."
 echo
 
 bun run "$SCRIPT_DIR/src/generate.ts" "$INSTALL_DIR"
