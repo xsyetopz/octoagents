@@ -23,7 +23,7 @@ function renderTemplate(
 				template = template.replace(new RegExp(`{{/${"if"}}}`, "g"), "");
 			} else {
 				template = template.replace(
-					new RegExp(`{{#if ${key}}}[\\s\\S]*?{{/${"if"}}}`, "g"),
+					new RegExp(`{{#if ${key}}}[sS]*?{{/${"if"}}}`, "g"),
 					"",
 				);
 			}
@@ -65,24 +65,6 @@ function generateFiles<T>(
 const agentsDir = join(installDir, "agents");
 const agentsTemplateDir = join(import.meta.dir, "../templates/agents");
 console.log(`Generating agents to: ${agentsDir}`);
-generateFiles(
-	AGENTS,
-	"", // will be set per agent
-	agentsDir,
-	(agent) => ({
-		description: agent.description,
-		mode: agent.mode,
-		model: agent.model,
-		temperature: agent.temperature.toString(),
-		steps: agent.steps.toString(),
-		color: agent.color,
-		top_p: agent.top_p !== undefined ? agent.top_p.toString() : "",
-	}),
-	(agent) => ({ top_p: agent.top_p !== undefined }),
-	undefined,
-	"",
-);
-
 for (const agent of AGENTS) {
 	const templatePath = join(agentsTemplateDir, `${agent.name}.md`);
 	const outputDir = agentsDir;
@@ -145,4 +127,4 @@ generateFiles(
 	"skill: ",
 );
 
-console.log("\nAgent generation complete!");
+console.log("\nAgent generation complete!\n");
