@@ -4,21 +4,19 @@
   "description": "OpenCode Agentic Framework - Specialized agents, tools, and commands",
   "type": "module",
   "scripts": {
-    "install:agents": "bun run build && bun run install.js",
     "biome:check": "biome check . --write --unsafe --max-diagnostics 16384",
     "biome:format": "biome format . --write --max-diagnostics 16384",
-    "biome:lint": "biome lint . --write --unsafe --max-diagnostics 16384",
-    "build": "bun build src/install.ts --outdir . --target bun --format cjs --minify"
+    "biome:lint": "biome lint . --write --unsafe --max-diagnostics 16384"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "1.2.6",
-    "glob": "^13.0.5",
+    "@opencode-ai/plugin": "1.2.10",
+    "glob": "^13.0.6",
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.2",
+    "@biomejs/biome": "^2.4.3",
     "@types/bun": "^1.3.9",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.0",
     "typescript": "^5.9.3"
   }
 }
