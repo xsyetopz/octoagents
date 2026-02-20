@@ -7,24 +7,32 @@ DEFAULT_INSTALL_DIR="$HOME/.config/opencode"
 echo "OctoAgents Framework Installer"
 echo
 
-select_install_dir() {
-    echo "Install location:"
-    echo "  1) Global (~/.config/opencode)"
-    echo "  2) Project (./.opencode)"
-    echo "  3) Custom path"
-    echo
-    read -p "Select (1-3): " choice
+echo "Install location:"
+echo "  1) Global (~/.config/opencode)"
+echo "  2) Project (./.opencode)"
+echo "  3) Custom path"
+echo
+read -r -p "Select (1-3): " choice
+case "$choice" in
+    1) INSTALL_DIR="$DEFAULT_INSTALL_DIR" ;;
+    2) INSTALL_DIR="$(pwd)/.opencode" ;;
+    3)
+        read -r -p "Enter path: " custom_path
+        if [[ -z "$custom_path" ]]; then
+            INSTALL_DIR="$DEFAULT_INSTALL_DIR"
+        else
+            INSTALL_DIR="$custom_path"
+        fi
+        ;;
+    *) INSTALL_DIR="$DEFAULT_INSTALL_DIR" ;;
+esac
 
-    case $choice in
-        1) echo "$DEFAULT_INSTALL_DIR" ;;
-        2) echo "$(pwd)/.opencode" ;;
-        3)
-            read -p "Enter path: " custom_path
-            echo "$custom_path"
-            ;;
-        *) echo "$DEFAULT_INSTALL_DIR" ;;
-    esac
-}
+if [[ -z "$INSTALL_DIR" ]]; then
+    echo "[ERROR] Invalid install directory. Defaulting to $DEFAULT_INSTALL_DIR"
+    INSTALL_DIR="$DEFAULT_INSTALL_DIR"
+fi
+
+echo "[DEBUG] INSTALL_DIR is: $INSTALL_DIR"
 
 generate_agent() {
     local name=$1
@@ -59,7 +67,6 @@ generate_agent() {
     echo "Created: $output_path"
 }
 
-INSTALL_DIR=$(select_install_dir)
 echo "Installing to: $INSTALL_DIR"
 echo
 
