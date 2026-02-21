@@ -109,15 +109,14 @@ main() {
     print_intro
     INSTALL_DIR="$(select_install_dir)"
     [[ -z "$INSTALL_DIR" ]] && INSTALL_DIR="$DEFAULT_INSTALL_DIR"
-    echo "[DEBUG] INSTALL_DIR is: $INSTALL_DIR"
-    echo "Installing to: $INSTALL_DIR"
-    echo
+    if [[ "$INSTALL_DIR" != "" ]]; then
+        setup_directories_and_files "$INSTALL_DIR"
+        generate_content "$INSTALL_DIR"
+        print_next_steps
+    fi
 
-    setup_directories_and_files "$INSTALL_DIR"
-    generate_content "$INSTALL_DIR"
-    print_next_steps
-
-    IFS='|' read -r CTX7_ENABLED ctx7_key OCTOCODE_ENABLED github_token PEEKABOO_ENABLED peekaboo_providers < <(prompt_mcp_integrations)
+    MCP_OUTPUT="$(prompt_mcp_integrations)"
+    IFS='|' read -r CTX7_ENABLED ctx7_key OCTOCODE_ENABLED github_token PEEKABOO_ENABLED peekaboo_providers <<< "$MCP_OUTPUT"
     write_env_file "$INSTALL_DIR" "$CTX7_ENABLED" "$ctx7_key" "$OCTOCODE_ENABLED" "$github_token" "$PEEKABOO_ENABLED" "$peekaboo_providers"
 }
 
