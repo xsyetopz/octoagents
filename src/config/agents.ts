@@ -20,16 +20,23 @@ function _createAgent(
 	temperature?: number,
 	options?: { top_p?: number; mode?: AgentMode },
 ): AgentConfig {
-	return {
+	const agent: AgentConfig = {
 		name,
 		description,
 		mode: options?.mode ?? "subagent",
 		model,
-		...(temperature !== undefined && { temperature }),
-		...(options?.top_p !== undefined && { top_p: options.top_p }),
 		steps,
 		color,
 	};
+
+	if (temperature !== undefined) {
+		agent.temperature = temperature;
+	}
+	if (options?.top_p !== undefined) {
+		agent.top_p = options.top_p;
+	}
+
+	return agent;
 }
 
 const DEEPSEEK_AI_DEEPSEEK_V3_2 = "synthetic/hf:deepseek-ai/DeepSeek-V3.2";
