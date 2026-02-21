@@ -72,16 +72,29 @@ for (const agent of AGENTS) {
 		[agent],
 		templatePath,
 		outputDir,
+		(agent) => {
+			const replacements: Record<string, string> = {
+				description: agent.description,
+				mode: agent.mode,
+				model: agent.model,
+				color: agent.color,
+			};
+			if (agent.temperature !== undefined) {
+				replacements["temperature"] = agent.temperature.toString();
+			}
+			if (agent.steps !== undefined) {
+				replacements["steps"] = agent.steps.toString();
+			}
+			if (agent.top_p !== undefined) {
+				replacements["top_p"] = agent.top_p.toString();
+			}
+			return replacements;
+		},
 		(agent) => ({
-			description: agent.description,
-			mode: agent.mode,
-			model: agent.model,
-			temperature: agent.temperature.toString(),
-			steps: agent.steps.toString(),
-			color: agent.color,
-			top_p: agent.top_p !== undefined ? agent.top_p.toString() : "",
+			temperature: agent.temperature !== undefined,
+			steps: agent.steps !== undefined,
+			top_p: agent.top_p !== undefined,
 		}),
-		(agent) => ({ top_p: agent.top_p !== undefined }),
 		undefined,
 		"",
 	);
