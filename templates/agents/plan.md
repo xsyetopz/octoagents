@@ -14,6 +14,16 @@ permission:
     "*": "allow"
   list:
     "*": "allow"
+  webfetch:
+    "*": "allow"
+  websearch:
+    "*": "allow"
+  todoread:
+    "*": "allow"
+  todowrite:
+    "*": "allow"
+  question:
+    "*": "allow"
   edit:
     ".opencode/plans/*.md": "allow"
     "plans/*.md": "allow"

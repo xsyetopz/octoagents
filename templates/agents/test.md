@@ -19,12 +19,6 @@ permission:
     "**/*test*": "allow"
     "**/*spec*": "allow"
     "*": "deny"
-  write:
-    "tests/**": "allow"
-    "test/**": "allow"
-    "**/*test*": "allow"
-    "**/*spec*": "allow"
-    "*": "deny"
   bash:
     "*test*": "allow"
     "*": "ask"

@@ -6,6 +6,12 @@ temperature: {{temperature}}
 steps: {{steps}}
 color: "{{color}}"
 permission:
+  webfetch:
+    "*": "allow"
+  websearch:
+    "*": "allow"
+  skill:
+    "*": "allow"
   read:
     "*": "deny"
   grep:
@@ -13,10 +19,6 @@ permission:
   glob:
     "*": "deny"
   edit:
-    "*": "deny"
-  write:
-    "*": "deny"
-  patch:
     "*": "deny"
   bash:
     "*": "deny"

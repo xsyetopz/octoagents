@@ -12,12 +12,11 @@ permission:
     "*": "allow"
   glob:
     "*": "allow"
+  webfetch:
+    "*": "allow"
+  websearch:
+    "*": "allow"
   edit:
-    "docs/**": "allow"
-    "*.md": "allow"
-    "README.md": "allow"
-    "*": "deny"
-  write:
     "docs/**": "allow"
     "*.md": "allow"
     "README.md": "allow"

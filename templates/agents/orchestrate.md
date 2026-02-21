@@ -6,15 +6,19 @@ temperature: {{temperature}}
 steps: {{steps}}
 color: "{{color}}"
 permission:
-  glob:
+  webfetch:
     "*": "allow"
-  task:
+  websearch:
     "*": "allow"
+  todoread:
+    "*": "allow"
+  todowrite:
+    "*": "allow"
+  question:
+    "*": "allow"
+  bash:
+    "*": "ask"
   edit:
-    "*": "deny"
-  write:
-    "*": "deny"
-  patch:
     "*": "deny"
 ---
 

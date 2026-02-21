@@ -12,12 +12,13 @@ permission:
     "*": "allow"
   glob:
     "*": "allow"
+  todoread:
+    "*": "allow"
+  todowrite:
+    "*": "allow"
+  question:
+    "*": "allow"
   edit:
-    "src/**": "allow"
-    "lib/**": "allow"
-    "tests/**": "allow"
-    "*": "deny"
-  write:
     "src/**": "allow"
     "lib/**": "allow"
     "tests/**": "allow"

@@ -12,11 +12,17 @@ permission:
     "*": "allow"
   glob:
     "*": "allow"
+  webfetch:
+    "*": "allow"
+  websearch:
+    "*": "allow"
+  todoread:
+    "*": "ask"
+  todowrite:
+    "*": "ask"
+  question:
+    "*": "allow"
   edit:
-    "src/**": "allow"
-    "lib/**": "allow"
-    "*": "deny"
-  write:
     "src/**": "allow"
     "lib/**": "allow"
     "*": "deny"

@@ -16,10 +16,6 @@ permission:
     "src/**": "allow"
     "lib/**": "allow"
     "*": "deny"
-  write:
-    "src/**": "allow"
-    "lib/**": "allow"
-    "*": "deny"
   bash:
     "*test*": "allow"
     "*lint*": "allow"

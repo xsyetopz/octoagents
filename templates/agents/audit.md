@@ -13,13 +13,14 @@ permission:
     "*": "allow"
   glob:
     "*": "allow"
+  webfetch:
+    "*": "allow"
+  websearch:
+    "*": "allow"
   bash:
-    "*audit*": "allow"
     "git log*": "allow"
     "*": "deny"
   edit:
-    "*": "deny"
-  write:
     "*": "deny"
   patch:
     "*": "deny"

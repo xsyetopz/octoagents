@@ -14,6 +14,10 @@ permission:
     "*": "allow"
   list:
     "*": "allow"
+  webfetch:
+    "*": "allow"
+  websearch:
+    "*": "allow"
   bash:
     "git log*": "allow"
     "git show*": "allow"
@@ -21,8 +25,6 @@ permission:
     "find*": "allow"
     "*": "ask"
   edit:
-    "*": "deny"
-  write:
     "*": "deny"
   patch:
     "*": "deny"
