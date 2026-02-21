@@ -5,7 +5,7 @@ export interface AgentConfig {
 	description: string;
 	mode: AgentMode;
 	model: string;
-	temperature: number;
+	temperature?: number;
 	top_p?: number;
 	steps: number;
 	color: string;
@@ -15,9 +15,9 @@ function _createAgent(
 	name: string,
 	description: string,
 	model: string,
-	temperature: number,
 	steps: number,
 	color: string,
+	temperature?: number,
 	options?: { top_p?: number; mode?: AgentMode },
 ): AgentConfig {
 	return {
@@ -25,7 +25,7 @@ function _createAgent(
 		description,
 		mode: options?.mode ?? "subagent",
 		model,
-		temperature,
+		...(temperature !== undefined && { temperature }),
 		...(options?.top_p !== undefined && { top_p: options.top_p }),
 		steps,
 		color,
@@ -34,57 +34,55 @@ function _createAgent(
 
 const DEEPSEEK_AI_DEEPSEEK_V3_2 = "synthetic/hf:deepseek-ai/DeepSeek-V3.2";
 const NVIDIA_KIMI_K2_5_NVFP4 = "synthetic/hf:nvidia/Kimi-K2.5-NVFP4";
+const OPENCODE_GLM_5_FREE = "opencode/glm-5-free";
+const GITHUB_COPILOT_GPT_5_MINI = "github-copilot/gpt-5-mini";
 
 export const AGENTS: AgentConfig[] = [
 	_createAgent(
 		"orchestrate",
 		"Coordinates work by delegating to specialized agents",
 		NVIDIA_KIMI_K2_5_NVFP4,
-		0.3,
 		30,
 		"#0d6efd",
-		{ mode: "primary" },
+		0.6,
+		{ mode: "primary", top_p: 0.95 },
 	),
 	_createAgent(
 		"build",
 		"Write new features and implementations",
 		DEEPSEEK_AI_DEEPSEEK_V3_2,
-		0.2,
 		18,
 		"#198754",
-		{ top_p: 0.9 },
 	),
 	_createAgent(
 		"review",
 		"Code review, security analysis, quality checks",
-		"opencode/glm-5-free",
-		0.1,
+		OPENCODE_GLM_5_FREE,
 		16,
 		"#ffc107",
-		{ top_p: 0.85 },
+		0.7,
+		{ top_p: 1.0 },
 	),
 	_createAgent(
 		"test",
 		"Write and run tests",
 		DEEPSEEK_AI_DEEPSEEK_V3_2,
-		0.2,
 		17,
 		"#0dcaf0",
-		{ top_p: 0.8 },
 	),
 	_createAgent(
 		"explore",
 		"Navigate and understand codebase structure",
 		NVIDIA_KIMI_K2_5_NVFP4,
-		0.3,
 		16,
 		"#6c757d",
+		0.6,
+		{ top_p: 0.95 },
 	),
 	_createAgent(
 		"implement",
 		"Complex multi-file features with verification",
 		DEEPSEEK_AI_DEEPSEEK_V3_2,
-		0.3,
 		20,
 		"#6610f2",
 	),
@@ -92,7 +90,6 @@ export const AGENTS: AgentConfig[] = [
 		"debug",
 		"Find and fix bugs",
 		DEEPSEEK_AI_DEEPSEEK_V3_2,
-		0.1,
 		18,
 		"#dc3545",
 	),
@@ -100,33 +97,60 @@ export const AGENTS: AgentConfig[] = [
 		"refactor",
 		"Restructure and improve existing code",
 		NVIDIA_KIMI_K2_5_NVFP4,
-		0.2,
 		18,
 		"#fd7e14",
+		0.6,
+		{ top_p: 0.95 },
 	),
 	_createAgent(
 		"document",
 		"Write documentation and explanatory content",
 		"synthetic/hf:MiniMaxAI/MiniMax-M2.1",
-		0.35,
 		16,
 		"#20c997",
+		0.35,
 	),
 	_createAgent(
 		"audit",
 		"Deep security audits and vulnerability analysis",
-		NVIDIA_KIMI_K2_5_NVFP4,
-		0.1,
+		OPENCODE_GLM_5_FREE,
 		18,
 		"#6f42c1",
-		{ top_p: 0.75 },
+		0.7,
+		{ top_p: 1.0 },
 	),
 	_createAgent(
 		"research",
-		"Web searches and external documentation lookup",
+		"Investigate new technologies and approaches",
 		DEEPSEEK_AI_DEEPSEEK_V3_2,
-		0.4,
 		16,
 		"#0dcaf0",
+	),
+	_createAgent(
+		"plan",
+		"High-level task decomposition and strategy",
+		NVIDIA_KIMI_K2_5_NVFP4,
+		25,
+		"#e83e8c",
+		0.6,
+		{ mode: "primary", top_p: 0.95 },
+	),
+	_createAgent(
+		"title",
+		"Generate concise commit messages and PR titles",
+		GITHUB_COPILOT_GPT_5_MINI,
+		5,
+		"#20c997",
+		0.3,
+		{ mode: "primary" },
+	),
+	_createAgent(
+		"summary",
+		"Summarize code changes and PR descriptions",
+		GITHUB_COPILOT_GPT_5_MINI,
+		5,
+		"#6c757d",
+		0.1,
+		{ mode: "primary" },
 	),
 ];
