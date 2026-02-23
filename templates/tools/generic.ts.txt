@@ -1,9 +1,0 @@
-import { tool } from "@opencode-ai/plugin";
-
-export const {{name}}Tool = tool({
-    description: "{{description}}",
-    {{{argsSchema}}},
-    async execute(args) {
-        {{implementation}}
-    },
-});
