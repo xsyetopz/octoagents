@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "description": "OpenCode Agentic Framework - Specialized agents, tools, and commands",
   "type": "module",
+  "bin": {
+    "octoagents-install": "./src/cli.ts"
+  },
   "scripts": {
+    "install-framework": "bun run src/cli.ts",
     "biome:check": "biome check . --write --unsafe --max-diagnostics 16384",
     "biome:format": "biome format . --write --max-diagnostics 16384",
     "biome:lint": "biome lint . --write --unsafe --max-diagnostics 16384"

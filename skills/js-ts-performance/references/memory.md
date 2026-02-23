@@ -102,7 +102,7 @@ class LimitedObjectPool<T> {
     if (obj) {
       this.inUse.add(obj);
     }
-    return obj || null as any;
+    return obj || undefined as any;
   }
 
   release(obj: T): void {

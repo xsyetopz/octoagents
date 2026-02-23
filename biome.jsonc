@@ -87,12 +87,6 @@
 				"useForOf": "info",
 				"useFragmentSyntax": "warn",
 				"useLiteralEnumMembers": "warn",
-				// "useNamingConvention": {
-				// 	"level": "warn",
-				// 	"options": {
-				// 		"strictCase": false
-				// 	}
-				// },
 				"useNodeAssertStrict": "error",
 				"useShorthandAssign": "info",
 				"useThrowNewError": "error",

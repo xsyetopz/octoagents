@@ -127,7 +127,7 @@ function debounce<T extends any[]>(
   fn: (...args: T) => Promise<void>,
   delayMs: number
 ) {
-  let timeout: Timer | null = null;
+  let timeout: Timer | undefined = undefined;
 
   return async (...args: T) => {
     if (timeout) clearTimeout(timeout);
@@ -290,7 +290,7 @@ async function retry<T>(
   maxAttempts: number = 3,
   initialDelayMs: number = 1000
 ): Promise<T> {
-  let lastError: Error | null = null;
+  let lastError: Error | undefined = undefined;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
