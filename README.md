@@ -8,15 +8,16 @@ Installs a fleet of specialized agents, skills, commands, and plugins into your 
 bun run install-framework
 ```
 
-Writes the following into `.opencode/` and merges `opencode.json`:
+Prompts for install location (project or global), then writes:
 
-```
-agents/      11 agent files (7 built-in overrides + 4 custom subagents)
-commands/    9 slash commands
-skills/      8 skill directories
-plugins/     4 runtime plugins
-tools/       1 custom tool
-context/     CONTEXT.md — edit this to describe your project
+```text
+.opencode/
+  agents/      11 agent files (7 built-in overrides + 4 custom subagents)
+  commands/    9 slash commands
+  skills/      8 skill directories
+  plugins/     4 runtime plugins
+  tools/       1 custom tool
+  context/     CONTEXT.md — edit this to describe your project
 ```
 
 ## Agents
@@ -64,8 +65,8 @@ Model assignments are resolved at install time based on available credentials:
 ## Options
 
 ```bash
---scope project         # Install to current directory (default)
---scope global          # Install to ~/.config/opencode/
+--scope project         # Install to current project (.opencode/) — skips prompt
+--scope global          # Install to ~/.config/opencode/ — skips prompt
 --clean                 # Remove existing framework files before installing
 --dry-run               # Preview what would be written without writing anything
 --no-overrides          # Install custom subagents only, skip built-in overrides
