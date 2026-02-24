@@ -2,10 +2,14 @@
 import { createInterface } from "node:readline";
 import { install } from "./install.ts";
 import { BUILT_IN_PLUGINS, DEFAULT_PLUGINS } from "./plugins.ts";
-import type { InstallOptions, InstallScope } from "./types.ts";
+import type { InstallOptions, InstallScope, ProviderAvailability } from "./types.ts";
+import { detectProviders } from "./detect.ts";
+
+type ProviderTier = "synthetic" | "copilot" | "free";
 
 interface ParseState {
 	scope: InstallScope | undefined;
+	provider: ProviderTier | undefined;
 	clean: boolean;
 	dryRun: boolean;
 	noOverrides: boolean;
@@ -25,6 +29,21 @@ function parseScopeArg(args: string[], i: number, state: ParseState): number {
 	);
 }
 
+function parseProviderArg(
+	args: string[],
+	i: number,
+	state: ParseState,
+): number {
+	const next = args[i + 1];
+	if (next === "synthetic" || next === "copilot" || next === "free") {
+		state.provider = next;
+		return i + 1;
+	}
+	throw new Error(
+		`--provider requires "synthetic", "copilot", or "free", got: ${String(next)}`,
+	);
+}
+
 function parsePluginsArg(args: string[], i: number, state: ParseState): number {
 	const next = args[i + 1];
 	if (!next || next.startsWith("--")) {
@@ -41,6 +60,7 @@ function parsePluginsArg(args: string[], i: number, state: ParseState): number {
 
 const FLAG_HANDLERS: Record<string, ArgHandler> = {
 	"--scope": parseScopeArg,
+	"--provider": parseProviderArg,
 	"--plugins": parsePluginsArg,
 	"--clean": (_a, i, s) => {
 		s.clean = true;
@@ -68,12 +88,14 @@ const FLAG_HANDLERS: Record<string, ArgHandler> = {
 	},
 };
 
-function parseArgs(
-	argv: string[],
-): Omit<InstallOptions, "scope"> & { scope: InstallScope | undefined } {
+function parseArgs(argv: string[]): Omit<InstallOptions, "scope" | "providers"> & {
+	scope: InstallScope | undefined;
+	provider: ProviderTier | undefined;
+} {
 	const args = argv.slice(2);
 	const state: ParseState = {
 		scope: undefined,
+		provider: undefined,
 		clean: false,
 		dryRun: false,
 		noOverrides: false,
@@ -92,17 +114,37 @@ function parseArgs(
 	return state;
 }
 
-function promptScope(): Promise<InstallScope> {
+function tierToProviders(tier: ProviderTier): ProviderAvailability {
+	return {
+		synthetic: tier === "synthetic",
+		githubCopilot: tier === "copilot",
+	};
+}
+
+function promptLine(question: string): Promise<string> {
 	const rl = createInterface({ input: process.stdin, output: process.stdout });
-	return new Promise<InstallScope>((resolve) => {
-		rl.question(
-			"Install to:\n  1) Current project  (.opencode/)\n  2) Global            (~/.config/opencode/)\n\n> ",
-			(answer) => {
-				rl.close();
-				resolve(answer.trim() === "2" ? "global" : "project");
-			},
-		);
+	return new Promise<string>((resolve) => {
+		rl.question(question, (answer) => {
+			rl.close();
+			resolve(answer.trim());
+		});
 	});
+}
+
+async function promptScope(): Promise<InstallScope> {
+	const answer = await promptLine(
+		"Install to:\n  1) Current project  (.opencode/)\n  2) Global            (~/.config/opencode/)\n\n> ",
+	);
+	return answer === "2" ? "global" : "project";
+}
+
+async function promptProvider(): Promise<ProviderAvailability> {
+	const answer = await promptLine(
+		"Provider (used to select models):\n  1) Synthetic API    (SYNTHETIC_API_KEY)\n  2) GitHub Copilot\n  3) Free built-ins\n\n> ",
+	);
+	return tierToProviders(
+		answer === "1" ? "synthetic" : answer === "2" ? "copilot" : "free",
+	);
 }
 
 function printHelp(): void {
@@ -113,31 +155,48 @@ function printHelp(): void {
 	console.log(`OpenCode Agentic Framework Installer
 
 Usage:
-  install                         Prompt for install location
+  install                         Prompt for location and provider
   install --scope project         Install to current project (.opencode/)
   install --scope global          Install to ~/.config/opencode/
+  install --provider synthetic    Use Synthetic API models
+  install --provider copilot      Use GitHub Copilot models
+  install --provider free         Use free OpenCode built-in models
   install --clean                 Remove existing framework files and reinstall
   install --dry-run               Preview what would be written without writing
   install --no-overrides          Skip built-in agent overrides
   install --plugins <names>       Comma-separated plugin list (default: safety-guard)
   install --no-plugins            Disable all plugins
 
+Provider auto-detection (runs when --provider is not set):
+  Checks SYNTHETIC_API_KEY env var and ~/.config/opencode/opencode.json.
+  If nothing is found, prompts interactively.
+
 Available plugins:
 ${availablePlugins}
-
-Provider detection (automatic):
-  - SYNTHETIC_API_KEY or synthetic key in opencode.json → Synthetic models
-  - GitHub Copilot credentials → github-copilot/gpt-5-mini fallback
-  - Otherwise → free OpenCode built-in models
 
 Generated files:
   .opencode/
     agents/       11 agent .md files (7 overrides + 4 custom)
     commands/     9 command .md files
     skills/       8 skill directories
-    plugins/      4 runtime plugin .ts files
-    tools/        1 custom tool .ts file
+    plugins/      5 runtime plugin .ts files
+    tools/        2 tool .ts files
     context/      CONTEXT.md template (edit to describe your project)`);
+}
+
+async function resolveProviders(
+	provider: ProviderTier | undefined,
+): Promise<ProviderAvailability> {
+	if (provider) {
+		return tierToProviders(provider);
+	}
+	const detected = await detectProviders();
+	if (detected.synthetic || detected.githubCopilot) {
+		const tier = detected.synthetic ? "synthetic" : "copilot";
+		console.log(`Detected provider: ${tier}`);
+		return detected;
+	}
+	return promptProvider();
 }
 
 async function main(): Promise<void> {
@@ -151,7 +210,8 @@ async function main(): Promise<void> {
 	}
 
 	const scope = parsed.scope ?? (await promptScope());
-	const options: InstallOptions = { ...parsed, scope };
+	const providers = await resolveProviders(parsed.provider);
+	const options: InstallOptions = { ...parsed, scope, providers };
 
 	try {
 		const report = await install(options);

@@ -88,6 +88,8 @@ export interface InstallOptions {
 	dryRun: boolean;
 	noOverrides: boolean;
 	plugins: string[];
+	/** Override auto-detection. When provided, detectProviders() is skipped. */
+	providers?: ProviderAvailability;
 }
 
 export interface Plugin {

@@ -232,7 +232,7 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 	const { scope, clean, dryRun, noOverrides, plugins: pluginNames } = options;
 
 	const [providers, plugins] = await Promise.all([
-		detectProviders(),
+		options.providers ? Promise.resolve(options.providers) : detectProviders(),
 		Promise.resolve(resolvePlugins(pluginNames)),
 	]);
 
