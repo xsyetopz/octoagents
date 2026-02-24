@@ -6,7 +6,6 @@ export {
 	CUSTOM_SUBAGENT_ROLES,
 } from "./agents.ts";
 export { COMMAND_DEFINITIONS } from "./commands.ts";
-export { buildOpenCodeConfig } from "./config.ts";
 export { buildContextFiles } from "./context.ts";
 export { detectProviders } from "./detect.ts";
 export type { AgentAssignment, InstallReport } from "./install.ts";
@@ -39,7 +38,6 @@ export type {
 	ContextFile,
 	InstallOptions,
 	InstallScope,
-	OpenCodeConfig,
 	Permission,
 	PermissionPattern,
 	PermissionValue,

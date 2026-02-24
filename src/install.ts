@@ -6,7 +6,6 @@ import {
 	CUSTOM_SUBAGENT_ROLES,
 } from "./agents.ts";
 import { COMMAND_DEFINITIONS } from "./commands.ts";
-import { buildOpenCodeConfig } from "./config.ts";
 import { buildContextFiles } from "./context.ts";
 import { detectProviders } from "./detect.ts";
 import {
@@ -70,31 +69,6 @@ async function removeDir(path: string, dryRun: boolean): Promise<void> {
 	await rm(path, { recursive: true, force: true });
 }
 
-async function mergeOpenCodeConfig(
-	configPath: string,
-	newConfig: Record<string, unknown>,
-	dryRun: boolean,
-): Promise<void> {
-	let existing: Record<string, unknown> = {};
-	try {
-		const file = Bun.file(configPath);
-		if (await file.exists()) {
-			existing = JSON.parse(await file.text()) as Record<string, unknown>;
-		}
-	} catch {
-		// start fresh
-	}
-	const merged = {
-		...existing,
-		...newConfig,
-		permission: newConfig["permission"] ?? {},
-	};
-	await writeFile(
-		configPath,
-		`${JSON.stringify(merged, undefined, 2)}\n`,
-		dryRun,
-	);
-}
 
 function runValidation(
 	agentNames: string[],
@@ -118,11 +92,12 @@ function runValidation(
 
 const PLUGIN_FILENAMES = [
 	"behavior-guard.ts",
+	"code-mode.ts",
 	"context-loader.ts",
 	"safety-guard.ts",
 	"session-logger.ts",
 ] as const;
-const TOOL_FILENAMES = ["read-context.ts"] as const;
+const TOOL_FILENAMES = ["code-mode-mcp.ts", "read-context.ts"] as const;
 
 export interface AgentAssignment {
 	role: string;
@@ -144,7 +119,6 @@ interface InstallDirs {
 	contextDir: string;
 	pluginsDir: string;
 	toolsDir: string;
-	configPath: string;
 }
 
 function resolveDirs(scope: InstallOptions["scope"]): InstallDirs {
@@ -158,7 +132,6 @@ function resolveDirs(scope: InstallOptions["scope"]): InstallDirs {
 		contextDir: `${opencodeDir}/context`,
 		pluginsDir: `${opencodeDir}/plugins`,
 		toolsDir: `${opencodeDir}/tools`,
-		configPath: `${targetDir}/opencode.json`,
 	};
 }
 
@@ -272,7 +245,6 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 		contextDir,
 		pluginsDir,
 		toolsDir,
-		configPath,
 	} = dirs;
 
 	const agentRoles: AgentRole[] = noOverrides
@@ -315,14 +287,7 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 		writePluginExtraFiles(plugins, opencodeDir, dryRun),
 	]);
 
-	const config = buildOpenCodeConfig();
-	await mergeOpenCodeConfig(
-		configPath,
-		config as unknown as Record<string, unknown>,
-		dryRun,
-	);
-
-	const filesWritten = counts.reduce((a, b) => a + b, 0) + 1; // +1 for config
+	const filesWritten = counts.reduce((a, b) => a + b, 0);
 
 	return {
 		agentAssignments: assignments.map(({ role, assignment }) => ({
