@@ -34,7 +34,7 @@ const HOUSEKEEPING_ROLES: AgentRole[] = ["compaction", "summary", "title"];
  * Assigned per spec §Agent Architecture table, based on agent need.
  */
 const OPTIMAL_SYNTHETIC: Record<AgentRole, ModelId> = {
-	build: MODELS.MINIMAX, // Architect mindset, cheapest frontier-class
+	build: MODELS.KIMI, // Best coding benchmark scores, complete implementations
 	plan: MODELS.DEEPSEEK, // Best reasoning, thinking-in-tools
 	general: MODELS.QWEN, // Strong all-rounder, 262K context
 	explore: MODELS.GLM, // Strong code understanding, cost-efficient
@@ -42,7 +42,7 @@ const OPTIMAL_SYNTHETIC: Record<AgentRole, ModelId> = {
 	summary: MODELS.FREE_GPT5_NANO, // Housekeeping — always free
 	title: MODELS.FREE_GPT5_NANO, // Housekeeping — always free
 	review: MODELS.DEEPSEEK, // Best reasoning for analysis
-	implement: MODELS.MINIMAX, // Architect mindset, strong SWE-bench
+	implement: MODELS.KIMI, // Strong SWE-bench, complete code, no skipping
 	document: MODELS.GLM, // Strong coding/generation, interleaved thinking
 	test: MODELS.GLM, // Strong coding/agentic, good tool calling
 };
