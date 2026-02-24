@@ -404,4 +404,252 @@ Cache invalidation rules:
 - Critical path: inline critical CSS, defer non-critical JS
 - Core Web Vitals: LCP < 2.5s, FID < 100ms, CLS < 0.1`,
 	},
+	{
+		name: "bun-file-io",
+		description: "File I/O and directory operations using Bun-native APIs",
+		version: "1.0",
+		content: `# Bun File I/O
+
+Use Bun-native APIs for file operations. Never spawn \`cat\`, \`ls\`, \`mkdir\`, or \`rm\` as shell commands.
+
+## Reading Files
+
+\`\`\`typescript
+const file = Bun.file(path);
+const exists = await file.exists(); // false for directories
+const text = await file.text();
+const json = await file.json<T>();
+const buffer = await file.arrayBuffer();
+// Metadata: file.size, file.type, file.name
+\`\`\`
+
+## Writing Files
+
+\`\`\`typescript
+await Bun.write(path, "text content");
+await Bun.write(path, buffer);
+await Bun.write(path, blob);
+// Incremental writes: file.writer() → FileSink
+\`\`\`
+
+## Scanning Directories
+
+\`\`\`typescript
+const glob = new Bun.Glob("**/*.ts");
+const files = await Array.fromAsync(
+  glob.scan({ cwd: "src", absolute: true, onlyFiles: true })
+);
+\`\`\`
+
+## Directory Operations
+
+Use \`node:fs/promises\` for directories (Bun.file does not handle them):
+
+\`\`\`typescript
+import { mkdir, readdir, rm } from "node:fs/promises";
+
+await mkdir(path, { recursive: true });
+const entries = await readdir(path);
+await rm(path, { recursive: true, force: true });
+\`\`\`
+
+## Appending and Logging
+
+\`\`\`typescript
+import { appendFile } from "node:fs/promises";
+await appendFile(logFile, \`\${new Date().toISOString()} \${message}\n\`);
+\`\`\`
+
+## Running External Tools
+
+\`\`\`typescript
+const bin = Bun.which("tool-name");
+const proc = Bun.spawn([bin, ...args], { stdout: "pipe", stderr: "pipe" });
+const stdout = await Bun.readableStreamToText(proc.stdout);
+await proc.exited;
+\`\`\`
+
+## Rules
+
+- \`Bun.file(path).exists()\` is for files only — use \`stat()\` from \`node:fs/promises\` when the path might be a directory
+- Always handle paths with \`path.join\` or \`path.resolve\`, never string concatenation
+- Prefer \`Bun.write\` over creating a WritableStream unless you need incremental writes
+- Parallelize independent reads: \`await Promise.all(paths.map(p => Bun.file(p).text()))\``,
+	},
+	{
+		name: "ts-performance",
+		description: "TypeScript/JavaScript performance patterns for Bun — algorithms, async, data structures, memory",
+		version: "1.0",
+		content: `# TypeScript Performance
+
+Profile before optimizing. Most bottlenecks are algorithmic, not micro-level. An O(n²)→O(n log n) improvement is always worth more than a 2× micro-optimization.
+
+## Core Rule
+
+**Measure → identify the actual bottleneck → fix the algorithm → micro-optimize only if still needed.**
+
+\`\`\`typescript
+// Baseline before and after every change
+const start = performance.now();
+doWork();
+console.log(\`\${performance.now() - start}ms\`);
+
+// Bun profiling
+bun --prof script.ts
+\`\`\`
+
+## Data Structures
+
+Use the right structure for the access pattern:
+
+\`\`\`typescript
+// O(1) lookup — use Map or Set, not Array.find()
+const index = new Map(items.map(item => [item.id, item]));
+const found = index.get(id); // vs items.find(x => x.id === id) O(n)
+
+const seen = new Set<string>();
+if (!seen.has(key)) { seen.add(key); process(key); }
+
+// Typed Arrays for numeric data — 3–10× less memory, 5× faster
+const data = new Float64Array(1_000_000);
+
+// WeakMap for metadata — GC-friendly, no leak risk
+const meta = new WeakMap<object, Metadata>();
+\`\`\`
+
+| Structure | Lookup | Use when |
+|---|---|---|
+| Map | O(1) | Dynamic keys, any key type |
+| Set | O(1) | Membership / dedup |
+| Object | O(1) | String keys, static shape, JSON |
+| Array | O(n) | Ordered, index access |
+| Typed Array | O(1) | Numeric data, images, audio |
+| WeakMap | O(1) | Object metadata without leaks |
+
+## Algorithms
+
+Single-pass beats chained array methods. Pre-allocate when size is known.
+
+\`\`\`typescript
+// Bad — three intermediate arrays
+const out = items.filter(x => x > 0).map(x => x * 2).filter(x => x < 100);
+
+// Good — single pass
+const out: number[] = [];
+for (const x of items) {
+  if (x > 0) {
+    const v = x * 2;
+    if (v < 100) out.push(v);
+  }
+}
+
+// Pre-allocate when size is known
+const result = new Array<number>(items.length);
+for (let i = 0; i < items.length; i++) result[i] = transform(items[i]);
+
+// String building — join, never +=
+const parts: string[] = [];
+for (const item of items) parts.push(\`<li>\${item}</li>\`);
+const html = parts.join("");
+
+// Compile regex outside loops
+const RE = /^[\\w.-]+@[\\w.-]+\\.[\\w]+$/;
+function valid(email: string) { return RE.test(email); }
+
+// Cache loop invariants
+const factor = config.settings.factor * 2;
+for (const x of items) process(x * factor);
+\`\`\`
+
+Loop speed: \`for\` > \`for-of\` > \`forEach\` > \`reduce\`. Use \`for-of\` by default; \`for\` only in proven hot paths.
+
+## Async
+
+Never \`await\` sequentially in a loop. Use \`Promise.all\` for independent operations.
+
+\`\`\`typescript
+// Bad — sequential, n × latency
+const results = [];
+for (const item of items) results.push(await process(item));
+
+// Good — parallel
+const results = await Promise.all(items.map(process));
+
+// Batch large workloads to limit concurrency
+async function batch<T>(items: T[], fn: (x: T) => Promise<unknown>, size = 50) {
+  for (let i = 0; i < items.length; i += size) {
+    await Promise.all(items.slice(i, i + size).map(fn));
+  }
+}
+
+// Cache in-flight promises to deduplicate concurrent requests
+const inflight = new Map<string, Promise<Data>>();
+async function fetch_once(key: string): Promise<Data> {
+  if (!inflight.has(key)) inflight.set(key, fetchData(key).finally(() => inflight.delete(key)));
+  return inflight.get(key)!;
+}
+\`\`\`
+
+## Memory
+
+\`\`\`typescript
+// Reuse buffers — avoid creating new arrays in hot paths
+class Processor {
+  private buf: number[] = [];
+  run(input: number[]) {
+    this.buf.length = 0; // clear without realloc
+    for (const x of input) this.buf.push(transform(x));
+    return this.buf;
+  }
+}
+
+// Bounded cache — prevent unbounded growth
+class BoundedCache<K, V> {
+  private m = new Map<K, V>();
+  constructor(private max: number) {}
+  set(k: K, v: V) {
+    if (this.m.size >= this.max) this.m.delete(this.m.keys().next().value!);
+    this.m.set(k, v);
+  }
+  get(k: K) { return this.m.get(k); }
+}
+
+// WeakMap for DOM/object metadata — auto-GC
+const cache = new WeakMap<Node, ComputedData>();
+\`\`\`
+
+## Bun-Specific
+
+\`\`\`typescript
+// Native hashing — faster than crypto for non-security use
+const hash = Bun.hash(data);
+const crc = Bun.hash.crc32(str);
+
+// Built-in SQLite with prepared statements
+import { Database } from "bun:sqlite";
+const db = new Database("app.db");
+const stmt = db.prepare("SELECT * FROM users WHERE id = ?");
+const user = stmt.get(id); // reuse prepared statement
+
+// Measure memory
+Bun.gc(true);
+const before = Bun.memoryUsage().heapUsed;
+doWork();
+Bun.gc(true);
+const used = Bun.memoryUsage().heapUsed - before;
+\`\`\`
+
+## Quick Checklist
+
+1. \`Map\`/\`Set\` instead of \`Array.find\`/\`includes\` in lookups
+2. \`Promise.all\` instead of sequential awaits
+3. Single-pass loop instead of chained \`filter().map()\`
+4. Pre-allocate arrays when size is known
+5. Compile regex outside loops
+6. Cache expensive property accesses in local variables
+7. \`array.join("")\` not \`+=\` for string building
+8. \`structuredClone\` not \`JSON.parse(JSON.stringify(...))\` for deep copy
+9. \`Typed Array\` for numeric-heavy data
+10. \`WeakMap\` for object metadata`,
+	},
 ];
