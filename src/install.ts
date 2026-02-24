@@ -117,6 +117,7 @@ function runValidation(
 }
 
 const PLUGIN_FILENAMES = [
+	"behavior-guard.ts",
 	"context-loader.ts",
 	"safety-guard.ts",
 	"session-logger.ts",
