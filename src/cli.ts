@@ -1,9 +1,11 @@
+#!/usr/bin/env bun
+import { createInterface } from "node:readline";
 import { install } from "./install.ts";
 import { BUILT_IN_PLUGINS, DEFAULT_PLUGINS } from "./plugins.ts";
 import type { InstallOptions, InstallScope } from "./types.ts";
 
 interface ParseState {
-	scope: InstallScope;
+	scope: InstallScope | undefined;
 	clean: boolean;
 	dryRun: boolean;
 	noOverrides: boolean;
@@ -66,10 +68,12 @@ const FLAG_HANDLERS: Record<string, ArgHandler> = {
 	},
 };
 
-function parseArgs(argv: string[]): InstallOptions {
+function parseArgs(
+	argv: string[],
+): Omit<InstallOptions, "scope"> & { scope: InstallScope | undefined } {
 	const args = argv.slice(2);
 	const state: ParseState = {
-		scope: "project",
+		scope: undefined,
 		clean: false,
 		dryRun: false,
 		noOverrides: false,
@@ -88,6 +92,19 @@ function parseArgs(argv: string[]): InstallOptions {
 	return state;
 }
 
+function promptScope(): Promise<InstallScope> {
+	const rl = createInterface({ input: process.stdin, output: process.stdout });
+	return new Promise<InstallScope>((resolve) => {
+		rl.question(
+			"Install to:\n  1) Current project  (.opencode/)\n  2) Global            (~/.config/opencode/)\n\n> ",
+			(answer) => {
+				rl.close();
+				resolve(answer.trim() === "2" ? "global" : "project");
+			},
+		);
+	});
+}
+
 function printHelp(): void {
 	const availablePlugins = Object.entries(BUILT_IN_PLUGINS)
 		.map(([name, p]) => `    ${name.padEnd(20)} ${p.description}`)
@@ -96,8 +113,8 @@ function printHelp(): void {
 	console.log(`OpenCode Agentic Framework Installer
 
 Usage:
-  install                         Install with defaults (project scope)
-  install --scope project         Install to current project (default)
+  install                         Prompt for install location
+  install --scope project         Install to current project (.opencode/)
   install --scope global          Install to ~/.config/opencode/
   install --clean                 Remove existing framework files and reinstall
   install --dry-run               Preview what would be written without writing
@@ -118,24 +135,28 @@ Generated files:
     agents/       11 agent .md files (7 overrides + 4 custom)
     commands/     9 command .md files
     skills/       8 skill directories
-    CONTEXT.md    Project context template (edit to describe your project)
-  opencode.json   Framework configuration`);
+    plugins/      4 runtime plugin .ts files
+    tools/        1 custom tool .ts file
+    context/      CONTEXT.md template (edit to describe your project)`);
 }
 
 async function main(): Promise<void> {
-	let options: InstallOptions;
+	let parsed: ReturnType<typeof parseArgs>;
 	try {
-		options = parseArgs(process.argv);
+		parsed = parseArgs(process.argv);
 	} catch (err) {
 		console.error(`Error: ${(err as Error).message}`);
 		console.error("Run with --help for usage information.");
 		process.exit(1);
 	}
 
+	const scope = parsed.scope ?? (await promptScope());
+	const options: InstallOptions = { ...parsed, scope };
+
 	try {
 		const report = await install(options);
 		if (!options.dryRun) {
-			console.log("OpenCode Agentic Framework installed successfully.\n");
+			console.log("\nInstalled successfully.\n");
 			console.log("Model assignments:");
 			for (const { role, model, tier } of report.agentAssignments) {
 				console.log(`  ${role.padEnd(12)} ${model}  [${tier}]`);
