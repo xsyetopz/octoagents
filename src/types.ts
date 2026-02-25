@@ -76,7 +76,7 @@ export interface OpenCodeConfig {
 }
 
 export type ProviderAvailability = {
-	synthetic: boolean;
+	chutes: boolean;
 	githubCopilot: boolean;
 };
 

@@ -8,25 +8,22 @@ async function fileExists(path: string): Promise<boolean> {
 	}
 }
 
-async function hasSyntheticInConfig(configPath: string): Promise<boolean> {
+async function hasChutesInConfig(configPath: string): Promise<boolean> {
 	try {
 		const text = await Bun.file(configPath).text();
 		const parsed = JSON.parse(text) as Record<string, unknown>;
 		const providers = parsed["providers"] as
 			| Record<string, unknown>
 			| undefined;
-		const synthetic = providers?.["synthetic"] as
-			| Record<string, unknown>
-			| undefined;
-		return Boolean(synthetic?.["apiKey"]);
+		const chutes = providers?.["chutes"] as Record<string, unknown> | undefined;
+		return Boolean(chutes?.["apiKey"]);
 	} catch {
 		return false;
 	}
 }
 
-async function hasSyntheticKey(): Promise<boolean> {
-	const envKey =
-		process.env["SYNTHETIC_API_KEY"] ?? process.env["SYNTHETIC_KEY"] ?? "";
+async function hasChutesKey(): Promise<boolean> {
+	const envKey = process.env["CHUTES_API_KEY"] ?? "";
 	if (envKey.length > 0) {
 		return true;
 	}
@@ -36,14 +33,17 @@ async function hasSyntheticKey(): Promise<boolean> {
 		return false;
 	}
 
+	// Respect XDG Base Directory standard: use XDG_CONFIG_HOME if set
+	const configHome = process.env["XDG_CONFIG_HOME"] ?? `${home}/.config`;
+
 	const configPaths = [
-		`${home}/.config/opencode/opencode.json`,
+		`${configHome}/opencode/opencode.json`,
 		`${home}/.opencode/opencode.json`,
 	];
 
 	for (const configPath of configPaths) {
 		if (await fileExists(configPath)) {
-			if (await hasSyntheticInConfig(configPath)) {
+			if (await hasChutesInConfig(configPath)) {
 				return true;
 			}
 		}
@@ -58,9 +58,12 @@ async function hasGitHubCopilot(): Promise<boolean> {
 		return false;
 	}
 
+	// Respect XDG Base Directory standard: use XDG_CONFIG_HOME if set
+	const configHome = process.env["XDG_CONFIG_HOME"] ?? `${home}/.config`;
+
 	const copilotPaths = [
-		`${home}/.config/github-copilot/hosts.json`,
-		`${home}/.config/github-copilot/apps.json`,
+		`${configHome}/github-copilot/hosts.json`,
+		`${configHome}/github-copilot/apps.json`,
 	];
 
 	for (const p of copilotPaths) {
@@ -74,9 +77,9 @@ async function hasGitHubCopilot(): Promise<boolean> {
 }
 
 export async function detectProviders(): Promise<ProviderAvailability> {
-	const [synthetic, githubCopilot] = await Promise.all([
-		hasSyntheticKey(),
+	const [chutes, githubCopilot] = await Promise.all([
+		hasChutesKey(),
 		hasGitHubCopilot(),
 	]);
-	return { synthetic, githubCopilot };
+	return { chutes, githubCopilot };
 }

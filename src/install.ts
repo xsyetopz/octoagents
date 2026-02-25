@@ -37,7 +37,8 @@ function resolveTargetDir(scope: InstallScope): string {
 		if (!home) {
 			throw new Error("Cannot determine home directory for global install");
 		}
-		return `${home}/.config/opencode`;
+		const configHome = process.env["XDG_CONFIG_HOME"] ?? `${home}/.config`;
+		return `${configHome}/opencode`;
 	}
 	return `${process.cwd()}`;
 }
@@ -68,7 +69,6 @@ async function removeDir(path: string, dryRun: boolean): Promise<void> {
 	}
 	await rm(path, { recursive: true, force: true });
 }
-
 
 function runValidation(
 	agentNames: string[],

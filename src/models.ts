@@ -1,12 +1,19 @@
 import type { ProviderAvailability } from "./types.ts";
 
 export const MODELS = {
-	DEEPSEEK: "synthetic/hf:deepseek-ai/DeepSeek-V3.2",
-	MINIMAX: "synthetic/hf:MiniMaxAI/MiniMax-M2.1",
-	KIMI: "synthetic/hf:nvidia/Kimi-K2.5-NVFP4",
-	QWEN: "synthetic/hf:Qwen/Qwen3.5-397B-A17B",
-	GLM: "synthetic/hf:zai-org/GLM-4.7",
+	// CHUTES models (primary)
+	CHUTES_GLM5: "chutes/zai-org/GLM-5-TEE",
+	CHUTES_GLM47_FLASH: "chutes/zai-org/GLM-4.7-Flash",
+	CHUTES_QWEN3_VL: "chutes/Qwen/Qwen3-VL-235B-A22B-Instruct",
+	CHUTES_QWEN35: "chutes/Qwen/Qwen3.5-397B-A17B-TEE",
+	CHUTES_QWEN3_CODER: "chutes/Qwen/Qwen3-Coder-Next",
+	CHUTES_HERMES: "chutes/NousResearch/Hermes-4-405B-FP8-TEE",
+	CHUTES_KIMI: "chutes/moonshotai/Kimi-K2.5-TEE",
+	CHUTES_DEEPSEEK: "chutes/deepseek-ai/DeepSeek-V3.2-TEE",
+	CHUTES_MINIMAX: "chutes/MiniMaxAI/MiniMax-M2.5-TEE",
+	// Legacy (deprecated)
 	COPILOT_MINI: "github-copilot/gpt-5-mini",
+	// Free OpenCode models (fallback)
 	FREE_BIG_PICKLE: "opencode/big-pickle",
 	FREE_GPT5_NANO: "opencode/gpt-5-nano",
 	FREE_TRINITY: "opencode/trinity-large-preview-free",
@@ -30,21 +37,21 @@ export type AgentRole =
 const HOUSEKEEPING_ROLES: AgentRole[] = ["compaction", "summary", "title"];
 
 /**
- * Optimal model when Synthetic is available.
- * Assigned per spec §Agent Architecture table, based on agent need.
+ * Optimal model when CHUTES is available.
+ * Assigned per recommendations for agentic coding workflows on Chutes AI.
  */
-const OPTIMAL_SYNTHETIC: Record<AgentRole, ModelId> = {
-	build: MODELS.KIMI, // Best coding benchmark scores, complete implementations
-	plan: MODELS.DEEPSEEK, // Best reasoning, thinking-in-tools
-	general: MODELS.QWEN, // Strong all-rounder, 262K context
-	explore: MODELS.GLM, // Strong code understanding, cost-efficient
+const OPTIMAL_CHUTES: Record<AgentRole, ModelId> = {
+	build: MODELS.CHUTES_QWEN3_CODER, // Core agentic coding - SWE-Bench leader
+	plan: MODELS.CHUTES_DEEPSEEK, // Systems-level engineering, long-horizon planning
+	general: MODELS.CHUTES_QWEN35, // Strong all-rounder, vision+reasoning
+	explore: MODELS.CHUTES_GLM5, // Code understanding, cost-efficient
 	compaction: MODELS.FREE_TRINITY, // Housekeeping — always free
 	summary: MODELS.FREE_GPT5_NANO, // Housekeeping — always free
 	title: MODELS.FREE_GPT5_NANO, // Housekeeping — always free
-	review: MODELS.DEEPSEEK, // Best reasoning for analysis
-	implement: MODELS.KIMI, // Strong SWE-bench, complete code, no skipping
-	document: MODELS.GLM, // Strong coding/generation, interleaved thinking
-	test: MODELS.GLM, // Strong coding/agentic, good tool calling
+	review: MODELS.CHUTES_GLM5, // Best reasoning for analysis
+	implement: MODELS.CHUTES_QWEN3_CODER, // Strong SWE-bench, complete code
+	document: MODELS.CHUTES_GLM47_FLASH, // Fast interactive, coding/generation
+	test: MODELS.CHUTES_MINIMAX, // Strong coding/agentic, swarm coordination
 };
 
 /**
@@ -67,22 +74,22 @@ const FREE_FALLBACK: Record<AgentRole, ModelId> = {
 
 export interface ModelAssignment {
 	model: ModelId;
-	tier: "synthetic" | "copilot" | "free";
+	tier: "chutes" | "copilot" | "free";
 }
 
 /**
  * Resolve model assignment for a role given available providers.
- * Fallback chain: synthetic → github-copilot → free (per spec §Fallback Chain)
+ * Fallback chain: chutes → github-copilot → free (per spec §Fallback Chain)
  */
 export function resolveModel(
 	role: AgentRole,
 	providers: ProviderAvailability,
 ): ModelAssignment {
 	if (HOUSEKEEPING_ROLES.includes(role)) {
-		return { model: OPTIMAL_SYNTHETIC[role], tier: "free" };
+		return { model: OPTIMAL_CHUTES[role], tier: "free" };
 	}
-	if (providers.synthetic) {
-		return { model: OPTIMAL_SYNTHETIC[role], tier: "synthetic" };
+	if (providers.chutes) {
+		return { model: OPTIMAL_CHUTES[role], tier: "chutes" };
 	}
 	if (providers.githubCopilot) {
 		return { model: MODELS.COPILOT_MINI, tier: "copilot" };

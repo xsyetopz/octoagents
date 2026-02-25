@@ -1,11 +1,15 @@
 #!/usr/bin/env bun
 import { createInterface } from "node:readline";
+import { detectProviders } from "./detect.ts";
 import { install } from "./install.ts";
 import { BUILT_IN_PLUGINS, DEFAULT_PLUGINS } from "./plugins.ts";
-import type { InstallOptions, InstallScope, ProviderAvailability } from "./types.ts";
-import { detectProviders } from "./detect.ts";
+import type {
+	InstallOptions,
+	InstallScope,
+	ProviderAvailability,
+} from "./types.ts";
 
-type ProviderTier = "synthetic" | "copilot" | "free";
+type ProviderTier = "chutes" | "copilot" | "free";
 
 interface ParseState {
 	scope: InstallScope | undefined;
@@ -35,12 +39,12 @@ function parseProviderArg(
 	state: ParseState,
 ): number {
 	const next = args[i + 1];
-	if (next === "synthetic" || next === "copilot" || next === "free") {
+	if (next === "chutes" || next === "copilot" || next === "free") {
 		state.provider = next;
 		return i + 1;
 	}
 	throw new Error(
-		`--provider requires "synthetic", "copilot", or "free", got: ${String(next)}`,
+		`--provider requires "chutes", "copilot", or "free", got: ${String(next)}`,
 	);
 }
 
@@ -88,7 +92,10 @@ const FLAG_HANDLERS: Record<string, ArgHandler> = {
 	},
 };
 
-function parseArgs(argv: string[]): Omit<InstallOptions, "scope" | "providers"> & {
+function parseArgs(argv: string[]): Omit<
+	InstallOptions,
+	"scope" | "providers"
+> & {
 	scope: InstallScope | undefined;
 	provider: ProviderTier | undefined;
 } {
@@ -116,7 +123,7 @@ function parseArgs(argv: string[]): Omit<InstallOptions, "scope" | "providers"> 
 
 function tierToProviders(tier: ProviderTier): ProviderAvailability {
 	return {
-		synthetic: tier === "synthetic",
+		chutes: tier === "chutes",
 		githubCopilot: tier === "copilot",
 	};
 }
@@ -132,18 +139,22 @@ function promptLine(question: string): Promise<string> {
 }
 
 async function promptScope(): Promise<InstallScope> {
+	const configHome = process.env["XDG_CONFIG_HOME"];
+	const defaultConfig = configHome
+		? `${configHome}/opencode`
+		: "~/.config/opencode";
 	const answer = await promptLine(
-		"Install to:\n  1) Current project  (.opencode/)\n  2) Global            (~/.config/opencode/)\n\n> ",
+		`Install to:\n  1) Current project  (.opencode/)\n  2) Global            (${defaultConfig})\n\n> `,
 	);
 	return answer === "2" ? "global" : "project";
 }
 
 async function promptProvider(): Promise<ProviderAvailability> {
 	const answer = await promptLine(
-		"Provider (used to select models):\n  1) Synthetic API    (SYNTHETIC_API_KEY)\n  2) GitHub Copilot\n  3) Free built-ins\n\n> ",
+		"Provider (used to select models):\n  1) Chutes AI       (CHUTES_API_KEY)\n  2) GitHub Copilot\n  3) Free built-ins\n\n> ",
 	);
 	return tierToProviders(
-		answer === "1" ? "synthetic" : answer === "2" ? "copilot" : "free",
+		answer === "1" ? "chutes" : answer === "2" ? "copilot" : "free",
 	);
 }
 
@@ -157,8 +168,8 @@ function printHelp(): void {
 Usage:
   install                         Prompt for location and provider
   install --scope project         Install to current project (.opencode/)
-  install --scope global          Install to ~/.config/opencode/
-  install --provider synthetic    Use Synthetic API models
+  install --scope global          Install to global config (respects XDG_CONFIG_HOME, defaults to ~/.config/opencode/)
+  install --provider chutes       Use Chutes AI models (recommended)
   install --provider copilot      Use GitHub Copilot models
   install --provider free         Use free OpenCode built-in models
   install --clean                 Remove existing framework files and reinstall
@@ -168,8 +179,8 @@ Usage:
   install --no-plugins            Disable all plugins
 
 Provider auto-detection (runs when --provider is not set):
-  Checks SYNTHETIC_API_KEY env var and ~/.config/opencode/opencode.json.
-  If nothing is found, prompts interactively.
+  Checks CHUTES_API_KEY env var and $XDG_CONFIG_HOME/opencode/opencode.json (or ~/.config/opencode/opencode.json).
+  Falls back to free OpenCode models if no provider is detected.
 
 Available plugins:
 ${availablePlugins}
@@ -191,8 +202,8 @@ async function resolveProviders(
 		return tierToProviders(provider);
 	}
 	const detected = await detectProviders();
-	if (detected.synthetic || detected.githubCopilot) {
-		const tier = detected.synthetic ? "synthetic" : "copilot";
+	if (detected.chutes || detected.githubCopilot) {
+		const tier = detected.chutes ? "chutes" : "copilot";
 		console.log(`Detected provider: ${tier}`);
 		return detected;
 	}
