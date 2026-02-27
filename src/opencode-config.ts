@@ -1,9 +1,29 @@
+import type { AgentRole } from "./models.ts";
 import type { InstallScope } from "./types.ts";
 
 export interface OpenCodeConfig {
 	$schema: string;
 	provider?: Record<string, unknown>;
 	mcp?: Record<string, unknown>;
+	agent?: Record<string, unknown>;
+}
+
+const DISABLE_BUILTIN_AGENTS: AgentRole[] = [
+	"build",
+	"plan",
+	"explore",
+	"general",
+	"compaction",
+	"summary",
+	"title",
+];
+
+export function buildAgentDisableConfig(): Record<string, unknown> {
+	const config: Record<string, unknown> = {};
+	for (const role of DISABLE_BUILTIN_AGENTS) {
+		config[role] = { disable: true };
+	}
+	return config;
 }
 
 export async function resolveConfigPath(scope: InstallScope): Promise<string> {
@@ -211,6 +231,18 @@ export function mergeMcpConfig(
 	}
 
 	return { ...existing, mcp: mcpConfig };
+}
+
+export function mergeAgentDisableConfig(
+	existing: Record<string, unknown>,
+	agentDisableConfig: Record<string, unknown>,
+): Record<string, unknown> {
+	const existingAgent = (existing["agent"] as Record<string, unknown>) ?? {};
+	if (Object.keys(existingAgent).length > 0) {
+		return { ...existing, agent: deepMerge(existingAgent, agentDisableConfig) };
+	}
+
+	return { ...existing, agent: agentDisableConfig };
 }
 
 export function parseJsonc(text: string): Record<string, unknown> {
