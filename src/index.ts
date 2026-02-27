@@ -2,8 +2,9 @@
 export {
 	AGENT_META,
 	ALL_AGENT_ROLES,
-	BUILT_IN_OVERRIDE_ROLES,
-	CUSTOM_SUBAGENT_ROLES,
+	HOUSEKEEPING_ROLES,
+	PRIMARY_AGENTS,
+	SUBAGENT_ROLES,
 } from "./agents.ts";
 export { COMMAND_DEFINITIONS } from "./commands.ts";
 export { buildContextFiles } from "./context.ts";
