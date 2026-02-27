@@ -17,10 +17,6 @@ export const CONVENTIONS_PREAMBLE = `TEAM CONVENTIONS (follow in all code you pr
 const HOUSEKEEPING_NAMES = new Set(["compaction", "summary", "title"]);
 const CODING_AGENT_NAMES = new Set(["build", "implement", "general"]);
 
-/**
- * Injects a preamble block into a rendered agent .md file body.
- * Finds the end of the YAML frontmatter and inserts the preamble before the existing body.
- */
 export function injectPreamble(content: string, preamble: string): string {
 	const FRONTMATTER_CLOSE = "\n---\n";
 	const idx = content.indexOf(FRONTMATTER_CLOSE, 4);
@@ -32,10 +28,6 @@ export function injectPreamble(content: string, preamble: string): string {
 	return `${frontmatter}\n${preamble}\n\n${body}`;
 }
 
-/**
- * A plugin that operates on the rendered markdown content of an agent file.
- * This is separate from AgentDefinition plugins because prompts now live in templates.
- */
 export interface ContentPlugin {
 	name: string;
 	description: string;
