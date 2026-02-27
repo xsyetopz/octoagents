@@ -1,22 +1,19 @@
 import type { ProviderAvailability } from "./types.ts";
 
 export const MODELS = {
-	// CHUTES models (primary)
-	CHUTES_GLM5: "chutes/zai-org/GLM-5-TEE",
-	CHUTES_GLM47_FLASH: "chutes/zai-org/GLM-4.7-Flash",
-	CHUTES_QWEN3_VL: "chutes/Qwen/Qwen3-VL-235B-A22B-Instruct",
-	CHUTES_QWEN35: "chutes/Qwen/Qwen3.5-397B-A17B-TEE",
-	CHUTES_QWEN3_CODER: "chutes/Qwen/Qwen3-Coder-Next",
-	CHUTES_HERMES: "chutes/NousResearch/Hermes-4-405B-FP8-TEE",
-	CHUTES_KIMI: "chutes/moonshotai/Kimi-K2.5-TEE",
-	CHUTES_DEEPSEEK: "chutes/deepseek-ai/DeepSeek-V3.2-TEE",
-	CHUTES_MINIMAX: "chutes/MiniMaxAI/MiniMax-M2.5-TEE",
-	// Legacy (deprecated)
-	COPILOT_MINI: "github-copilot/gpt-5-mini",
-	// Free OpenCode models (fallback)
+	BAILIAN_GLM5: "bailian-coding-plan/glm-5",
+	BAILIAN_GLM47: "bailian-coding-plan/glm-4.7",
+	BAILIAN_KIMI_K25: "bailian-coding-plan/kimi-k2.5",
+	BAILIAN_MINIMAX: "bailian-coding-plan/MiniMax-M2.5",
+	BAILIAN_QWEN35_PLUS: "bailian-coding-plan/qwen3.5-plus",
+	BAILIAN_QWEN3_CODER_NEXT: "bailian-coding-plan/qwen3-coder-next",
+	BAILIAN_QWEN3_CODER_PLUS: "bailian-coding-plan/qwen3-coder-plus",
+	BAILIAN_QWEN3_MAX: "bailian-coding-plan/qwen3-max-2026-01-23",
+	COPILOT_GPT5_MINI: "github-copilot/gpt-5-mini",
 	FREE_BIG_PICKLE: "opencode/big-pickle",
 	FREE_GPT5_NANO: "opencode/gpt-5-nano",
 	FREE_TRINITY: "opencode/trinity-large-preview-free",
+	FREE_MINIMAX: "opencode/minimax-m2.5-free",
 } as const;
 
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
@@ -36,63 +33,93 @@ export type AgentRole =
 
 const HOUSEKEEPING_ROLES: AgentRole[] = ["compaction", "summary", "title"];
 
-/**
- * Optimal model when CHUTES is available.
- * Assigned per recommendations for agentic coding workflows on Chutes AI.
- */
-const OPTIMAL_CHUTES: Record<AgentRole, ModelId> = {
-	build: MODELS.CHUTES_QWEN3_CODER, // Core agentic coding - SWE-Bench leader
-	plan: MODELS.CHUTES_DEEPSEEK, // Systems-level engineering, long-horizon planning
-	general: MODELS.CHUTES_QWEN35, // Strong all-rounder, vision+reasoning
-	explore: MODELS.CHUTES_GLM5, // Code understanding, cost-efficient
-	compaction: MODELS.FREE_TRINITY, // Housekeeping — always free
-	summary: MODELS.FREE_GPT5_NANO, // Housekeeping — always free
-	title: MODELS.FREE_GPT5_NANO, // Housekeeping — always free
-	review: MODELS.CHUTES_GLM5, // Best reasoning for analysis
-	implement: MODELS.CHUTES_QWEN3_CODER, // Strong SWE-bench, complete code
-	document: MODELS.CHUTES_GLM47_FLASH, // Fast interactive, coding/generation
-	test: MODELS.CHUTES_MINIMAX, // Strong coding/agentic, swarm coordination
+interface ModelConfig {
+	model: ModelId;
+	temperature?: number;
+	thinking?: boolean;
+}
+
+const BAILIAN_OPTIMAL: Record<AgentRole, ModelConfig> = {
+	build: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	plan: { model: MODELS.BAILIAN_GLM5, temperature: 0.8, thinking: true },
+	general: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	explore: { model: MODELS.BAILIAN_GLM5, temperature: 0.8, thinking: true },
+	compaction: { model: MODELS.FREE_TRINITY },
+	summary: { model: MODELS.FREE_GPT5_NANO },
+	title: { model: MODELS.FREE_GPT5_NANO },
+	review: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	implement: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	document: {
+		model: MODELS.BAILIAN_KIMI_K25,
+		temperature: 1.0,
+		thinking: true,
+	},
+	test: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
 };
 
-/**
- * Fallback when neither Synthetic nor Copilot is available.
- * Free OpenCode built-in models, matched to agent capability needs.
- */
-const FREE_FALLBACK: Record<AgentRole, ModelId> = {
-	build: MODELS.FREE_BIG_PICKLE,
-	plan: MODELS.FREE_TRINITY,
-	general: MODELS.FREE_BIG_PICKLE,
-	explore: MODELS.FREE_TRINITY,
-	compaction: MODELS.FREE_TRINITY,
-	summary: MODELS.FREE_GPT5_NANO,
-	title: MODELS.FREE_GPT5_NANO,
-	review: MODELS.FREE_TRINITY,
-	implement: MODELS.FREE_BIG_PICKLE,
-	document: MODELS.FREE_TRINITY,
-	test: MODELS.FREE_TRINITY,
+const COPILOT_FALLBACK: Record<AgentRole, ModelConfig> = {
+	build: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
+	plan: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.8 },
+	general: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
+	explore: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.8 },
+	compaction: { model: MODELS.FREE_TRINITY },
+	summary: { model: MODELS.FREE_GPT5_NANO },
+	title: { model: MODELS.FREE_GPT5_NANO },
+	review: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
+	implement: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
+	document: { model: MODELS.COPILOT_GPT5_MINI, temperature: 1.0 },
+	test: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
+};
+
+const FREE_FALLBACK: Record<AgentRole, ModelConfig> = {
+	build: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
+	plan: { model: MODELS.FREE_TRINITY, temperature: 0.8 },
+	general: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
+	explore: { model: MODELS.FREE_TRINITY, temperature: 0.8 },
+	compaction: { model: MODELS.FREE_TRINITY },
+	summary: { model: MODELS.FREE_GPT5_NANO },
+	title: { model: MODELS.FREE_GPT5_NANO },
+	review: { model: MODELS.FREE_TRINITY, temperature: 0.7 },
+	implement: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
+	document: { model: MODELS.FREE_TRINITY, temperature: 1.0 },
+	test: { model: MODELS.FREE_TRINITY, temperature: 0.7 },
 };
 
 export interface ModelAssignment {
 	model: ModelId;
-	tier: "chutes" | "copilot" | "free";
+	tier: "bailian" | "copilot" | "free";
+	temperature?: number;
+	thinking?: boolean;
 }
 
-/**
- * Resolve model assignment for a role given available providers.
- * Fallback chain: chutes → github-copilot → free (per spec §Fallback Chain)
- */
+function assignModelFromConfig(
+	role: AgentRole,
+	configMap: Record<AgentRole, ModelConfig>,
+	tier: ModelAssignment["tier"],
+): ModelAssignment {
+	const config = configMap[role];
+	const assignment: ModelAssignment = { model: config.model, tier };
+	if (config.temperature !== undefined) {
+		assignment.temperature = config.temperature;
+	}
+	if ("thinking" in config && config.thinking !== undefined) {
+		assignment.thinking = config.thinking;
+	}
+	return assignment;
+}
+
 export function resolveModel(
 	role: AgentRole,
 	providers: ProviderAvailability,
 ): ModelAssignment {
 	if (HOUSEKEEPING_ROLES.includes(role)) {
-		return { model: OPTIMAL_CHUTES[role], tier: "free" };
+		return assignModelFromConfig(role, FREE_FALLBACK, "free");
 	}
-	if (providers.chutes) {
-		return { model: OPTIMAL_CHUTES[role], tier: "chutes" };
+	if (providers.bailianCodingPlan) {
+		return assignModelFromConfig(role, BAILIAN_OPTIMAL, "bailian");
 	}
 	if (providers.githubCopilot) {
-		return { model: MODELS.COPILOT_MINI, tier: "copilot" };
+		return assignModelFromConfig(role, COPILOT_FALLBACK, "copilot");
 	}
-	return { model: FREE_FALLBACK[role], tier: "free" };
+	return assignModelFromConfig(role, FREE_FALLBACK, "free");
 }

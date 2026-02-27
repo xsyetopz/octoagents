@@ -76,7 +76,7 @@ export interface OpenCodeConfig {
 }
 
 export type ProviderAvailability = {
-	chutes: boolean;
+	bailianCodingPlan: boolean;
 	githubCopilot: boolean;
 };
 
@@ -88,7 +88,6 @@ export interface InstallOptions {
 	dryRun: boolean;
 	noOverrides: boolean;
 	plugins: string[];
-	/** Override auto-detection. When provided, detectProviders() is skipped. */
 	providers?: ProviderAvailability;
 }
 

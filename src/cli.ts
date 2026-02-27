@@ -9,7 +9,7 @@ import type {
 	ProviderAvailability,
 } from "./types.ts";
 
-type ProviderTier = "chutes" | "copilot" | "free";
+type ProviderTier = "bailian" | "copilot" | "free";
 
 interface ParseState {
 	scope: InstallScope | undefined;
@@ -39,12 +39,12 @@ function parseProviderArg(
 	state: ParseState,
 ): number {
 	const next = args[i + 1];
-	if (next === "chutes" || next === "copilot" || next === "free") {
+	if (next === "bailian" || next === "copilot" || next === "free") {
 		state.provider = next;
 		return i + 1;
 	}
 	throw new Error(
-		`--provider requires "chutes", "copilot", or "free", got: ${String(next)}`,
+		`--provider requires "bailian", "copilot", or "free", got: ${String(next)}`,
 	);
 }
 
@@ -123,7 +123,7 @@ function parseArgs(argv: string[]): Omit<
 
 function tierToProviders(tier: ProviderTier): ProviderAvailability {
 	return {
-		chutes: tier === "chutes",
+		bailianCodingPlan: tier === "bailian",
 		githubCopilot: tier === "copilot",
 	};
 }
@@ -151,10 +151,10 @@ async function promptScope(): Promise<InstallScope> {
 
 async function promptProvider(): Promise<ProviderAvailability> {
 	const answer = await promptLine(
-		"Provider (used to select models):\n  1) Chutes AI       (CHUTES_API_KEY)\n  2) GitHub Copilot\n  3) Free built-ins\n\n> ",
+		"Provider (used to select models):\n  1) Bailian Coding Plan (DASHSCOPE_API_KEY)\n  2) GitHub Copilot\n  3) Free built-ins\n\n> ",
 	);
 	return tierToProviders(
-		answer === "1" ? "chutes" : answer === "2" ? "copilot" : "free",
+		answer === "1" ? "bailian" : answer === "2" ? "copilot" : "free",
 	);
 }
 
@@ -169,7 +169,7 @@ Usage:
   install                         Prompt for location and provider
   install --scope project         Install to current project (.opencode/)
   install --scope global          Install to global config (respects XDG_CONFIG_HOME, defaults to ~/.config/opencode/)
-  install --provider chutes       Use Chutes AI models (recommended)
+  install --provider bailian      Use Bailian Coding Plan models (recommended)
   install --provider copilot      Use GitHub Copilot models
   install --provider free         Use free OpenCode built-in models
   install --clean                 Remove existing framework files and reinstall
@@ -179,7 +179,7 @@ Usage:
   install --no-plugins            Disable all plugins
 
 Provider auto-detection (runs when --provider is not set):
-  Checks CHUTES_API_KEY env var and $XDG_CONFIG_HOME/opencode/opencode.json (or ~/.config/opencode/opencode.json).
+  Checks DASHSCOPE_API_KEY env var and $XDG_CONFIG_HOME/opencode/opencode.jsonc (or ~/.config/opencode/opencode.jsonc).
   Falls back to free OpenCode models if no provider is detected.
 
 Available plugins:
@@ -202,8 +202,8 @@ async function resolveProviders(
 		return tierToProviders(provider);
 	}
 	const detected = await detectProviders();
-	if (detected.chutes || detected.githubCopilot) {
-		const tier = detected.chutes ? "chutes" : "copilot";
+	if (detected.bailianCodingPlan || detected.githubCopilot) {
+		const tier = detected.bailianCodingPlan ? "bailian" : "copilot";
 		console.log(`Detected provider: ${tier}`);
 		return detected;
 	}

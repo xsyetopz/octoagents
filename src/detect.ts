@@ -8,44 +8,48 @@ async function fileExists(path: string): Promise<boolean> {
 	}
 }
 
-async function hasChutesInConfig(configPath: string): Promise<boolean> {
+async function hasBailianCodingPlanInConfig(
+	configPath: string,
+): Promise<boolean> {
 	try {
 		const text = await Bun.file(configPath).text();
 		const parsed = JSON.parse(text) as Record<string, unknown>;
-		const providers = parsed["providers"] as
+		const providers = parsed["provider"] as Record<string, unknown> | undefined;
+		const bailian = providers?.["bailian-coding-plan"] as
 			| Record<string, unknown>
 			| undefined;
-		const chutes = providers?.["chutes"] as Record<string, unknown> | undefined;
-		return Boolean(chutes?.["apiKey"]);
+		const options = bailian?.["options"] as Record<string, unknown> | undefined;
+		return Boolean(options?.["apiKey"]);
 	} catch {
 		return false;
 	}
 }
 
-async function hasChutesKey(): Promise<boolean> {
-	const envKey = process.env["CHUTES_API_KEY"] ?? "";
-	if (envKey.length > 0) {
-		return true;
-	}
-
+async function hasBailianCodingPlan(): Promise<boolean> {
 	const home = process.env["HOME"] ?? "";
 	if (!home) {
 		return false;
 	}
 
-	// Respect XDG Base Directory standard: use XDG_CONFIG_HOME if set
-	const configHome = process.env["XDG_CONFIG_HOME"] ?? `${home}/.config`;
+	const envKey = process.env["DASHSCOPE_API_KEY"];
+	if (envKey && envKey.length > 0) {
+		return true;
+	}
 
+	const configHome = process.env["XDG_CONFIG_HOME"] ?? `${home}/.config`;
 	const configPaths = [
+		`${configHome}/opencode/opencode.jsonc`,
 		`${configHome}/opencode/opencode.json`,
+		`${home}/.opencode/opencode.jsonc`,
 		`${home}/.opencode/opencode.json`,
 	];
 
 	for (const configPath of configPaths) {
-		if (await fileExists(configPath)) {
-			if (await hasChutesInConfig(configPath)) {
-				return true;
-			}
+		if (
+			(await fileExists(configPath)) &&
+			(await hasBailianCodingPlanInConfig(configPath))
+		) {
+			return true;
 		}
 	}
 
@@ -58,28 +62,32 @@ async function hasGitHubCopilot(): Promise<boolean> {
 		return false;
 	}
 
-	// Respect XDG Base Directory standard: use XDG_CONFIG_HOME if set
 	const configHome = process.env["XDG_CONFIG_HOME"] ?? `${home}/.config`;
-
 	const copilotPaths = [
 		`${configHome}/github-copilot/hosts.json`,
 		`${configHome}/github-copilot/apps.json`,
 	];
 
-	for (const p of copilotPaths) {
-		if (await fileExists(p)) {
+	for (const path of copilotPaths) {
+		if (await fileExists(path)) {
 			return true;
 		}
 	}
 
 	const envVars = ["GITHUB_TOKEN", "GH_TOKEN", "GITHUB_COPILOT_TOKEN"];
-	return envVars.some((v) => Boolean(process.env[v]));
+	for (const envVar of envVars) {
+		if (process.env[envVar]) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 export async function detectProviders(): Promise<ProviderAvailability> {
-	const [chutes, githubCopilot] = await Promise.all([
-		hasChutesKey(),
+	const [bailianCodingPlan, githubCopilot] = await Promise.all([
+		hasBailianCodingPlan(),
 		hasGitHubCopilot(),
 	]);
-	return { chutes, githubCopilot };
+	return { bailianCodingPlan, githubCopilot };
 }
