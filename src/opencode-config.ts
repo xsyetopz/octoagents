@@ -80,7 +80,7 @@ export function buildBailianProviderConfig(): Record<string, unknown> {
 			name: "Model Studio Coding Plan",
 			options: {
 				baseURL: "https://coding-intl.dashscope.aliyuncs.com/apps/anthropic/v1",
-				apiKey: "your-api-key-here",
+				apiKey: process.env["DASHSCOPE_API_KEY"] ?? "your-api-key-here",
 			},
 			models: {
 				"qwen3.5-plus": createModel(
@@ -112,13 +112,18 @@ export function buildMcpConfig(): Record<string, unknown> {
 		context7: {
 			type: "remote",
 			url: "https://mcp.context7.com/mcp",
-			headers: { CONTEXT7_API_KEY: "your-api-key-here" },
+			headers: {
+				CONTEXT7_API_KEY:
+					process.env["CONTEXT7_API_KEY"] ?? "your-api-key-here",
+			},
 			enabled: true,
 		},
 		octocode: {
 			type: "local",
 			command: ["bunx", "--bun", "octocode-mcp@latest"],
-			environment: { GITHUB_TOKEN: "your-api-key-here" },
+			environment: {
+				GITHUB_TOKEN: process.env["GITHUB_TOKEN"] ?? "your-api-key-here",
+			},
 			enabled: true,
 		},
 	};
