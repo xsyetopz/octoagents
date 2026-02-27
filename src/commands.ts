@@ -2,80 +2,80 @@ import type { CommandDefinition } from "./types.ts";
 
 export const COMMAND_DEFINITIONS: CommandDefinition[] = [
 	{
-		name: "run-review",
+		name: "octo-review",
 		description: "Perform code review on a file or path",
-		agent: "review",
-		promptTemplate: `Perform a thorough code review on the following file or path. Check for correctness, security vulnerabilities, performance issues, and style problems. Use the code-review-checklist and security-checklist skills.
+		agent: "argus",
+		promptTemplate: `对以下文件或路径进行全面的代码审查。检查正确性、安全漏洞、性能问题和风格问题。
 
-Target:`,
+目标:`,
 	},
 	{
-		name: "run-tests",
+		name: "octo-test",
 		description: "Execute test suite, analyze results",
-		agent: "test",
-		promptTemplate: `Run the test suite and analyze the results. If tests fail, identify root causes and suggest fixes.
+		agent: "orion",
+		promptTemplate: `运行测试套件并分析结果。如果测试失败，找出根本原因并提出修复建议。
 
-Scope:`,
+范围:`,
 	},
 	{
-		name: "run-implement",
-		description: "Implement a feature from a spec or description",
-		agent: "implement",
-		promptTemplate: `Implement the following feature or change according to the specification. Read existing code first, follow project conventions, and use the refactor-guide skill if modifying existing code.
+		name: "octo-implement",
+		description: "Implement a feature from a spec",
+		agent: "hephaestus",
+		promptTemplate: `根据规范实现以下功能或变更。先阅读现有代码，遵循项目约定。
 
-Specification:`,
+规范:`,
 	},
 	{
-		name: "update-docs",
+		name: "octo-docs",
 		description: "Generate or update documentation",
-		agent: "document",
-		promptTemplate: `Generate or update documentation for the following. Use the documentation-standards skill to ensure consistency with project conventions.
+		agent: "calliope",
+		promptTemplate: `为以下内容生成或更新文档。
 
-Target:`,
+目标:`,
 	},
 	{
-		name: "find-deps",
+		name: "octo-deps",
 		description: "Analyze dependencies of a module",
-		agent: "explore",
-		promptTemplate: `Analyze the dependencies of the following module. Map what it imports, what imports it, and identify any circular dependencies or problematic coupling.
+		agent: "hermes",
+		promptTemplate: `分析以下模块的依赖关系。报告直接导入、消费者、循环依赖。
 
-Module:`,
+模块:`,
 	},
 	{
-		name: "explain-code",
+		name: "octo-explain",
 		description: "Explain architecture or code structure",
-		agent: "explore",
-		promptTemplate: `Explain the architecture and code structure of the following. Describe how it works, key abstractions, data flow, and important patterns.
+		agent: "hermes",
+		promptTemplate: `解释以下架构和代码结构。描述工作原理、关键抽象、数据流。
 
-Target:`,
+目标:`,
 	},
 	{
-		name: "plan-feature",
-		description: "Break down a feature into implementation tasks",
-		agent: "plan",
-		promptTemplate: `Break down the following feature into concrete implementation tasks. Produce an ordered plan with dependencies, risks, and effort considerations. Use the project-setup skill if this involves new project configuration.
+		name: "octo-plan-feature",
+		description: "Break down a feature into tasks",
+		agent: "athena",
+		promptTemplate: `将以下功能分解为具体的实现任务。包含依赖关系、风险和工作量考虑。
 
-Feature:`,
+功能:`,
 	},
 	{
-		name: "plan-refactor",
+		name: "octo-plan-refactor",
 		description: "Plan a refactoring with impact analysis",
-		agent: "plan",
-		promptTemplate: `Plan the following refactoring. Analyze impact, identify all affected files and consumers, outline a safe migration path, and flag risks. Use the refactor-guide skill.
+		agent: "athena",
+		promptTemplate: `规划以下重构。分析影响，识别受影响文件，概述迁移路径。
 
-Refactoring:`,
+重构:`,
 	},
 	{
-		name: "ship-feature",
-		description: "End-to-end: implement, test, review, document, commit",
-		agent: "build",
-		promptTemplate: `Ship the following feature end-to-end:
-1. Implement the feature using @implement
-2. Run tests using @test
-3. Review the code using @review
-4. Update documentation using @document
-5. Commit the changes
+		name: "octo-ship",
+		description: "End-to-end: implement, test, review, document",
+		agent: "odysseus",
+		promptTemplate: `端到端交付以下功能：
+1. 使用 @hephaestus 实现
+2. 使用 @orion 运行测试
+3. 使用 @argus 审查代码
+4. 使用 @calliope 更新文档
+5. 提醒用户手动提交（禁止自动提交）
 
-Feature:`,
+功能:`,
 	},
 ];
