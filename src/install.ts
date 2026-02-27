@@ -13,6 +13,15 @@ import {
 	type ModelAssignment,
 	resolveModel,
 } from "./models.ts";
+import {
+	buildBailianProviderConfig,
+	buildMcpConfig,
+	mergeMcpConfig,
+	mergeProviderConfig,
+	parseJsonc,
+	resolveConfigPath,
+	stringifyJsonc,
+} from "./opencode-config.ts";
 import { applyContentPlugins, resolvePlugins } from "./plugins.ts";
 import { renderSkillFile } from "./render.ts";
 import { SKILL_DEFINITIONS } from "./skills.ts";
@@ -143,7 +152,11 @@ async function writeAgents(
 ): Promise<number> {
 	await Promise.all(
 		assignments.map(async ({ role, assignment }) => {
-			const vars = resolveTemplateVars(assignment.model);
+			const vars = resolveTemplateVars(
+				assignment.model,
+				assignment.temperature,
+				assignment.thinking,
+			);
 			const rawContent = await loadAgentTemplate(role, vars);
 			const content = applyContentPlugins(role, rawContent, plugins);
 			await writeFile(`${agentsDir}/${role}.md`, content, dryRun);
@@ -228,6 +241,42 @@ async function writePluginExtraFiles(
 	return count;
 }
 
+async function writeOpenCodeJsonc(
+	scope: InstallScope,
+	dryRun: boolean,
+): Promise<number> {
+	const configPath = await resolveConfigPath(scope);
+	const exists = dryRun ? false : await Bun.file(configPath).exists();
+
+	let config: Record<string, unknown>;
+
+	if (exists) {
+		const text = await Bun.file(configPath).text();
+		try {
+			config = parseJsonc(text);
+			const bailianConfig = buildBailianProviderConfig();
+			const mcpConfig = buildMcpConfig();
+			config = mergeProviderConfig(config, bailianConfig);
+			config = mergeMcpConfig(config, mcpConfig);
+		} catch {
+			config = {
+				$schema: "https://opencode.ai/config.json",
+				provider: buildBailianProviderConfig(),
+				mcp: buildMcpConfig(),
+			};
+		}
+	} else {
+		config = {
+			$schema: "https://opencode.ai/config.json",
+			provider: buildBailianProviderConfig(),
+			mcp: buildMcpConfig(),
+		};
+	}
+
+	await writeFile(configPath, stringifyJsonc(config), dryRun);
+	return 1;
+}
+
 export async function install(options: InstallOptions): Promise<InstallReport> {
 	const { scope, clean, dryRun, noOverrides, plugins: pluginNames } = options;
 
@@ -287,7 +336,9 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 		writePluginExtraFiles(plugins, opencodeDir, dryRun),
 	]);
 
-	const filesWritten = counts.reduce((a, b) => a + b, 0);
+	await writeOpenCodeJsonc(scope, dryRun);
+
+	const filesWritten = counts.reduce((a, b) => a + b, 0) + 1;
 
 	return {
 		agentAssignments: assignments.map(({ role, assignment }) => ({
