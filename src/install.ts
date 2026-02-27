@@ -132,7 +132,7 @@ interface InstallDirs {
 
 function resolveDirs(scope: InstallOptions["scope"]): InstallDirs {
 	const targetDir = resolveTargetDir(scope);
-	const opencodeDir = `${targetDir}/.opencode`;
+	const opencodeDir = scope === "global" ? targetDir : `${targetDir}/.opencode`;
 	return {
 		opencodeDir,
 		agentsDir: `${opencodeDir}/agents`,
