@@ -40,21 +40,25 @@ interface ModelConfig {
 }
 
 const BAILIAN_OPTIMAL: Record<AgentRole, ModelConfig> = {
-	build: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
-	plan: { model: MODELS.BAILIAN_GLM5, temperature: 0.8, thinking: true },
-	general: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
-	explore: { model: MODELS.BAILIAN_GLM5, temperature: 0.8, thinking: true },
-	compaction: { model: MODELS.FREE_TRINITY },
-	summary: { model: MODELS.FREE_GPT5_NANO },
-	title: { model: MODELS.FREE_GPT5_NANO },
-	review: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	build: { model: MODELS.BAILIAN_KIMI_K25, temperature: 0.7, thinking: true },
+	plan: { model: MODELS.BAILIAN_MINIMAX, temperature: 0.8, thinking: true },
 	implement: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	review: { model: MODELS.BAILIAN_GLM5, temperature: 0.5, thinking: true },
+	test: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
 	document: {
 		model: MODELS.BAILIAN_KIMI_K25,
 		temperature: 1.0,
 		thinking: true,
 	},
-	test: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	explore: {
+		model: MODELS.BAILIAN_QWEN35_PLUS,
+		temperature: 0.8,
+		thinking: true,
+	},
+	general: { model: MODELS.BAILIAN_MINIMAX, temperature: 0.7, thinking: true },
+	compaction: { model: MODELS.FREE_GPT5_NANO },
+	summary: { model: MODELS.FREE_GPT5_NANO },
+	title: { model: MODELS.FREE_GPT5_NANO },
 };
 
 const COPILOT_FALLBACK: Record<AgentRole, ModelConfig> = {
