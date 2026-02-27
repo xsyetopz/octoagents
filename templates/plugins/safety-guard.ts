@@ -1,13 +1,5 @@
 import type { Plugin } from "@opencode-ai/plugin";
 
-/**
- * safety-guard plugin
- *
- * Intercepts destructive shell commands before execution and logs tool use.
- * Acts as a runtime guardrail complementing the permission system defined
- * in agent frontmatter.
- */
-
 const DESTRUCTIVE_PATTERNS = [
 	// --- Linux destructive patterns ---
 	/^rm\s+-rf\s+\/\s*$/, // remove root directory

@@ -1,19 +1,5 @@
 import type { Plugin } from "@opencode-ai/plugin";
 
-/**
- * code-mode plugin
- *
- * Implements Cloudflare's "Code Mode" concept for OpenCode:
- * instead of relying on native tool-call tokens (which vary in quality
- * across model families), this plugin injects a TypeScript API declaration
- * block into the system prompt. Models — particularly Chinese frontier
- * models (DeepSeek, Qwen, GLM, Kimi) that excel at code — can then express
- * multi-step tool workflows as ordinary TypeScript rather than structured
- * JSON tool calls.
- *
- * Reference: https://blog.cloudflare.com/code-mode/
- */
-
 const TOOL_API_TYPES = `<tool-api>
 The following TypeScript declarations describe the tools available in this session.
 When performing multi-step operations, you may express them as TypeScript pseudocode

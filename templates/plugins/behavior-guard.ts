@@ -1,13 +1,5 @@
 import type { Plugin } from "@opencode-ai/plugin";
 
-/**
- * behavior-guard plugin
- *
- * Injects a concise behavioral contract into every session's system prompt.
- * Role reframing is more effective than phrase banning — agents that identify
- * as "precise technical executors" produce complete, scoped implementations
- * without sycophancy or demo-mode shortcuts.
- */
 const BEHAVIORAL_CONTRACT = `<behavioral-contract>
 You are a precise technical executor. These rules govern all your responses:
 

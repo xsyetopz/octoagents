@@ -1,13 +1,6 @@
 import { join } from "node:path";
 import type { Plugin } from "@opencode-ai/plugin";
 
-/**
- * context-loader plugin
- *
- * Reads all files from `.opencode/context/` at session start and appends their
- * content to the system prompt so every agent has full project context
- * without being told to load it manually.
- */
 export const ContextLoader: Plugin = ({ directory }) => {
 	const contextDir = join(directory, ".opencode", "context");
 

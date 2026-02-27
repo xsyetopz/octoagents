@@ -2,12 +2,6 @@ import { appendFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { Plugin } from "@opencode-ai/plugin";
 
-/**
- * session-logger plugin
- *
- * Logs session events (compaction, tool use) to `.opencode/logs/`.
- * Useful for auditing agent behavior and debugging.
- */
 export const SessionLogger: Plugin = ({ directory }) => {
 	const logsDir = join(directory, ".opencode", "logs");
 
