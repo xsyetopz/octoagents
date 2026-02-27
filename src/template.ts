@@ -4,14 +4,16 @@ const TEMPLATES_DIR = join(import.meta.dir, "..", "templates");
 
 export interface TemplateVars {
 	model: string;
-	[key: string]: string;
+	temperature?: string;
+	thinking?: string;
+	[key: string]: string | undefined;
 }
 
 function substitute(content: string, vars: TemplateVars): string {
 	return content.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => {
 		const value = vars[key];
 		if (value === undefined) {
-			throw new Error(`Template variable "{{${key}}}" has no value`);
+			return "";
 		}
 		return value;
 	});
@@ -39,8 +41,19 @@ export async function loadCommandTemplate(name: string): Promise<string> {
 	return file.text();
 }
 
-export function resolveTemplateVars(model: string): TemplateVars {
-	return { model };
+export function resolveTemplateVars(
+	model: string,
+	temperature?: number,
+	thinking?: boolean,
+): TemplateVars {
+	const vars: TemplateVars = { model };
+	if (temperature !== undefined) {
+		vars.temperature = String(temperature);
+	}
+	if (thinking) {
+		vars.thinking = "enabled";
+	}
+	return vars;
 }
 
 export async function loadTemplateFile(relativePath: string): Promise<string> {
