@@ -1,4 +1,6 @@
 import { join } from "node:path";
+import { AGENT_META } from "./agents.ts";
+import type { AgentRole } from "./models.ts";
 
 const TEMPLATES_DIR = join(import.meta.dir, "..", "templates");
 
@@ -6,6 +8,7 @@ export interface TemplateVars {
 	model: string;
 	temperature?: string;
 	thinking?: string;
+	color?: string;
 	[key: string]: string | undefined;
 }
 
@@ -20,16 +23,19 @@ function substitute(content: string, vars: TemplateVars): string {
 }
 
 export async function loadAgentTemplate(
-	name: string,
+	role: AgentRole,
 	vars: TemplateVars,
 ): Promise<string> {
-	const path = join(TEMPLATES_DIR, "agents", `${name}.md`);
+	const meta = AGENT_META[role];
+	const greekName = meta.greekName;
+	const path = join(TEMPLATES_DIR, "agents", `${greekName}.md`);
 	const file = Bun.file(path);
 	if (!(await file.exists())) {
 		throw new Error(`Agent template not found: ${path}`);
 	}
 	const content = await file.text();
-	return substitute(content, vars);
+	const fullVars = { ...vars, color: meta.color };
+	return substitute(content, fullVars);
 }
 
 export async function loadCommandTemplate(name: string): Promise<string> {
