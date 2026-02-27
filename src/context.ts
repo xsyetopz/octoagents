@@ -7,158 +7,170 @@ export function buildContextFiles(): ContextFile[] {
 	return [
 		{
 			filename: "overview.md",
-			content: `# Project Overview
+			content: `# 项目概述
 
-Describe your project here so agents understand its purpose and domain.
+在此描述项目，让代理理解其目的和领域。
 
-## What This Project Does
+## 项目功能
 
-(Replace with a concise description of what this codebase builds or solves)
+（替换为代码库构建或解决问题的简洁描述）
 
-## Key Goals
+## 核心目标
 
-- (Primary goal #1)
-- (Primary goal #2)
+- （主要目标 #1）
+- （主要目标 #2）
 
-## Audience
+## 目标用户
 
-(Who uses this? Developers? End users? Internal tooling?)
+（谁使用此项目？开发者？终端用户？内部工具？）
 `,
 		},
 		{
 			filename: "tech-stack.md",
-			content: `# Tech Stack
+			content: `# 技术栈
 
-List the languages, runtimes, frameworks, and tools used in this project.
+列出项目中使用的语言、运行时、框架和工具。
 
-## Languages
+## 编程语言
 
-- Primary: (e.g. TypeScript, Python, Rust, Go, C++)
-- Secondary: (e.g. shell scripts, SQL)
+- 主要语言：（如 TypeScript, Python, Rust, Go, C++）
+- 辅助语言：（如 shell 脚本, SQL）
 
-## Runtime / Package Manager
+## 运行时 / 包管理器
 
-- Runtime: (e.g. Bun, Node.js, Deno, Python 3.12, Rust 1.x)
-- Package manager: (e.g. bun, pnpm, pip + .venv, cargo)
+| 类型 | 选择 |
+|---|---|
+| 运行时 | （如 Bun, Node.js, Deno, Python 3.12, Rust 1.x） |
+| 包管理器 | （如 bun, pnpm, pip + .venv, cargo） |
 
-## Build System
+## 构建系统
 
-- (e.g. cmake + ninja, make, Gradle, cargo, bun build)
+- （如 cmake + ninja, make, Gradle, cargo, bun build）
 
-## Frameworks / Libraries
+## 框架 / 库
 
-- (List key dependencies)
+- （列出关键依赖）
 
-## Testing
+## 测试
 
-- Framework: (e.g. Bun test, pytest, cargo test, Go test)
-- Coverage tool: (if any)
+| 类型 | 工具 |
+|---|---|
+| 框架 | （如 Bun test, pytest, cargo test, Go test） |
+| 覆盖率 | （如有） |
 
-## Database / Storage
+## 数据库 / 存储
 
-- (e.g. PostgreSQL, SQLite, Redis)
+- （如 PostgreSQL, SQLite, Redis）
 
-## Deployment
+## 部署
 
-- (e.g. Docker, AWS Lambda, bare metal)
+- （如 Docker, AWS Lambda, 裸机）
 `,
 		},
 		{
 			filename: "conventions.md",
-			content: `# Coding Conventions
+			content: `# 编码规范
 
-Rules that agents must follow when writing or modifying code in this project.
+代理在编写或修改此项目代码时必须遵守的规则。
 
-## Formatting
+## 格式规范
 
-- Indent style: (tabs / spaces N)
-- Max line length: (e.g. 100 chars)
-- Trailing newline: required
+| 项目 | 规范 |
+|---|---|
+| 缩进风格 | [tabs / spaces N] |
+| 行宽上限 | [如 100 字符] |
+| 文件末尾换行 | 必须有 |
 
-## Naming
+## 命名规范
 
-- Variables/functions: (camelCase / snake_case)
-- Types/classes: (PascalCase)
-- Constants: (SCREAMING_SNAKE_CASE / camelCase)
-- Files: (kebab-case / snake_case)
+| 类型 | 风格 |
+|---|---|
+| 变量/函数 | [camelCase / snake_case] |
+| 类型/类 | [PascalCase] |
+| 常量 | [SCREAMING_SNAKE_CASE / camelCase] |
+| 文件 | [kebab-case / snake_case] |
 
-## Imports
+## 导入规范
 
-- Order: (external, then internal, then relative)
-- Style: (named imports preferred / default imports)
+1. 导入顺序：外部 → 内部 → 相对路径
+2. 导入风格：[优先具名导入 / 默认导入]
 
-## Error Handling
+## 错误处理
 
-- (Describe your project's error handling pattern)
-- (e.g. always throw typed errors, never swallow exceptions, Result types)
+- （描述项目的错误处理模式）
+- （如：总是抛出类型化错误、禁止吞掉异常、Result类型）
 
-## Comments
+## 注释规范
 
-- Comment the why, not the what
-- Public APIs: (docstring style, if any)
-- TODO format: \`TODO(author): description\`
+1. 注释原因，而非内容
+2. 公开API：（文档字符串风格，如有）
+3. TODO格式：\`TODO(author): description\`
 
-## Git
+## Git 规范
 
-- Commit format: conventional commits (\`type(scope): description\`)
-- Branch naming: (e.g. feat/name, fix/name)
-- PR size: (keep PRs focused, one concern per PR)
+| 项目 | 规范 |
+|---|---|
+| 提交格式 | 约定式提交（\`type(scope): description\`） |
+| 分支命名 | （如 feat/name, fix/name） |
+| PR规模 | 保持聚焦，一个PR只解决一个问题 |
 `,
 		},
 		{
 			filename: "structure.md",
-			content: `# Repository Structure
+			content: `# 仓库结构
 
-Describe the key directories and their purposes so agents navigate correctly.
+描述关键目录及其用途，让代理正确导航。
 
 \`\`\`
 project-root/
-  src/          Source code
-  tests/        Test files (mirror src/ structure)
-  docs/         Documentation
-  scripts/      Build, deploy, and utility scripts
-  .opencode/    OpenCode agent framework
+  src/          源代码
+  tests/        测试文件（镜像src/结构）
+  docs/         文档
+  scripts/      构建、部署和工具脚本
+  .opencode/    OpenCode代理框架
 \`\`\`
 
-## Key Entry Points
+## 关键入口
 
-- Main: (e.g. src/index.ts, src/main.rs, cmd/main.go)
-- Tests: (e.g. tests/, src/__tests__/, *_test.go)
-- Config: (e.g. config/, .env)
+| 入口类型 | 路径 |
+|---|---|
+| 主入口 | （如 src/index.ts, src/main.rs, cmd/main.go） |
+| 测试 | （如 tests/, src/__tests__/, *_test.go） |
+| 配置 | （如 config/, .env） |
 
-## Generated Files
+## 生成文件
 
-Do not modify these manually — they are generated:
-- (list generated directories/files)
+禁止手动修改——这些是自动生成的：
+- （列出生成的目录/文件）
 
-## Vendored / Third-party
+## 第三方/供应商代码
 
-- (list any vendored code agents should not touch)
+- （列出代理不应修改的供应商代码）
 `,
 		},
 		{
 			filename: "agent-notes.md",
-			content: `# Notes for Agents
+			content: `# 代理注意事项
 
-Critical constraints and guidance for all agents working in this project.
+所有在此项目工作的代理必须遵守的关键约束和指导。
 
-## Always Do
+## 必须遵守
 
-- Read existing code before modifying it
-- Follow the conventions in conventions.md
-- Run tests after making changes
-- Use conventional commits when committing
+- 修改前阅读现有代码
+- 遵循 conventions.md 中的规范
+- 改动后运行测试
+- 提交时使用约定式提交
 
-## Never Do
+## 禁止操作
 
-- Modify generated files directly
-- Push to remote without explicit user instruction
-- Delete files without confirmation
-- Commit secrets or credentials
+- 禁止直接修改生成文件
+- 禁止在未经用户明确指示时推送到远程
+- 禁止在未确认时删除文件
+- 禁止提交密钥或凭证
 
-## Environment Setup
+## 环境配置
 
-For Python projects:
+Python项目：
 \`\`\`bash
 python3 -m venv .venv
 source .venv/bin/activate  # macOS/Linux
@@ -166,24 +178,24 @@ source .venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
 \`\`\`
 
-For Node.js / Bun projects:
+Node.js / Bun项目：
 \`\`\`bash
-bun install  # or npm install / pnpm install
+bun install  # 或 npm install / pnpm install
 \`\`\`
 
-For Rust projects:
+Rust项目：
 \`\`\`bash
 cargo build
 \`\`\`
 
-## Testing Commands
+## 测试命令
 
-(Override with your project's actual test commands)
-See also: .opencode/context/tech-stack.md
+（替换为项目实际测试命令）
+另见：.opencode/context/tech-stack.md
 
-## Known Issues / Gotchas
+## 已知问题 / 注意事项
 
-- (Any quirks or non-obvious things agents should know)
+- （代理需要知道的任何特殊问题或不明显的事项）
 `,
 		},
 	];
