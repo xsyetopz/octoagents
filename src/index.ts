@@ -12,6 +12,15 @@ export type { AgentAssignment, InstallReport } from "./install.ts";
 export { install } from "./install.ts";
 export type { AgentRole, ModelAssignment, ModelId } from "./models.ts";
 export { MODELS, resolveModel } from "./models.ts";
+export {
+	buildBailianProviderConfig,
+	buildMcpConfig,
+	buildOpenCodeJsonc,
+	mergeMcpConfig,
+	mergeProviderConfig,
+	parseJsonc,
+	stringifyJsonc,
+} from "./opencode-config.ts";
 export type { ContentPlugin } from "./plugins.ts";
 export {
 	applyContentPlugins,
