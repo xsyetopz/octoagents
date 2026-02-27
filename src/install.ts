@@ -1,10 +1,6 @@
 import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
-import {
-	AGENT_META,
-	ALL_AGENT_ROLES,
-	CUSTOM_SUBAGENT_ROLES,
-} from "./agents.ts";
+import { AGENT_META, ALL_AGENT_ROLES, SUBAGENT_ROLES } from "./agents.ts";
 import { COMMAND_DEFINITIONS } from "./commands.ts";
 import { buildContextFiles } from "./context.ts";
 import { detectProviders } from "./detect.ts";
@@ -14,15 +10,17 @@ import {
 	resolveModel,
 } from "./models.ts";
 import {
+	buildAgentDisableConfig,
 	buildBailianProviderConfig,
 	buildMcpConfig,
+	mergeAgentDisableConfig,
 	mergeMcpConfig,
 	mergeProviderConfig,
 	parseJsonc,
 	resolveConfigPath,
 	stringifyJsonc,
 } from "./opencode-config.ts";
-import { applyContentPlugins, resolvePlugins } from "./plugins.ts";
+import { resolvePlugins } from "./plugins.ts";
 import { renderSkillFile } from "./render.ts";
 import { SKILL_DEFINITIONS } from "./skills.ts";
 import {
@@ -99,14 +97,8 @@ function runValidation(
 	}
 }
 
-const PLUGIN_FILENAMES = [
-	"behavior-guard.ts",
-	"code-mode.ts",
-	"context-loader.ts",
-	"safety-guard.ts",
-	"session-logger.ts",
-] as const;
-const TOOL_FILENAMES = ["code-mode-mcp.ts", "read-context.ts"] as const;
+const PLUGIN_FILENAMES = ["context-loader.ts", "safety-guard.ts"] as const;
+const TOOL_FILENAMES = ["memory.ts"] as const;
 
 export interface AgentAssignment {
 	role: string;
@@ -146,7 +138,6 @@ function resolveDirs(scope: InstallOptions["scope"]): InstallDirs {
 
 async function writeAgents(
 	assignments: Array<{ role: AgentRole; assignment: ModelAssignment }>,
-	plugins: ReturnType<typeof resolvePlugins>,
 	agentsDir: string,
 	dryRun: boolean,
 ): Promise<number> {
@@ -157,9 +148,9 @@ async function writeAgents(
 				assignment.temperature,
 				assignment.thinking,
 			);
-			const rawContent = await loadAgentTemplate(role, vars);
-			const content = applyContentPlugins(role, rawContent, plugins);
-			await writeFile(`${agentsDir}/${role}.md`, content, dryRun);
+			const meta = AGENT_META[role];
+			const content = await loadAgentTemplate(role, vars);
+			await writeFile(`${agentsDir}/${meta.greekName}.md`, content, dryRun);
 		}),
 	);
 	return assignments.length;
@@ -256,13 +247,16 @@ async function writeOpenCodeJsonc(
 			config = parseJsonc(text);
 			const bailianConfig = buildBailianProviderConfig();
 			const mcpConfig = buildMcpConfig();
+			const agentDisableConfig = buildAgentDisableConfig();
 			config = mergeProviderConfig(config, bailianConfig);
 			config = mergeMcpConfig(config, mcpConfig);
+			config = mergeAgentDisableConfig(config, agentDisableConfig);
 		} catch {
 			config = {
 				$schema: "https://opencode.ai/config.json",
 				provider: buildBailianProviderConfig(),
 				mcp: buildMcpConfig(),
+				agent: buildAgentDisableConfig(),
 			};
 		}
 	} else {
@@ -270,6 +264,7 @@ async function writeOpenCodeJsonc(
 			$schema: "https://opencode.ai/config.json",
 			provider: buildBailianProviderConfig(),
 			mcp: buildMcpConfig(),
+			agent: buildAgentDisableConfig(),
 		};
 	}
 
@@ -297,7 +292,7 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 	} = dirs;
 
 	const agentRoles: AgentRole[] = noOverrides
-		? CUSTOM_SUBAGENT_ROLES
+		? SUBAGENT_ROLES
 		: ALL_AGENT_ROLES;
 	const assignments = agentRoles.map((role) => ({
 		role,
@@ -327,7 +322,7 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 	]);
 
 	const counts = await Promise.all([
-		writeAgents(assignments, plugins, agentsDir, dryRun),
+		writeAgents(assignments, agentsDir, dryRun),
 		writeCommands(commandsDir, dryRun),
 		writeSkills(skillsDir, dryRun),
 		writeContextFiles(contextDir, dryRun),
