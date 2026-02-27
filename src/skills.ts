@@ -478,7 +478,8 @@ await proc.exited;
 	},
 	{
 		name: "ts-performance",
-		description: "TypeScript/JavaScript performance patterns for Bun — algorithms, async, data structures, memory",
+		description:
+			"TypeScript/JavaScript performance patterns for Bun — algorithms, async, data structures, memory",
 		version: "1.0",
 		content: `# TypeScript Performance
 
