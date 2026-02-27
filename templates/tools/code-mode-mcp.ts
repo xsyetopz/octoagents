@@ -1,54 +1,5 @@
 #!/usr/bin/env bun
-/**
- * code-mode-mcp — OpenCode MCP server implementing the "Code Mode" pattern.
- *
- * Inspired by Cloudflare's Code Mode (https://blog.cloudflare.com/code-mode/):
- * instead of models using structured tool-call tokens, this server exposes a
- * single `execute` tool that accepts TypeScript code. The model writes
- * TypeScript that calls typed wrapper functions; the server executes the code
- * and returns results via console output.
- *
- * This approach works well with Chinese frontier models (DeepSeek, Qwen, GLM,
- * Kimi) that produce reliable code but have uneven native tool-call quality.
- *
- * Usage in opencode.json:
- *   {
- *     "mcp": {
- *       "code-mode": {
- *         "type": "local",
- *         "command": "bun",
- *         "args": [".opencode/tools/code-mode-mcp.ts"]
- *       }
- *     }
- *   }
- */
-
 export {};
-/**
- * code-mode-mcp — OpenCode MCP server implementing the "Code Mode" pattern.
- *
- * Inspired by Cloudflare's Code Mode (https://blog.cloudflare.com/code-mode/):
- * instead of models using structured tool-call tokens, this server exposes a
- * single `execute` tool that accepts TypeScript code. The model writes
- * TypeScript that calls typed wrapper functions; the server executes the code
- * and returns results via console output.
- *
- * This approach works well with Chinese frontier models (DeepSeek, Qwen, GLM,
- * Kimi) that produce reliable code but have uneven native tool-call quality.
- *
- * Usage in opencode.json:
- *   {
- *     "mcp": {
- *       "code-mode": {
- *         "type": "local",
- *         "command": "bun",
- *         "args": [".opencode/tools/code-mode-mcp.ts"]
- *       }
- *     }
- *   }
- */
-
-// ─── MCP Protocol types ───────────────────────────────────────────────────────
 
 interface JsonRpcRequest {
 	jsonrpc: "2.0";
@@ -64,7 +15,9 @@ interface JsonRpcResponse {
 	error?: { code: number; message: string; data?: unknown };
 }
 
-// ─── Tool definitions ─────────────────────────────────────────────────────────
+const PARSE_ERROR = -32700;
+const METHOD_NOT_FOUND = -32601;
+const INVALID_PARAMS = -32602;
 
 const TOOLS = [
 	{
@@ -123,8 +76,6 @@ declare function grep(
 declare function bash(
   command: string
 ): Promise<{ stdout: string; stderr: string; exitCode: number }>;`;
-
-// ─── Tool wrapper implementations ─────────────────────────────────────────────
 
 function buildExecutionContext(cwd: string): string {
 	return `
@@ -207,8 +158,6 @@ async function runExecute(code: string, cwd: string): Promise<string> {
 	return logs.join("\n");
 }
 
-// ─── MCP protocol handler ─────────────────────────────────────────────────────
-
 function ok(id: JsonRpcRequest["id"], result: unknown): JsonRpcResponse {
 	return { jsonrpc: "2.0", id, result };
 }
@@ -221,6 +170,46 @@ function err(
 	return { jsonrpc: "2.0", id, error: { code, message } };
 }
 
+function handleInitialize(id: JsonRpcRequest["id"]): JsonRpcResponse {
+	return ok(id, {
+		protocolVersion: "2024-11-05",
+		capabilities: { tools: {} },
+		serverInfo: { name: "code-mode-mcp", version: "1.0.0" },
+	});
+}
+
+function handleToolsList(id: JsonRpcRequest["id"]): JsonRpcResponse {
+	return ok(id, { tools: TOOLS });
+}
+
+async function handleToolsCall(
+	id: JsonRpcRequest["id"],
+	params: unknown,
+): Promise<JsonRpcResponse> {
+	const p = params as { name: string; arguments?: Record<string, unknown> };
+	const args = p.arguments ?? {};
+
+	switch (p.name) {
+		case "get_type_definitions":
+			return ok(id, { content: [{ type: "text", text: TYPE_DEFINITIONS }] });
+
+		case "execute": {
+			const code = String(args["code"] ?? "");
+			const cwd = String(args["cwd"] ?? process.cwd());
+			if (!code.trim()) {
+				return err(id, INVALID_PARAMS, "code is required");
+			}
+			const output = await runExecute(code, cwd);
+			return ok(id, {
+				content: [{ type: "text", text: output || "(no output)" }],
+			});
+		}
+
+		default:
+			return err(id, METHOD_NOT_FOUND, `Unknown tool: ${p.name}`);
+	}
+}
+
 async function handleRequest(
 	req: JsonRpcRequest,
 ): Promise<JsonRpcResponse | undefined> {
@@ -228,47 +217,46 @@ async function handleRequest(
 
 	switch (method) {
 		case "initialize":
-			return ok(id, {
-				protocolVersion: "2024-11-05",
-				capabilities: { tools: {} },
-				serverInfo: { name: "code-mode-mcp", version: "1.0.0" },
-			});
+			return handleInitialize(id);
 
 		case "notifications/initialized":
 			return undefined; // no response needed
 
 		case "tools/list":
-			return ok(id, { tools: TOOLS });
+			return handleToolsList(id);
 
-		case "tools/call": {
-			const p = params as { name: string; arguments?: Record<string, unknown> };
-			const args = p.arguments ?? {};
-
-			if (p.name === "get_type_definitions") {
-				return ok(id, { content: [{ type: "text", text: TYPE_DEFINITIONS }] });
-			}
-
-			if (p.name === "execute") {
-				const code = String(args["code"] ?? "");
-				const cwd = String(args["cwd"] ?? process.cwd());
-				if (!code.trim()) {
-					return err(id, -32602, "code is required");
-				}
-				const output = await runExecute(code, cwd);
-				return ok(id, {
-					content: [{ type: "text", text: output || "(no output)" }],
-				});
-			}
-
-			return err(id, -32601, `Unknown tool: ${p.name}`);
-		}
+		case "tools/call":
+			return await handleToolsCall(id, params);
 
 		default:
-			return err(id, -32601, `Method not found: ${method}`);
+			return err(id, METHOD_NOT_FOUND, `Method not found: ${method}`);
 	}
 }
 
-// ─── Stdio transport ──────────────────────────────────────────────────────────
+function parseJsonRpcLine(line: string): JsonRpcRequest | undefined {
+	const trimmed = line.trim();
+	if (!trimmed) {
+		return undefined;
+	}
+	try {
+		return JSON.parse(trimmed) as JsonRpcRequest;
+	} catch {
+		const resp = err(undefined, PARSE_ERROR, "Parse error");
+		process.stdout.write(`${JSON.stringify(resp)}\n`);
+		return undefined;
+	}
+}
+
+async function handleInputLine(line: string): Promise<void> {
+	const req = parseJsonRpcLine(line);
+	if (!req) {
+		return;
+	}
+	const resp = await handleRequest(req);
+	if (resp !== undefined) {
+		process.stdout.write(`${JSON.stringify(resp)}\n`);
+	}
+}
 
 async function main(): Promise<void> {
 	let buffer = "";
@@ -281,24 +269,7 @@ async function main(): Promise<void> {
 		buffer = lines.pop() ?? "";
 
 		for (const line of lines) {
-			const trimmed = line.trim();
-			if (!trimmed) {
-				continue;
-			}
-
-			let req: JsonRpcRequest;
-			try {
-				req = JSON.parse(trimmed) as JsonRpcRequest;
-			} catch {
-				const resp = err(undefined, -32700, "Parse error");
-				process.stdout.write(`${JSON.stringify(resp)}\n`);
-				continue;
-			}
-
-			const resp = await handleRequest(req);
-			if (resp !== undefined) {
-				process.stdout.write(`${JSON.stringify(resp)}\n`);
-			}
+			await handleInputLine(line);
 		}
 	}
 }
