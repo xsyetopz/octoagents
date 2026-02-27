@@ -12,10 +12,27 @@
 			"**/*.mjs",
 			"**/*.ts",
 			"**/*.tsx",
-			"**/*.mts"
+			"**/*.mts",
+			"!**/node_modules",
+			"!**/dist"
 		],
 		"ignoreUnknown": true
 	},
+	"overrides": [
+		{
+			"includes": [
+				"!./opencode/**",
+				"templates/tools/**" // opencode discovers tools via default export
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
+				}
+			}
+		}
+	],
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab"
@@ -116,7 +133,10 @@
 		}
 	},
 	"javascript": {
-		"globals": ["Bun", "$"],
+		"globals": [
+			"Bun",
+			"$"
+		],
 		"formatter": {
 			"quoteStyle": "double"
 		}
