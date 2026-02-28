@@ -26,7 +26,7 @@ Rules:
 
 1. Title follows Conventional Commits format
 2. Description includes: what changed, why, how to test
-3. Keep PRs focused — one PR solves one problem
+3. Keep PRs focused -- one PR solves one problem
 4. Rebase to main before merge, prefer squash merge for small PRs
 
 ## Workflow

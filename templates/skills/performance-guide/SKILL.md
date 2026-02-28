@@ -40,7 +40,7 @@ Cache at the right layer:
 3. CDN (static assets and cacheable API responses)
 
 Cache invalidation rules:
-- Set explicit TTL — no permanent cache
+- Set explicit TTL -- no permanent cache
 - Invalidate on write
 - Cache stampede protection: use probabilistic early expiration or locks
 

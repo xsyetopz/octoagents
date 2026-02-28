@@ -30,7 +30,7 @@ Test names should read as complete sentences:
 
 ## Test Isolation
 
-1. Each test is independent — no shared mutable state
+1. Each test is independent -- no shared mutable state
 2. Mock external dependencies (network, filesystem, time)
 3. Use factories/builders to generate test data, avoid hardcoding
 

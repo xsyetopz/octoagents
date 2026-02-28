@@ -1,10 +1,10 @@
 # TypeScript Performance Optimization
 
-Profile before optimizing. Most bottlenecks are algorithmic, not micro-optimizations. An O(n²)→O(n log n) improvement always beats a 2x micro-optimization.
+Profile before optimizing. Most bottlenecks are algorithmic, not micro-optimizations. An O(n²)->O(n log n) improvement always beats a 2x micro-optimization.
 
 ## Core Principles
 
-**Measure → Identify real bottleneck → Fix algorithm → Micro-optimize only if still needed.**
+**Measure -> Identify real bottleneck -> Fix algorithm -> Micro-optimize only if still needed.**
 
 ```typescript
 // Measure baseline before and after each change
@@ -21,17 +21,17 @@ bun --prof script.ts
 Choose the right structure based on access patterns:
 
 ```typescript
-// O(1) lookup — use Map or Set, not Array.find()
+// O(1) lookup -- use Map or Set, not Array.find()
 const index = new Map(items.map(item => [item.id, item]));
 const found = index.get(id); // vs items.find(x => x.id === id) O(n)
 
 const seen = new Set<string>();
 if (!seen.has(key)) { seen.add(key); process(key); }
 
-// Typed arrays for numeric data — 3-10x less memory, 5x faster
+// Typed arrays for numeric data -- 3-10x less memory, 5x faster
 const data = new Float64Array(1_000_000);
 
-// WeakMap for metadata — GC-friendly, no leak risk
+// WeakMap for metadata -- GC-friendly, no leak risk
 const meta = new WeakMap<object, Metadata>();
 ```
 
@@ -49,10 +49,10 @@ const meta = new WeakMap<object, Metadata>();
 Single pass over chained array methods. Preallocate when size is known.
 
 ```typescript
-// Wrong — three intermediate arrays
+// Wrong -- three intermediate arrays
 const out = items.filter(x => x > 0).map(x => x * 2).filter(x => x < 100);
 
-// Correct — single pass
+// Correct -- single pass
 const out: number[] = [];
 for (const x of items) {
   if (x > 0) {
@@ -65,7 +65,7 @@ for (const x of items) {
 const result = new Array<number>(items.length);
 for (let i = 0; i < items.length; i++) result[i] = transform(items[i]);
 
-// String building — use join, not +=
+// String building -- use join, not +=
 const parts: string[] = [];
 for (const item of items) parts.push(`<li>${item}</li>`);
 const html = parts.join("");
@@ -86,11 +86,11 @@ Loop speed: `for` > `for-of` > `forEach` > `reduce`. Default to `for-of`; use `f
 Never sequential `await` in loops. Use `Promise.all` for independent operations.
 
 ```typescript
-// Wrong — sequential execution, n × latency
+// Wrong -- sequential execution, n × latency
 const results = [];
 for (const item of items) results.push(await process(item));
 
-// Correct — parallel execution
+// Correct -- parallel execution
 const results = await Promise.all(items.map(process));
 
 // Batch large workloads to limit concurrency
@@ -111,7 +111,7 @@ async function fetch_once(key: string): Promise<Data> {
 ## Memory
 
 ```typescript
-// Reuse buffers — avoid creating new arrays in hot paths
+// Reuse buffers -- avoid creating new arrays in hot paths
 class Processor {
   private buf: number[] = [];
   run(input: number[]) {
@@ -121,7 +121,7 @@ class Processor {
   }
 }
 
-// Bounded cache — prevent unbounded growth
+// Bounded cache -- prevent unbounded growth
 class BoundedCache<K, V> {
   private m = new Map<K, V>();
   constructor(private max: number) {}
@@ -132,14 +132,14 @@ class BoundedCache<K, V> {
   get(k: K) { return this.m.get(k); }
 }
 
-// WeakMap for DOM/object metadata — automatic GC
+// WeakMap for DOM/object metadata -- automatic GC
 const cache = new WeakMap<Node, ComputedData>();
 ```
 
 ## Bun Specific
 
 ```typescript
-// Native hashing — faster than crypto for non-security use
+// Native hashing -- faster than crypto for non-security use
 const hash = Bun.hash(data);
 const crc = Bun.hash.crc32(str);
 

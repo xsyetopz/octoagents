@@ -1,6 +1,6 @@
 ---
 name: desloppify
-description: Detect and remove AI-generated linguistic slop from code, comments, documentation, READMEs, changelogs, commit messages, and any text artifacts. Use whenever the user mentions "AI slop", "desloppify", "remove AI-isms", "sounds like AI", "too AI", "clean up AI writing", "make it sound human", or asks to review text for AI patterns. Also trigger when reviewing any AI-generated documentation, comments, or prose — even if the user doesn't explicitly mention AI slop — if the content exhibits hallmark AI writing patterns like filler adjectives, hedge phrases, or obvious code comments. Trigger for any request to "clean up", "tighten", or "edit" AI-generated text, and when auditing codebases for comment quality.
+description: Detect and remove AI-generated linguistic slop from code, comments, documentation, READMEs, changelogs, commit messages, and any text artifacts. Use whenever the user mentions "AI slop", "desloppify", "remove AI-isms", "sounds like AI", "too AI", "clean up AI writing", "make it sound human", or asks to review text for AI patterns. Also trigger when reviewing any AI-generated documentation, comments, or prose -- even if the user doesn't explicitly mention AI slop -- if the content exhibits hallmark AI writing patterns like filler adjectives, hedge phrases, or obvious code comments. Trigger for any request to "clean up", "tighten", or "edit" AI-generated text, and when auditing codebases for comment quality.
 ---
 
 # Desloppify
@@ -17,7 +17,7 @@ If you can delete a sentence and lose no information, delete it. If you can repl
 
 ## Detection Tiers
 
-### Tier 1 — Dead Giveaways (always remove or rewrite)
+### Tier 1 -- Dead Giveaways (always remove or rewrite)
 
 These appear 10-100x more often in AI output than human writing. Presence is near-certain AI signal.
 
@@ -68,7 +68,7 @@ ecosystem, paradigm
 "First and foremost"             "Last but not least"
 ```
 
-### Tier 2 — Contextual Signals (flag when clustered)
+### Tier 2 -- Contextual Signals (flag when clustered)
 
 Legitimate words AI overuses. Flag when they appear in groups or where a human would use simpler language.
 
@@ -85,7 +85,7 @@ Legitimate words AI overuses. Flag when they appear in groups or where a human w
 - Em-dash abuse for parentheticals that don't need emphasis
 - 3+ consecutive paragraphs starting with the same structure
 
-### Tier 3 — Code-Specific Slop
+### Tier 3 -- Code-Specific Slop
 
 **Obvious Comments (delete entirely):**
 ```python
@@ -133,7 +133,7 @@ def process_data(data):
 // For demonstration purposes
 ```
 
-### Tier 4 — Doc & README Slop
+### Tier 4 -- Doc & README Slop
 
 **Hype Copy (rewrite to factual):**
 ```
@@ -149,16 +149,16 @@ CLEAN: [Delete. If the DX is good, the docs prove it.]
 
 **Padding Sections (delete if empty of real content):**
 ```
-## Why [Project Name]?   → Delete unless concrete differentiators
-## Philosophy             → Delete unless genuinely novel
-## Our Vision             → Delete
+## Why [Project Name]?   -> Delete unless concrete differentiators
+## Philosophy             -> Delete unless genuinely novel
+## Our Vision             -> Delete
 ```
 
 **Emoji Abuse (strip or reduce):**
 ```
-## 🚀 Getting Started   →  ## Getting Started
-### ✨ Features          →  ### Features
-- 🔧 Easy config        →  - Easy configuration
+## 🚀 Getting Started   ->  ## Getting Started
+### ✨ Features          ->  ### Features
+- 🔧 Easy config        ->  - Easy configuration
 ```
 Exception: severity indicators (🔴🟡🟢) and established project style are fine.
 
@@ -193,9 +193,9 @@ When rewriting slop, apply these substitutions:
 Read target file(s). Identify all Tier 1 matches (definite slop) and Tier 2 clusters (probable slop).
 
 ### Step 2: Classify each finding
-- **DELETE** — Adds no information (obvious comments, filler phrases, hypcopy)
-- **REWRITE** — Useful information buried under slop language
-- **FLAG** — Tier 2 word that might be intentional; needs human judgment
+- **DELETE** -- Adds no information (obvious comments, filler phrases, hypcopy)
+- **REWRITE** -- Useful information buried under slop language
+- **FLAG** -- Tier 2 word that might be intentional; needs human judgment
 
 ### Step 3: Apply rewrites
 Use the substitution table. For items not in the table: replace with the simplest word that preserves meaning. If no meaning is lost by deletion, delete.
@@ -218,9 +218,9 @@ When reporting on a desloppify pass:
 ### Findings
 | Line | Tier | Original | Action |
 |------|------|----------|--------|
-| 12 | T1 | "robust and seamless" | REWRITE → "handles X without Y" |
+| 12 | T1 | "robust and seamless" | REWRITE -> "handles X without Y" |
 | 34 | T3 | "// Initialize the array" | DELETE |
-| 56 | T2 | "delve into" | REWRITE → "examine" |
+| 56 | T2 | "delve into" | REWRITE -> "examine" |
 
 ### Summary
 - Deleted: [n] items
@@ -228,4 +228,4 @@ When reporting on a desloppify pass:
 - Flagged: [n] items
 ```
 
-When directly editing files (not reporting), skip the report — just make the changes.
+When directly editing files (not reporting), skip the report -- just make the changes.

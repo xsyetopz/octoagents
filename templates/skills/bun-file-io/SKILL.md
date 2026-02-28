@@ -19,7 +19,7 @@ const buffer = await file.arrayBuffer();
 await Bun.write(path, "text content");
 await Bun.write(path, buffer);
 await Bun.write(path, blob);
-// Incremental writes: file.writer() → FileSink
+// Incremental writes: file.writer() -> FileSink
 ```
 
 ## Scanning Directories
@@ -61,7 +61,7 @@ await proc.exited;
 
 ## Rules
 
-1. `Bun.file(path).exists()` is for files only — use `stat()` from `node:fs/promises` when path might be a directory
+1. `Bun.file(path).exists()` is for files only -- use `stat()` from `node:fs/promises` when path might be a directory
 2. Must use `path.join` or `path.resolve` for paths, no string concatenation
 3. Prefer `Bun.write` over creating WritableStream unless incremental writes are needed
 4. Parallelize independent reads: `await Promise.all(paths.map(p => Bun.file(p).text()))`

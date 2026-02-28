@@ -13,13 +13,13 @@ scripts/      # Build and tool scripts
 ## Configuration Files
 
 Project root must contain:
-- `.gitignore` — ignore build artifacts, secrets, editor files
-- `README.md` — project overview
+- `.gitignore` -- ignore build artifacts, secrets, editor files
+- `README.md` -- project overview
 - `package.json` / `Cargo.toml` / language-appropriate manifest
 
 TypeScript projects also need:
-- `tsconfig.json` — strict mode recommended
-- `biome.jsonc` or `eslint.config.js` — linting/formatting
+- `tsconfig.json` -- strict mode recommended
+- `biome.jsonc` or `eslint.config.js` -- linting/formatting
 
 ## Environment Variables
 

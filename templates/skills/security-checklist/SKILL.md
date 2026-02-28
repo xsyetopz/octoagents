@@ -3,7 +3,7 @@
 ## Input Validation
 
 - [ ] Validate all user input before use (type, length, format, range)
-- [ ] Reject on validation failure — do not sanitize and continue
+- [ ] Reject on validation failure -- do not sanitize and continue
 - [ ] Validate file paths against traversal (`../` sequences)
 - [ ] Validate URLs against SSRF (Server-Side Request Forgery)
 
@@ -18,7 +18,7 @@
 ## Data Handling
 
 - [ ] Secrets never logged
-- [ ] PII minimized — only collect required data
+- [ ] PII minimized -- only collect required data
 - [ ] Sensitive data encrypted at rest
 - [ ] Enforce TLS for external communication
 - [ ] SQL queries parameterized (no string concatenation)
