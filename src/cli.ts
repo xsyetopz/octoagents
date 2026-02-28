@@ -2,7 +2,6 @@
 import { createInterface } from "node:readline";
 import { detectProviders } from "./detect.ts";
 import { install } from "./install.ts";
-import { BUILT_IN_PLUGINS, DEFAULT_PLUGINS } from "./plugins.ts";
 import type {
 	InstallOptions,
 	InstallScope,
@@ -106,7 +105,7 @@ function parseArgs(argv: string[]): Omit<
 		clean: false,
 		dryRun: false,
 		noOverrides: false,
-		plugins: [...DEFAULT_PLUGINS],
+		plugins: [],
 	};
 
 	for (let i = 0; i < args.length; i++) {
@@ -166,10 +165,6 @@ async function promptProvider(): Promise<ProviderAvailability> {
 }
 
 function printHelp(): void {
-	const availablePlugins = Object.entries(BUILT_IN_PLUGINS)
-		.map(([name, p]) => `    ${name.padEnd(20)} ${p.description}`)
-		.join("\n");
-
 	console.log(`OpenCode Agentic Framework Installer
 
 Usage:
@@ -182,11 +177,7 @@ Usage:
   install --clean                 Remove existing and reinstall
   install --dry-run               Preview without writing
   install --no-overrides          Skip agent overrides
-  install --plugins <names>       Comma-separated plugins (default: safety-guard)
-  install --no-plugins            Disable all plugins
 
-Available plugins:
-${availablePlugins}
 `);
 }
 
@@ -235,9 +226,6 @@ async function main(): Promise<void> {
 			console.log("Model assignments:");
 			for (const { role, model, tier } of report.agentAssignments) {
 				console.log(`  ${role.padEnd(12)} ${model.padEnd(45)} [${tier}]`);
-			}
-			if (report.plugins.length > 0) {
-				console.log(`\nPlugins: ${report.plugins.join(", ")}`);
 			}
 		}
 	} catch (err) {

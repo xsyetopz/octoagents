@@ -20,7 +20,7 @@ import {
 	resolveConfigPath,
 	stringifyJsonc,
 } from "./opencode-config.ts";
-import { applyContentPlugins, resolvePlugins } from "./plugins.ts";
+
 import { renderSkillFile } from "./render.ts";
 import { loadSkillsFromDisk } from "./skills.ts";
 import {
@@ -97,7 +97,6 @@ function runValidation(
 	}
 }
 
-const PLUGIN_FILENAMES = ["context-loader.ts", "safety-guard.ts"] as const;
 const TOOL_FILENAMES = ["memory.ts"] as const;
 
 export interface AgentAssignment {
@@ -109,7 +108,6 @@ export interface AgentAssignment {
 export interface InstallReport {
 	agentAssignments: AgentAssignment[];
 	filesWritten: number;
-	plugins: string[];
 }
 
 interface InstallDirs {
@@ -139,8 +137,7 @@ function resolveDirs(scope: InstallOptions["scope"]): InstallDirs {
 async function writeAgents(
 	assignments: Array<{ role: AgentRole; assignment: ModelAssignment }>,
 	agentsDir: string,
-	plugins: ReturnType<typeof resolvePlugins>,
-	dryRun: boolean,
+	_dryRun: boolean,
 ): Promise<number> {
 	await Promise.all(
 		assignments.map(async ({ role, assignment }) => {
@@ -151,16 +148,7 @@ async function writeAgents(
 			);
 			const meta = AGENT_META[role];
 			const content = await loadAgentTemplate(role, vars);
-			const transformedContent = applyContentPlugins(
-				meta.greekName,
-				content,
-				plugins,
-			);
-			await writeFile(
-				`${agentsDir}/${meta.greekName}.md`,
-				transformedContent,
-				dryRun,
-			);
+			await writeFile(`${agentsDir}/${meta.greekName}.md`, content, _dryRun);
 		}),
 	);
 	return assignments.length;
@@ -226,23 +214,6 @@ async function writeTemplateFiles(
 	return filenames.length;
 }
 
-async function writePluginExtraFiles(
-	plugins: ReturnType<typeof resolvePlugins>,
-	opencodeDir: string,
-	dryRun: boolean,
-): Promise<number> {
-	let count = 0;
-	for (const plugin of plugins) {
-		if (plugin.extraFiles) {
-			for (const { path, content } of plugin.extraFiles()) {
-				await writeFile(`${opencodeDir}/${path}`, content, dryRun);
-				count++;
-			}
-		}
-	}
-	return count;
-}
-
 async function writeOpenCodeJsonc(
 	scope: InstallScope,
 	dryRun: boolean,
@@ -284,12 +255,11 @@ async function writeOpenCodeJsonc(
 }
 
 export async function install(options: InstallOptions): Promise<InstallReport> {
-	const { scope, clean, dryRun, noOverrides, plugins: pluginNames } = options;
+	const { scope, clean, dryRun, noOverrides } = options;
 
-	const [providers, plugins] = await Promise.all([
-		options.providers ? Promise.resolve(options.providers) : detectProviders(),
-		Promise.resolve(resolvePlugins(pluginNames)),
-	]);
+	const providers = await (options.providers
+		? Promise.resolve(options.providers)
+		: detectProviders());
 
 	const dirs = resolveDirs(scope);
 	const {
@@ -333,13 +303,11 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 	]);
 
 	const counts = await Promise.all([
-		writeAgents(assignments, agentsDir, plugins, dryRun),
+		writeAgents(assignments, agentsDir, dryRun),
 		writeCommands(commandsDir, dryRun),
 		writeSkills(skillsDir, dryRun),
 		writeContextFiles(contextDir, dryRun),
-		writeTemplateFiles(PLUGIN_FILENAMES, "plugins", pluginsDir, dryRun),
 		writeTemplateFiles(TOOL_FILENAMES, "tools", toolsDir, dryRun),
-		writePluginExtraFiles(plugins, opencodeDir, dryRun),
 	]);
 
 	await writeOpenCodeJsonc(scope, dryRun);
@@ -353,6 +321,5 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 			tier: assignment.tier,
 		})),
 		filesWritten,
-		plugins: pluginNames,
 	};
 }
