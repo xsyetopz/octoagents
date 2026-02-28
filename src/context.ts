@@ -92,7 +92,7 @@ Rules that agents must follow when writing or modifying code in this project.
 
 ## Import Standards
 
-1. Import order: External → Internal → Relative
+1. Import order: External -> Internal -> Relative
 2. Import style: [prefer named imports / default imports]
 
 ## Error Handling
@@ -140,7 +140,7 @@ project-root/
 
 ## Generated Files
 
-Do not modify manually—these are auto-generated:
+Do not modify manually--these are auto-generated:
 - (list generated directories/files)
 
 ## Third-party / Vendor Code
