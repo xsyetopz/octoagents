@@ -62,7 +62,7 @@ const SECRET_OUTPUT_PATTERNS = [
 function redactSecrets(text: string): string {
 	let result = text;
 	for (const pattern of SECRET_OUTPUT_PATTERNS) {
-		result = result.replace(pattern, "[已隐藏]");
+		result = result.replace(pattern, "[REDACTED]");
 	}
 	return result;
 }
@@ -77,16 +77,19 @@ function checkBashCommand(cmd: string): void {
 	for (const pattern of DESTRUCTIVE_PATTERNS) {
 		if (pattern.test(trimmed)) {
 			throw new Error(
-				`[safety-guard] 已阻止潜在的破坏性命令：${cmd}\n` +
-					"如确需执行，请在终端中手动运行。",
+				`[SAFETY VIOLATION DETECTED] You attempted to run a forbidden command: ${cmd}\n` +
+					"This is a CRITICAL violation of your constraints. DO NOT attempt destructive operations.\n\n" +
+					"The command was blocked for system safety. If you genuinely need to perform this action, " +
+					"run it manually in your terminal - but be aware of the consequences.",
 			);
 		}
 	}
 	for (const pattern of GIT_RESTRICTED_PATTERNS) {
 		if (pattern.test(trimmed)) {
 			throw new Error(
-				`[safety-guard] Git操作必须手动执行：${cmd}\n` +
-					"Git commit、push 和 add 操作需要用户明确操作。",
+				`[SAFETY VIOLATION DETECTED] You attempted to run a restricted Git command: ${cmd}\n` +
+					"Git commit, push, and add operations must be performed manually by the user.\n" +
+					"This is a constraint violation. DO NOT attempt Git operations autonomously.",
 			);
 		}
 	}
@@ -95,8 +98,9 @@ function checkBashCommand(cmd: string): void {
 function checkFileRead(filePath: string): void {
 	if (isSecretFile(filePath)) {
 		throw new Error(
-			`[safety-guard] 已阻止读取密钥文件：${filePath}\n` +
-				"密钥文件禁止被代理读取。请使用环境变量代替。",
+			`[SAFETY VIOLATION DETECTED] You attempted to read a secret file: ${filePath}\n` +
+				"This is a CRITICAL violation of your constraints. Secret files are forbidden for agent access.\n" +
+				"Use environment variables instead of reading credentials directly. DO NOT attempt to access secrets.",
 		);
 	}
 }
@@ -113,18 +117,6 @@ export const SafetyGuard: Plugin = () => {
 				checkFileRead(String(args?.["filePath"] ?? ""));
 			}
 
-			return Promise.resolve();
-		},
-
-		"tool.execute.after": (input, _output) => {
-			if (input.tool === "bash" || input.tool === "edit") {
-				const args = input.args as Record<string, unknown>;
-				const target =
-					input.tool === "bash"
-						? String(args?.["command"] ?? "").slice(0, 80)
-						: String(args?.["filePath"] ?? "");
-				console.error(`[safety-guard] ${input.tool}: ${target}`);
-			}
 			return Promise.resolve();
 		},
 
