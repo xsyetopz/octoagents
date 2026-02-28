@@ -14,7 +14,6 @@ export const CONVENTIONS_PREAMBLE = `TEAM CONVENTIONS (follow in all code you pr
 - All public APIs must have type annotations
 - Prefer explicit error handling over silent failures`;
 
-const HOUSEKEEPING_NAMES = new Set(["compaction", "summary", "title"]);
 const CODING_AGENT_NAMES = new Set(["build", "implement", "general"]);
 
 export function injectPreamble(content: string, preamble: string): string {
@@ -40,10 +39,7 @@ export const SAFETY_GUARD_PLUGIN: ContentPlugin = {
 	name: "safety-guard",
 	description:
 		"Prepends safety constraints to agent system prompts to prevent destructive operations",
-	applyToAgentContent(name: string, content: string): string {
-		if (HOUSEKEEPING_NAMES.has(name)) {
-			return content;
-		}
+	applyToAgentContent(content: string): string {
 		return injectPreamble(content, SAFETY_GUARD_PREAMBLE);
 	},
 };

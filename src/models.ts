@@ -23,15 +23,10 @@ export type AgentRole =
 	| "plan"
 	| "general"
 	| "explore"
-	| "compaction"
-	| "summary"
-	| "title"
 	| "review"
 	| "implement"
 	| "document"
 	| "test";
-
-const HOUSEKEEPING_ROLES: AgentRole[] = ["compaction", "summary", "title"];
 
 interface ModelConfig {
 	model: ModelId;
@@ -56,9 +51,6 @@ const BAILIAN_OPTIMAL: Record<AgentRole, ModelConfig> = {
 		thinking: true,
 	},
 	general: { model: MODELS.BAILIAN_MINIMAX, temperature: 0.7, thinking: true },
-	compaction: { model: MODELS.FREE_GPT5_NANO },
-	summary: { model: MODELS.FREE_GPT5_NANO },
-	title: { model: MODELS.FREE_GPT5_NANO },
 };
 
 const COPILOT_FALLBACK: Record<AgentRole, ModelConfig> = {
@@ -66,9 +58,6 @@ const COPILOT_FALLBACK: Record<AgentRole, ModelConfig> = {
 	plan: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.8 },
 	general: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
 	explore: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.8 },
-	compaction: { model: MODELS.FREE_TRINITY },
-	summary: { model: MODELS.FREE_GPT5_NANO },
-	title: { model: MODELS.FREE_GPT5_NANO },
 	review: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
 	implement: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
 	document: { model: MODELS.COPILOT_GPT5_MINI, temperature: 1.0 },
@@ -80,9 +69,6 @@ const FREE_FALLBACK: Record<AgentRole, ModelConfig> = {
 	plan: { model: MODELS.FREE_TRINITY, temperature: 0.8 },
 	general: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
 	explore: { model: MODELS.FREE_TRINITY, temperature: 0.8 },
-	compaction: { model: MODELS.FREE_TRINITY },
-	summary: { model: MODELS.FREE_GPT5_NANO },
-	title: { model: MODELS.FREE_GPT5_NANO },
 	review: { model: MODELS.FREE_TRINITY, temperature: 0.7 },
 	implement: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
 	document: { model: MODELS.FREE_TRINITY, temperature: 1.0 },
@@ -116,9 +102,6 @@ export function resolveModel(
 	role: AgentRole,
 	providers: ProviderAvailability,
 ): ModelAssignment {
-	if (HOUSEKEEPING_ROLES.includes(role)) {
-		return assignModelFromConfig(role, FREE_FALLBACK, "free");
-	}
 	if (providers.bailianCodingPlan) {
 		return assignModelFromConfig(role, BAILIAN_OPTIMAL, "bailian");
 	}

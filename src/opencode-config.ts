@@ -13,9 +13,6 @@ const DISABLE_BUILTIN_AGENTS: AgentRole[] = [
 	"plan",
 	"explore",
 	"general",
-	"compaction",
-	"summary",
-	"title",
 ];
 
 export function buildAgentDisableConfig(): Record<string, unknown> {

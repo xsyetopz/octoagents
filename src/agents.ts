@@ -99,13 +99,6 @@ const TEST_RUNNER_PERMISSION: AgentPermission = {
 	bash: TEST_RUNNER_BASH,
 };
 
-const HOUSEKEEPING_PERMISSION: AgentPermission = {
-	read: "allow",
-	edit: "deny",
-	bash: "deny",
-	task: "deny",
-};
-
 export const AGENT_META: Record<AgentRole, AgentMeta> = {
 	build: {
 		greekName: "odysseus",
@@ -167,27 +160,6 @@ export const AGENT_META: Record<AgentRole, AgentMeta> = {
 		mode: "subagent",
 		permission: FULL_ACCESS_PERMISSION,
 	},
-	compaction: {
-		greekName: "atlas",
-		description: "Session compaction — compresses history",
-		color: "#6B7280",
-		mode: "subagent",
-		permission: HOUSEKEEPING_PERMISSION,
-	},
-	summary: {
-		greekName: "clio",
-		description: "Summary generator — produces conversation summaries",
-		color: "#64748B",
-		mode: "subagent",
-		permission: HOUSEKEEPING_PERMISSION,
-	},
-	title: {
-		greekName: "apollo",
-		description: "Title generator — creates concise titles",
-		color: "#F59E0B",
-		mode: "subagent",
-		permission: HOUSEKEEPING_PERMISSION,
-	},
 };
 
 export const PRIMARY_AGENTS: AgentRole[] = ["build", "plan"];
@@ -199,13 +171,7 @@ export const SUBAGENT_ROLES: AgentRole[] = [
 	"explore",
 	"general",
 ];
-export const HOUSEKEEPING_ROLES: AgentRole[] = [
-	"compaction",
-	"summary",
-	"title",
-];
 export const ALL_AGENT_ROLES: AgentRole[] = [
 	...PRIMARY_AGENTS,
 	...SUBAGENT_ROLES,
-	...HOUSEKEEPING_ROLES,
 ];
