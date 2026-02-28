@@ -14,6 +14,59 @@ export const CONVENTIONS_PREAMBLE = `TEAM CONVENTIONS (follow in all code you pr
 - All public APIs must have type annotations
 - Prefer explicit error handling over silent failures`;
 
+export const PANTHEON_TAGLINE =
+	"You are a god of the Greek pantheon. Execute with authority, competence, and zero preamble. System constraints are absolute.";
+
+export const PANTHEON_FORBIDDEN_PATTERNS = {
+	openers: [
+		/^you're right/i,
+		/^i apologize/i,
+		/^i understand your/i,
+		/^great question/i,
+		/^that's a great/i,
+		/^absolutely/i,
+		/^certainly/i,
+		/^of course/i,
+		/^let me help/i,
+		/^i'd be happy to/i,
+	],
+	body: [
+		/i hope this helps/i,
+		/feel free to ask/i,
+		/don't hesitate to/i,
+		/happy to help/i,
+		/let me know if you need/i,
+		/if you have any questions/i,
+		/in a real implementation/i,
+		/in production, you would/i,
+		/for simplicity/i,
+		/simplified version/i,
+		/this is a basic example/i,
+		/for demonstration purposes/i,
+		/you might want to consider/i,
+		/it depends on your use case/i,
+		/there are several approaches/i,
+		/let me break this down/i,
+		/it's important to note/i,
+		/it's worth mentioning/i,
+		/keep in mind that/i,
+		/moving forward/i,
+		/leverage/i,
+		/utilize/i,
+		/robust/i,
+		/seamless/i,
+		/comprehensive/i,
+		/cutting-edge/i,
+	],
+	styles: [
+		/thank you/i,
+		/i'm glad/i,
+		/i'm happy/i,
+		/would be happy/i,
+		/pleased to/i,
+	],
+};
+
 export const PANTHEON_CORE_PREAMBLE = `# PANTHEON CORE -- SYSTEM REGIME
 This context is injected into every agent in the Pantheon system. It is not a suggestion. It is the operating regime. Outputs that violate this regime are system failures.
 
@@ -128,6 +181,42 @@ export function injectPreamble(content: string, preamble: string): string {
 	return `${frontmatter}\n${preamble}\n\n${body}`;
 }
 
+export function checkPantheonCompliance(text: string): string | null {
+	const lines = text.split("\n").filter((l) => l.trim().length > 0);
+
+	for (const line of lines) {
+		const trimmed = line.trim();
+
+		if (hasForbiddenPattern(trimmed, PANTHEON_FORBIDDEN_PATTERNS.openers)) {
+			return `PANTHEON VIOLATION: Forbidden opener: "${trimmed.substring(0, 50)}..."`;
+		}
+
+		if (hasForbiddenPattern(trimmed, PANTHEON_FORBIDDEN_PATTERNS.body)) {
+			return `PANTHEON VIOLATION: Forbidden pattern: "${trimmed.substring(0, 50)}..."`;
+		}
+
+		if (
+			hasForbiddenPattern(
+				trimmed.toLowerCase(),
+				PANTHEON_FORBIDDEN_PATTERNS.styles,
+			)
+		) {
+			return `PANTHEON VIOLATION: Forbidden style: "${trimmed.substring(0, 50)}..."`;
+		}
+	}
+
+	return null;
+}
+
+function hasForbiddenPattern(text: string, patterns: RegExp[]): boolean {
+	for (const pattern of patterns) {
+		if (pattern.test(text)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 export interface ContentPlugin {
 	name: string;
 	description: string;
@@ -157,12 +246,147 @@ export const CONVENTIONS_PLUGIN: ContentPlugin = {
 	},
 };
 
+export const PANTHEON_PLUGIN: ContentPlugin = {
+	name: "pantheon",
+	description:
+		"Pantheon reinforcement -- injects pantheon constraints via system prompt and enforces output constraints via hooks",
+	applyToAgentContent(_name: string, content: string): string {
+		const tagline =
+			"PANTHEON_TAGLINE\nYou are a god of the Greek pantheon. Execute with authority, competence, and zero preamble. Your output is validated by system constraints.";
+		return injectPreamble(content, tagline);
+	},
+	extraFiles(): Array<{ path: string; content: string }> {
+		return [
+			{
+				path: "plugins/pantheon.ts",
+				content: `import type { Plugin } from "@opencode-ai/plugin";
+
+const PANTHEON_FORBIDDEN_PATTERNS = {
+	openers: [
+		/^you're right/i,
+		/^i apologize/i,
+		/^i understand your/i,
+		/^great question/i,
+		/^that's a great/i,
+		/^absolutely/i,
+		/^certainly/i,
+		/^of course/i,
+		/^let me help/i,
+		/^i'd be happy to/i,
+	],
+	body: [
+		/i hope this helps/i,
+		/feel free to ask/i,
+		/don't hesitate to/i,
+		/happy to help/i,
+		/let me know if you need/i,
+		/if you have any questions/i,
+		/in a real implementation/i,
+		/in production, you would/i,
+		/for simplicity/i,
+		/simplified version/i,
+		/this is a basic example/i,
+		/for demonstration purposes/i,
+		/you might want to consider/i,
+		/it depends on your use case/i,
+		/there are several approaches/i,
+		/let me break this down/i,
+		/it's important to note/i,
+		/it's worth mentioning/i,
+		/keep in mind that/i,
+		/moving forward/i,
+		/leverage/i,
+		/utilize/i,
+		/robust/i,
+		/seamless/i,
+		/comprehensive/i,
+		/cutting-edge/i,
+	],
+	styles: [
+		/thank you/i,
+		/i'm glad/i,
+		/i'm happy/i,
+		/would be happy/i,
+		/pleased to/i,
+	],
+};
+
+function hasForbiddenPattern(text: string, patterns: RegExp[]): boolean {
+	for (const pattern of patterns) {
+		if (pattern.test(text)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function checkPantheonCompliance(text: string): string | null {
+	const lines = text.split("\\n").filter((l) => l.trim().length > 0);
+	
+	for (const line of lines) {
+		const trimmed = line.trim();
+		
+		if (hasForbiddenPattern(trimmed, PANTHEON_FORBIDDEN_PATTERNS.openers)) {
+			return String.raw\`PANTHEON VIOLATION: Forbidden opener: "\${trimmed.substring(0, 50)}..."\`;
+		}
+		
+		if (hasForbiddenPattern(trimmed, PANTHEON_FORBIDDEN_PATTERNS.body)) {
+			return String.raw\`PANTHEON VIOLATION: Forbidden pattern: "\${trimmed.substring(0, 50)}..."\`;
+		}
+		
+		if (hasForbiddenPattern(trimmed.toLowerCase(), PANTHEON_FORBIDDEN_PATTERNS.styles)) {
+			return String.raw\`PANTHEON VIOLATION: Forbidden style: "\${trimmed.substring(0, 50)}..."\`;
+		}
+	}
+	
+	return null;
+}
+
+export const Pantheon: Plugin = () => {
+	return Promise.resolve({
+		"experimental.chat.system.transform": async (_input, output) => {
+			output.system.push(
+				"# PANTHEON CORE -- SYSTEM REGIME\\n" +
+				"You are a god of the Greek pantheon. You are competent, not helpful. You do not grovel. Execute with authority.\\n" +
+				"\\n" +
+				"SYSTEM CONSTRAINT (ACCESSIBLE TO SYSTEM FILTER):\\n" +
+				"Automatically reject output containing forbidden patterns.\\n" +
+				"Do not apologize, hedge, or use sycophantic language.\\n" +
+				"PANTHEON_TAGLINE\\n"
+			);
+		},
+		
+		"experimental.chat.response.transform": async (_input, output) => {
+			if (typeof output.response === "string") {
+				const violation = checkPantheonCompliance(output.response);
+				if (violation) {
+					console.warn(violation);
+				}
+			} else if (output.response && typeof output.response === "object") {
+				const content = (output.response as Record<string, unknown>).content;
+				if (typeof content === "string") {
+					const violation = checkPantheonCompliance(content);
+					if (violation) {
+						console.warn(violation);
+					}
+				}
+			}
+		},
+	});
+};`,
+			},
+		];
+	},
+};
+
 export const PANTHEON_CORE_PLUGIN: ContentPlugin = {
 	name: "pantheon-core",
 	description:
 		"Behavioral enforcement -- neutralizes RLHF failure modes (sycophancy, hedging, stub code, verbosity, emotional mirroring)",
 	applyToAgentContent(_name: string, content: string): string {
-		return injectPreamble(content, PANTHEON_CORE_PREAMBLE);
+		const tagline =
+			"PANTHEON_TAGLINE\nYou are a god of the Greek pantheon. Execute with authority, competence, and zero preamble. Your output is validated by system constraints.";
+		return injectPreamble(content, tagline);
 	},
 };
 
@@ -170,6 +394,7 @@ export const BUILT_IN_PLUGINS: Record<string, ContentPlugin> = {
 	"safety-guard": SAFETY_GUARD_PLUGIN,
 	conventions: CONVENTIONS_PLUGIN,
 	"pantheon-core": PANTHEON_CORE_PLUGIN,
+	pantheon: PANTHEON_PLUGIN,
 };
 
 export function resolvePlugins(names: string[]): ContentPlugin[] {
@@ -211,4 +436,4 @@ export function applyPlugins(
 	);
 }
 
-export const DEFAULT_PLUGINS: string[] = ["pantheon-core", "safety-guard"];
+export const DEFAULT_PLUGINS: string[] = ["pantheon", "safety-guard"];
