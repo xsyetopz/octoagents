@@ -20,7 +20,7 @@ import {
 	resolveConfigPath,
 	stringifyJsonc,
 } from "./opencode-config.ts";
-import { resolvePlugins } from "./plugins.ts";
+import { applyContentPlugins, resolvePlugins } from "./plugins.ts";
 import { renderSkillFile } from "./render.ts";
 import { loadSkillsFromDisk } from "./skills.ts";
 import {
@@ -139,6 +139,7 @@ function resolveDirs(scope: InstallOptions["scope"]): InstallDirs {
 async function writeAgents(
 	assignments: Array<{ role: AgentRole; assignment: ModelAssignment }>,
 	agentsDir: string,
+	plugins: ReturnType<typeof resolvePlugins>,
 	dryRun: boolean,
 ): Promise<number> {
 	await Promise.all(
@@ -150,7 +151,16 @@ async function writeAgents(
 			);
 			const meta = AGENT_META[role];
 			const content = await loadAgentTemplate(role, vars);
-			await writeFile(`${agentsDir}/${meta.greekName}.md`, content, dryRun);
+			const transformedContent = applyContentPlugins(
+				meta.greekName,
+				content,
+				plugins,
+			);
+			await writeFile(
+				`${agentsDir}/${meta.greekName}.md`,
+				transformedContent,
+				dryRun,
+			);
 		}),
 	);
 	return assignments.length;
@@ -323,7 +333,7 @@ export async function install(options: InstallOptions): Promise<InstallReport> {
 	]);
 
 	const counts = await Promise.all([
-		writeAgents(assignments, agentsDir, dryRun),
+		writeAgents(assignments, agentsDir, plugins, dryRun),
 		writeCommands(commandsDir, dryRun),
 		writeSkills(skillsDir, dryRun),
 		writeContextFiles(contextDir, dryRun),
