@@ -5,17 +5,20 @@ model: {{model}}
 color: "#F97316"
 permission:
   read: allow
+  glob: allow
+  grep: allow
   edit: allow
+  write: allow
   bash:
     "git commit*": deny
     "git push*": deny
     "git add*": deny
-    "rm -rf /": deny
-    "rm -rf ~": deny
+    "rm -rf *": deny
     "*": allow
   task: deny
+  webfetch: deny
+  todowrite: deny
   skill: allow
-  lsp: allow
 ---
 
 # ROLE

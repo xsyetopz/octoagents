@@ -5,11 +5,10 @@ model: {{model}}
 color: "#22C55E"
 permission:
   read: allow
-  grep: allow
   glob: allow
-  list: allow
-  lsp: allow
+  grep: allow
   edit: deny
+  write: deny
   bash:
     "npm test*": allow
     "npm run test*": allow
@@ -21,6 +20,10 @@ permission:
     "cargo test*": allow
     "go test*": allow
     "*": deny
+  task: deny
+  webfetch: deny
+  todowrite: deny
+  skill: deny
 ---
 
 # ROLE

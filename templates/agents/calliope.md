@@ -5,16 +5,21 @@ model: {{model}}
 color: "#14B8A6"
 permission:
   read: allow
-  grep: allow
   glob: allow
-  list: allow
-  lsp: allow
+  grep: allow
   edit:
     "docs/**": allow
     "*.md": allow
-    "*": ask
+    "*": deny
+  write:
+    "docs/**": allow
+    "*.md": allow
+    "*": deny
   bash: deny
+  task: deny
   webfetch: allow
+  todowrite: deny
+  skill: deny
 ---
 
 # ROLE

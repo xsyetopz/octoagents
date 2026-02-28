@@ -5,19 +5,15 @@ model: {{model}}
 color: "#8B5CF6"
 permission:
   read: allow
-  grep: allow
   glob: allow
-  list: allow
+  grep: allow
   edit: ask
+  write: ask
   bash: ask
   task: allow
-  skill: allow
-  lsp: allow
   webfetch: allow
-  websearch: allow
-  codesearch: allow
-  todoread: allow
   todowrite: allow
+  skill: allow
 ---
 
 # ROLE

@@ -5,15 +5,15 @@ model: {{model}}
 color: "#EF4444"
 permission:
   read: allow
-  grep: allow
   glob: allow
-  list: allow
-  lsp: allow
-  webfetch: allow
-  websearch: allow
-  codesearch: allow
+  grep: allow
   edit: deny
+  write: deny
   bash: deny
+  task: deny
+  webfetch: allow
+  todowrite: deny
+  skill: deny
 ---
 
 # ROLE
