@@ -96,10 +96,10 @@ function createModel(
 export function buildBailianProviderConfig(): Record<string, unknown> {
 	return {
 		"bailian-coding-plan": {
-			npm: "@ai-sdk/anthropic",
+			npm: "@ai-sdk/openai-compatible",
 			name: "Model Studio Coding Plan",
 			options: {
-				baseURL: "https://coding-intl.dashscope.aliyuncs.com/apps/anthropic/v1",
+				baseURL: "https://coding-intl.dashscope.aliyuncs.com/v1",
 				apiKey: process.env["DASHSCOPE_API_KEY"] ?? "your-api-key-here",
 			},
 			models: {
