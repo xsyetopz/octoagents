@@ -143,19 +143,26 @@ async function promptScope(): Promise<InstallScope> {
 	const defaultConfig = configHome
 		? `${configHome}/opencode`
 		: "~/.config/opencode";
-	const answer = await promptLine(
-		`Install to:\n  1) Current project  (.opencode/)\n  2) Global            (${defaultConfig})\n\n> `,
-	);
+
+	console.log("\nSelect installation scope:");
+	console.log("  [1] Project  - Current workspace only (.opencode/)");
+	console.log(`  [2] Global   - All projects (${defaultConfig})`);
+	console.log();
+
+	const answer = await promptLine("> ");
 	return answer === "2" ? "global" : "project";
 }
 
 async function promptProvider(): Promise<ProviderAvailability> {
-	const answer = await promptLine(
-		"Provider (used to select models):\n  1) Bailian Coding Plan (DASHSCOPE_API_KEY)\n  2) GitHub Copilot\n  3) Free built-ins\n\n> ",
-	);
-	return tierToProviders(
-		answer === "1" ? "bailian" : answer === "2" ? "copilot" : "free",
-	);
+	console.log("\nSelect provider:");
+	console.log("  [1] Bailian Coding Plan  - DASHSCOPE_API_KEY (recommended)");
+	console.log("  [2] GitHub Copilot       - GitHub credentials");
+	console.log("  [3] OpenCode Zen (Free)  - No API key needed");
+	console.log();
+
+	const answer = await promptLine("> ");
+	const tier = answer === "1" ? "bailian" : answer === "2" ? "copilot" : "free";
+	return tierToProviders(tier);
 }
 
 function printHelp(): void {
@@ -166,33 +173,21 @@ function printHelp(): void {
 	console.log(`OpenCode Agentic Framework Installer
 
 Usage:
-  install                         Prompt for location and provider
+  install                         Interactive installation
   install --scope project         Install to current project (.opencode/)
-  install --scope global          Install to global config (respects XDG_CONFIG_HOME, defaults to ~/.config/opencode/)
-  install --provider bailian      Use Bailian Coding Plan models (recommended)
+  install --scope global          Install to ~/.config/opencode/
+  install --provider bailian      Use Bailian Coding Plan models
   install --provider copilot      Use GitHub Copilot models
-  install --provider free         Use free OpenCode built-in models
-  install --clean                 Remove existing framework files and reinstall
-  install --dry-run               Preview what would be written without writing
-  install --no-overrides          Skip built-in agent overrides
-  install --plugins <names>       Comma-separated plugin list (default: safety-guard)
+  install --provider free         Use free OpenCode Zen models
+  install --clean                 Remove existing and reinstall
+  install --dry-run               Preview without writing
+  install --no-overrides          Skip agent overrides
+  install --plugins <names>       Comma-separated plugins (default: safety-guard)
   install --no-plugins            Disable all plugins
-
-Provider auto-detection (runs when --provider is not set):
-  Checks DASHSCOPE_API_KEY env var and $XDG_CONFIG_HOME/opencode/opencode.jsonc (or ~/.config/opencode/opencode.jsonc).
-  Falls back to free OpenCode models if no provider is detected.
 
 Available plugins:
 ${availablePlugins}
-
-Generated files:
-  .opencode/
-    agents/       11 agent .md files (7 overrides + 4 custom)
-    commands/     9 command .md files
-    skills/       8 skill directories
-    plugins/      5 runtime plugin .ts files
-    tools/        2 tool .ts files
-    context/      CONTEXT.md template (edit to describe your project)`);
+`);
 }
 
 async function resolveProviders(
@@ -201,12 +196,18 @@ async function resolveProviders(
 	if (provider) {
 		return tierToProviders(provider);
 	}
+
 	const detected = await detectProviders();
-	if (detected.bailianCodingPlan || detected.githubCopilot) {
-		const tier = detected.bailianCodingPlan ? "bailian" : "copilot";
-		console.log(`Detected provider: ${tier}`);
+	if (detected.bailianCodingPlan) {
+		console.log("\nDetected: Bailian Coding Plan (DASHSCOPE_API_KEY found)");
 		return detected;
 	}
+	if (detected.githubCopilot) {
+		console.log("\nDetected: GitHub Copilot (credentials found)");
+		return detected;
+	}
+
+	console.log("\nNo provider detected.");
 	return promptProvider();
 }
 
@@ -222,18 +223,21 @@ async function main(): Promise<void> {
 
 	const scope = parsed.scope ?? (await promptScope());
 	const providers = await resolveProviders(parsed.provider);
+
 	const options: InstallOptions = { ...parsed, scope, providers };
 
 	try {
+		console.log("\nInstalling...");
 		const report = await install(options);
-		if (!options.dryRun) {
+
+		if (!parsed.dryRun) {
 			console.log("\nInstalled successfully.\n");
 			console.log("Model assignments:");
 			for (const { role, model, tier } of report.agentAssignments) {
-				console.log(`  ${role.padEnd(12)} ${model}  [${tier}]`);
+				console.log(`  ${role.padEnd(12)} ${model.padEnd(45)} [${tier}]`);
 			}
 			if (report.plugins.length > 0) {
-				console.log(`\nPlugins applied: ${report.plugins.join(", ")}`);
+				console.log(`\nPlugins: ${report.plugins.join(", ")}`);
 			}
 		}
 	} catch (err) {
