@@ -21,7 +21,9 @@ function ensureDirExists(dir: string) {
 		try {
 			mkdirSync(dir, { recursive: true });
 		} catch (err) {
-			throw new Error(`无法创建数据目录 (${dir})：${(err as Error).message}`);
+			throw new Error(
+				`Failed to create data directory (${dir}): ${(err as Error).message}`,
+			);
 		}
 	}
 }
@@ -42,7 +44,7 @@ function getSafeDatabase(): Database | string {
 		`);
 		return db;
 	} catch (err) {
-		return `数据库初始化失败：${(err as Error).message}`;
+		return `Database initialization failed: ${(err as Error).message}`;
 	}
 }
 
@@ -57,7 +59,7 @@ function handleDb<T>(
 	try {
 		return fn(dbOrErr);
 	} catch (err) {
-		return onError?.(err) || `错误：${(err as Error).message}`;
+		return onError?.(err) || `Error: ${(err as Error).message}`;
 	}
 }
 
@@ -73,12 +75,12 @@ function remember(key: string, value: string): string {
 					"UPDATE memory SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?",
 					[value, key],
 				);
-				return `已更新记忆：${key}`;
+				return `Memory updated: ${key}`;
 			}
 			db.run("INSERT INTO memory (key, value) VALUES (?, ?)", [key, value]);
-			return `已记忆：${key}`;
+			return `Stored: ${key}`;
 		},
-		(err) => `存储记忆失败：${(err as Error).message}`,
+		(err) => `Failed to store memory: ${(err as Error).message}`,
 	) as string;
 }
 
@@ -90,11 +92,11 @@ function recall(key: string): string {
 				.get(key);
 
 			if (!entry) {
-				return `未找到记忆：${key}`;
+				return `Memory not found: ${key}`;
 			}
-			return `${entry.key}：${entry.value}\n（创建：${entry.created_at}，更新：${entry.updated_at}）`;
+			return `${entry.key}: ${entry.value}\n(Created: ${entry.created_at}, Updated: ${entry.updated_at})`;
 		},
-		(err) => `获取记忆失败：${(err as Error).message}`,
+		(err) => `Failed to retrieve memory: ${(err as Error).message}`,
 	) as string;
 }
 
@@ -103,11 +105,11 @@ function forget(key: string): string {
 		(db) => {
 			const result = db.run("DELETE FROM memory WHERE key = ?", [key]);
 			if (result.changes > 0) {
-				return `已遗忘：${key}`;
+				return `Forgotten: ${key}`;
 			}
-			return `未找到记忆：${key}`;
+			return `Memory not found: ${key}`;
 		},
-		(err) => `删除记忆失败：${(err as Error).message}`,
+		(err) => `Failed to delete memory: ${(err as Error).message}`,
 	) as string;
 }
 
@@ -118,16 +120,16 @@ function list(): string {
 				.query<MemoryEntry, []>("SELECT * FROM memory ORDER BY updated_at DESC")
 				.all();
 			if (entries.length === 0) {
-				return "暂无存储的记忆。";
+				return "No memories stored.";
 			}
 			return entries
 				.map(
 					(e) =>
-						`- ${e.key}：${e.value.slice(0, 100)}${e.value.length > 100 ? "..." : ""}`,
+						`- ${e.key}: ${e.value.slice(0, 100)}${e.value.length > 100 ? "..." : ""}`,
 				)
 				.join("\n");
 		},
-		(err) => `获取记忆列表失败：${(err as Error).message}`,
+		(err) => `Failed to list memories: ${(err as Error).message}`,
 	) as string;
 }
 
@@ -137,28 +139,29 @@ const parameterProps = {
 	action: {
 		type: "string",
 		enum: ["remember", "recall", "forget", "list"],
-		description: "要执行的记忆操作",
+		description: "Memory action to perform",
 	},
 	key: {
 		type: "string",
-		description: "记忆条目的键",
+		description: "Key of the memory entry",
 	},
 	value: {
 		type: "string",
-		description: "要记忆的值（仅 remember 操作需要）",
+		description: "Value to store (required for 'remember' action only)",
 	},
 };
 
 const errorMsgs = {
-	requireKey: (action: string) => `错误：'${action}' 操作需要 'key' 参数。`,
-	requireKeyVal: `错误：'remember' 操作需要 'key' 和 'value' 两个参数。`,
+	requireKey: (action: string) =>
+		`Error: '${action}' action requires 'key' parameter.`,
+	requireKeyVal: `Error: 'remember' action requires both 'key' and 'value' parameters.`,
 	unknownAction: (action: string) =>
-		`错误：未知操作：${action}。有效操作：remember, recall, forget, list。`,
+		`Error: Unknown action: ${action}. Valid actions: remember, recall, forget, list.`,
 };
 
 export default {
 	name: "memory",
-	description: "会话记忆工具，用于存储和检索信息",
+	description: "Session memory tool for storing and retrieving information",
 	parameters: {
 		type: "object",
 		properties: parameterProps,
