@@ -22,7 +22,7 @@ import {
 } from "./opencode-config.ts";
 import { resolvePlugins } from "./plugins.ts";
 import { renderSkillFile } from "./render.ts";
-import { SKILL_DEFINITIONS } from "./skills.ts";
+import { loadSkillsFromDisk } from "./skills.ts";
 import {
 	loadAgentTemplate,
 	loadCommandTemplate,
@@ -173,15 +173,16 @@ async function writeSkills(
 	skillsDir: string,
 	dryRun: boolean,
 ): Promise<number> {
+	const skills = await loadSkillsFromDisk();
 	await Promise.all(
-		SKILL_DEFINITIONS.map(async (skill) => {
+		skills.map(async (skill) => {
 			const skillDir = `${skillsDir}/${skill.name}`;
 			await ensureDir(skillDir, dryRun);
 			const content = renderSkillFile(skill);
 			await writeFile(`${skillDir}/SKILL.md`, content, dryRun);
 		}),
 	);
-	return SKILL_DEFINITIONS.length;
+	return skills.length;
 }
 
 async function writeContextFiles(

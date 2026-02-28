@@ -2,7 +2,6 @@
 export {
 	AGENT_META,
 	ALL_AGENT_ROLES,
-	HOUSEKEEPING_ROLES,
 	PRIMARY_AGENTS,
 	SUBAGENT_ROLES,
 } from "./agents.ts";
@@ -29,11 +28,12 @@ export {
 	CONVENTIONS_PLUGIN,
 	DEFAULT_PLUGINS,
 	injectPreamble,
+	PANTHEON_CORE_PLUGIN,
 	resolvePlugins,
 	SAFETY_GUARD_PLUGIN,
 } from "./plugins.ts";
 export { renderAgentFile, renderSkillFile } from "./render.ts";
-export { SKILL_DEFINITIONS } from "./skills.ts";
+export { loadSkillsFromDisk } from "./skills.ts";
 export {
 	loadAgentTemplate,
 	loadCommandTemplate,
