@@ -54,12 +54,12 @@ export const ContextLoader: Plugin = ({ directory }) => {
 					);
 				} else {
 					output.system.push(
-						"<project-context>\n[context-loader: 未找到上下文]\n</project-context>",
+						"<project-context>\n[context-loader: No context found]\n</project-context>",
 					);
 				}
 			} catch (err) {
 				output.system.push(
-					`<project-context>\n[context-loader 错误] ${(err as Error).message ?? String(err)}\n</project-context>`,
+					`<project-context>\n[context-loader ERROR] ${(err as Error).message ?? String(err)}\n</project-context>`,
 				);
 			}
 		},
