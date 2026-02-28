@@ -1,19 +1,19 @@
 import type { ProviderAvailability } from "./types.ts";
 
 export const MODELS = {
-	BAILIAN_GLM5: "bailian-coding-plan/glm-5",
-	BAILIAN_GLM47: "bailian-coding-plan/glm-4.7",
-	BAILIAN_KIMI_K25: "bailian-coding-plan/kimi-k2.5",
-	BAILIAN_MINIMAX: "bailian-coding-plan/MiniMax-M2.5",
-	BAILIAN_QWEN35_PLUS: "bailian-coding-plan/qwen3.5-plus",
+	BAILIAN_GLM_5: "bailian-coding-plan/glm-5",
+	BAILIAN_GLM_4_7: "bailian-coding-plan/glm-4.7",
+	BAILIAN_KIMI_K2_5: "bailian-coding-plan/kimi-k2.5",
+	BAILIAN_MINIMAX_M2_5: "bailian-coding-plan/MiniMax-M2.5",
+	BAILIAN_QWEN3_5_PLUS: "bailian-coding-plan/qwen3.5-plus",
 	BAILIAN_QWEN3_CODER_NEXT: "bailian-coding-plan/qwen3-coder-next",
 	BAILIAN_QWEN3_CODER_PLUS: "bailian-coding-plan/qwen3-coder-plus",
-	BAILIAN_QWEN3_MAX: "bailian-coding-plan/qwen3-max-2026-01-23",
-	COPILOT_GPT5_MINI: "github-copilot/gpt-5-mini",
-	FREE_BIG_PICKLE: "opencode/big-pickle",
-	FREE_GPT5_NANO: "opencode/gpt-5-nano",
-	FREE_TRINITY: "opencode/trinity-large-preview-free",
-	FREE_MINIMAX: "opencode/minimax-m2.5-free",
+	BAILIAN_QWEN3_MAX_2026_01_23: "bailian-coding-plan/qwen3-max-2026-01-23",
+	COPILOT_GPT_5_MINI: "github-copilot/gpt-5-mini",
+	OPENCODE_BIG_PICKLE: "opencode/big-pickle",
+	OPENCODE_GPT_5_NANO: "opencode/gpt-5-nano",
+	OPENCODE_TRINITY_LARGE_PREVIEW_FREE: "opencode/trinity-large-preview-free",
+	OPENCODE_MINIMAX_M2_5_FREE: "opencode/minimax-m2.5-free",
 } as const;
 
 export type ModelId = (typeof MODELS)[keyof typeof MODELS];
@@ -35,44 +35,65 @@ interface ModelConfig {
 }
 
 const BAILIAN_OPTIMAL: Record<AgentRole, ModelConfig> = {
-	build: { model: MODELS.BAILIAN_KIMI_K25, temperature: 0.7, thinking: true },
-	plan: { model: MODELS.BAILIAN_MINIMAX, temperature: 0.8, thinking: true },
-	implement: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
-	review: { model: MODELS.BAILIAN_GLM5, temperature: 0.5, thinking: true },
-	test: { model: MODELS.BAILIAN_GLM5, temperature: 0.7, thinking: true },
+	build: {
+		model: MODELS.BAILIAN_QWEN3_CODER_NEXT, // NOTE: swap back to "KIMI_K2_5" when Alibaba fixes command invocation doom-loop
+		temperature: 0.7,
+		thinking: true,
+	},
+	plan: {
+		model: MODELS.BAILIAN_MINIMAX_M2_5,
+		temperature: 0.8,
+		thinking: true,
+	},
+	implement: { model: MODELS.BAILIAN_GLM_5, temperature: 0.7, thinking: true },
+	review: { model: MODELS.BAILIAN_GLM_5, temperature: 0.5, thinking: true },
+	test: { model: MODELS.BAILIAN_GLM_5, temperature: 0.7, thinking: true },
 	document: {
-		model: MODELS.BAILIAN_KIMI_K25,
+		model: MODELS.BAILIAN_QWEN3_5_PLUS, // NOTE: swap back to "KIMI_K2_5" when Alibaba fixes command invocation doom-loop
 		temperature: 1.0,
 		thinking: true,
 	},
 	explore: {
-		model: MODELS.BAILIAN_QWEN35_PLUS,
+		model: MODELS.BAILIAN_QWEN3_5_PLUS,
 		temperature: 0.8,
 		thinking: true,
 	},
-	general: { model: MODELS.BAILIAN_MINIMAX, temperature: 0.7, thinking: true },
+	general: {
+		model: MODELS.BAILIAN_MINIMAX_M2_5,
+		temperature: 0.7,
+		thinking: true,
+	},
 };
 
 const COPILOT_FALLBACK: Record<AgentRole, ModelConfig> = {
-	build: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
-	plan: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.8 },
-	general: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
-	explore: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.8 },
-	review: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
-	implement: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
-	document: { model: MODELS.COPILOT_GPT5_MINI, temperature: 1.0 },
-	test: { model: MODELS.COPILOT_GPT5_MINI, temperature: 0.7 },
+	build: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 0.7 },
+	plan: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 0.8 },
+	general: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 0.7 },
+	explore: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 0.8 },
+	review: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 0.7 },
+	implement: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 0.7 },
+	document: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 1.0 },
+	test: { model: MODELS.COPILOT_GPT_5_MINI, temperature: 0.7 },
 };
 
 const FREE_FALLBACK: Record<AgentRole, ModelConfig> = {
-	build: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
-	plan: { model: MODELS.FREE_TRINITY, temperature: 0.8 },
-	general: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
-	explore: { model: MODELS.FREE_TRINITY, temperature: 0.8 },
-	review: { model: MODELS.FREE_TRINITY, temperature: 0.7 },
-	implement: { model: MODELS.FREE_BIG_PICKLE, temperature: 0.7 },
-	document: { model: MODELS.FREE_TRINITY, temperature: 1.0 },
-	test: { model: MODELS.FREE_TRINITY, temperature: 0.7 },
+	build: { model: MODELS.OPENCODE_BIG_PICKLE, temperature: 0.7 },
+	plan: { model: MODELS.OPENCODE_TRINITY_LARGE_PREVIEW_FREE, temperature: 0.8 },
+	general: { model: MODELS.OPENCODE_BIG_PICKLE, temperature: 0.7 },
+	explore: {
+		model: MODELS.OPENCODE_TRINITY_LARGE_PREVIEW_FREE,
+		temperature: 0.8,
+	},
+	review: {
+		model: MODELS.OPENCODE_TRINITY_LARGE_PREVIEW_FREE,
+		temperature: 0.7,
+	},
+	implement: { model: MODELS.OPENCODE_BIG_PICKLE, temperature: 0.7 },
+	document: {
+		model: MODELS.OPENCODE_TRINITY_LARGE_PREVIEW_FREE,
+		temperature: 1.0,
+	},
+	test: { model: MODELS.OPENCODE_TRINITY_LARGE_PREVIEW_FREE, temperature: 0.7 },
 };
 
 export interface ModelAssignment {
