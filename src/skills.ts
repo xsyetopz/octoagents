@@ -3,445 +3,445 @@ import type { SkillDefinition } from "./types.ts";
 export const SKILL_DEFINITIONS: SkillDefinition[] = [
 	{
 		name: "git-workflow",
-		description: "Git分支、提交信息和PR工作流规范",
+		description: "Git branching, commit messages, and PR workflow standards",
 		version: "1.0",
-		content: `# Git 工作流
+		content: `# Git Workflow
 
-## 提交信息
+## Commit Messages
 
-使用约定式提交：\`type(scope): description\`
+Use Conventional Commits: \`type(scope): description\`
 
-类型：\`feat\`, \`fix\`, \`refactor\`, \`test\`, \`docs\`, \`chore\`, \`perf\`, \`ci\`
+Types: \`feat\`, \`fix\`, \`refactor\`, \`test\`, \`docs\`, \`chore\`, \`perf\`, \`ci\`
 
-规则：
-1. 祈使语气：写 "add feature" 而非 "added feature"
-2. 标题行不超过72字符
-3. 正文解释原因，而非内容
-4. 引用问题：\`Closes #123\`
+Rules:
+1. Imperative mood: write "add feature" not "added feature"
+2. Subject line no longer than 72 characters
+3. Body explains why, not what
+4. Reference issues: \`Closes #123\`
 
-## 分支命名
+## Branch Naming
 
-| 分支 | 用途 |
+| Branch | Purpose |
 |---|---|
-| \`main\` / \`master\` | 生产环境代码 |
-| \`feat/<name>\` | 新功能开发 |
-| \`fix/<name>\` | Bug修复 |
-| \`refactor/<name>\` | 无行为变更的重构 |
-| \`chore/<name>\` | 维护任务 |
+| \`main\` / \`master\` | Production code |
+| \`feat/<name>\` | New feature development |
+| \`fix/<name>\` | Bug fixes |
+| \`refactor/<name>\` | Refactoring without behavior changes |
+| \`chore/<name>\` | Maintenance tasks |
 
 ## Pull Request
 
-1. 标题遵循约定式提交格式
-2. 描述包含：改动内容、原因、测试方法
-3. 保持PR聚焦——一个PR只解决一个问题
-4. 合并前rebase到main，小PR优先squash合并
+1. Title follows Conventional Commits format
+2. Description includes: what changed, why, how to test
+3. Keep PRs focused — one PR solves one problem
+4. Rebase to main before merge, prefer squash merge for small PRs
 
-## 工作流程
+## Workflow
 
-1. 从main创建分支
-2. 提交聚焦的改动
-3. 推送前运行测试
-4. 创建PR并附清晰描述
-5. 处理评审意见
-6. 获得批准后合并`,
+1. Create branch from main
+2. Commit focused changes
+3. Run tests before pushing
+4. Create PR with clear description
+5. Address review feedback
+6. Merge after approval`,
 	},
 	{
 		name: "code-review-checklist",
-		description: "安全、质量、风格评审清单",
+		description: "Security, quality, and style review checklist",
 		version: "1.0",
-		content: `# 代码评审清单
+		content: `# Code Review Checklist
 
-## 正确性
+## Correctness
 
-- [ ] 逻辑符合需求说明
-- [ ] 边界情况已处理（空输入、undefined、溢出、边界条件）
-- [ ] 错误路径正确返回/抛出异常
-- [ ] 循环和切片无越界错误
-- [ ] 异步操作正确await，无未处理的promise rejection
+- [ ] Logic matches requirements specification
+- [ ] Edge cases handled (empty input, undefined, overflow, boundary conditions)
+- [ ] Error paths correctly return/throw exceptions
+- [ ] Loops and slices have no out-of-bounds errors
+- [ ] Async operations properly awaited, no unhandled promise rejections
 
-## 安全性
+## Security
 
-- [ ] 无SQL注入（使用参数化查询）
-- [ ] 无命令注入（净化传入shell的输入）
-- [ ] 无XSS（在HTML上下文中转义输出）
-- [ ] 敏感操作前检查认证
-- [ ] 源码中无硬编码密钥
-- [ ] 无路径遍历漏洞
-- [ ] 依赖未锁定到已知漏洞版本
+- [ ] No SQL injection (use parameterized queries)
+- [ ] No command injection (sanitize input passed to shell)
+- [ ] No XSS (escape output in HTML context)
+- [ ] Authentication checked before sensitive operations
+- [ ] No hardcoded secrets in source code
+- [ ] No path traversal vulnerabilities
+- [ ] Dependencies not locked to versions with known vulnerabilities
 
-## 性能
+## Performance
 
-- [ ] 无N+1查询模式
-- [ ] 热路径无不必要的重复计算
-- [ ] 使用合适数据结构（O(1)查找 vs O(n)搜索）
-- [ ] 循环中避免大内存分配
+- [ ] No N+1 query patterns
+- [ ] No unnecessary repeated computations in hot paths
+- [ ] Using appropriate data structures (O(1) lookup vs O(n) search)
+- [ ] Avoiding large memory allocations in loops
 
-## 代码质量
+## Code Quality
 
-- [ ] 函数职责单一
-- [ ] 无死代码
-- [ ] 变量命名具有描述性
-- [ ] 复杂逻辑有注释说明原因
-- [ ] 无应抽取的重复逻辑
-- [ ] 错误信息可操作
+- [ ] Functions have single responsibility
+- [ ] No dead code
+- [ ] Variable names are descriptive
+- [ ] Complex logic has comments explaining why
+- [ ] No duplicated logic that should be extracted
+- [ ] Error messages are actionable
 
-## 测试
+## Testing
 
-- [ ] 新行为有测试覆盖
-- [ ] 测试确定性（无时间依赖或顺序依赖）
-- [ ] 测试名称描述测试场景`,
+- [ ] New behavior has test coverage
+- [ ] Tests are deterministic (no time or order dependencies)
+- [ ] Test names describe the test scenario`,
 	},
 	{
 		name: "test-patterns",
-		description: "测试规范和覆盖率期望",
+		description: "Testing standards and coverage expectations",
 		version: "1.0",
-		content: `# 测试模式
+		content: `# Test Patterns
 
-## 测试结构
+## Test Structure
 
-遵循 AAA 模式：
+Follow the AAA pattern:
 \`\`\`typescript
-// 准备 (Arrange)
+// Arrange
 const input = buildTestInput();
 
-// 执行 (Act)
+// Act
 const result = systemUnderTest(input);
 
-// 断言 (Assert)
+// Assert
 expect(result).toEqual(expectedOutput);
 \`\`\`
 
-## 命名规范
+## Naming Conventions
 
-测试名称应可读为完整句子：
+Test names should read as complete sentences:
 - \`it("returns empty array when input is empty")\`
 - \`it("throws InvalidArgumentError when name exceeds 100 characters")\`
 
-## 覆盖率期望
+## Coverage Expectations
 
-| 类型 | 覆盖范围 |
+| Type | Coverage Scope |
 |---|---|
-| 单元测试 | 所有公开函数、所有分支 |
-| 集成测试 | 所有API端点、所有数据库操作 |
-| E2E测试 | 关键用户流程 |
+| Unit tests | All public functions, all branches |
+| Integration tests | All API endpoints, all database operations |
+| E2E tests | Critical user flows |
 
-## 测试隔离
+## Test Isolation
 
-1. 每个测试独立——无共享可变状态
-2. Mock外部依赖（网络、文件系统、时间）
-3. 使用工厂/构建器生成测试数据，避免硬编码
+1. Each test is independent — no shared mutable state
+2. Mock external dependencies (network, filesystem, time)
+3. Use factories/builders to generate test data, avoid hardcoding
 
-## 测试内容
+## What to Test
 
-- 正常路径：预期输入产生预期输出
-- 错误情况：无效输入、缺失数据、下游失败
-- 边界值：空集合、零值、最大值
-- 并发：如代码有并发路径，测试竞态条件
+- Happy path: expected input produces expected output
+- Error cases: invalid input, missing data, downstream failures
+- Boundary values: empty collections, zero values, maximums
+- Concurrency: test race conditions if code has concurrent paths
 
-## 反模式
+## Anti-patterns
 
-禁止以下做法：
-- 测试实现细节（重构时易碎）
-- 依赖特定执行顺序
-- 发送真实网络请求
-- 断言错误信息字符串（不稳定）`,
+Avoid the following:
+- Testing implementation details (brittle when refactoring)
+- Relying on specific execution order
+- Making real network requests
+- Asserting error message strings (unstable)`,
 	},
 	{
 		name: "refactor-guide",
-		description: "安全重构模式和技术",
+		description: "Safe refactoring patterns and techniques",
 		version: "1.0",
-		content: `# 重构指南
+		content: `# Refactoring Guide
 
-## 黄金法则
+## Golden Rule
 
-永远不要同时改变行为和结构。分开提交。
+Never change behavior and structure at the same time. Commit separately.
 
-## 重构前检查
+## Pre-refactoring Checklist
 
-1. 确保被改代码有测试覆盖
-2. 理解所有调用点
-3. 检查接口契约（导出符号、API契约）
+1. Ensure code being changed has test coverage
+2. Understand all call sites
+3. Check interface contracts (exported symbols, API contracts)
 
-## 安全重构模式
+## Safe Refactoring Patterns
 
-### 提取函数
-将代码块移入命名函数。该块应只做一件事。
-适用：函数过长、注释描述某块代码的功能。
+### Extract Function
+Move code blocks into named functions. The block should do only one thing.
+Use when: functions are too long, comments describe what a block does.
 
-### 重命名
-使用IDE重命名工具捕获所有引用。
-适用：名称误导、缩写、领域术语变更。
+### Rename
+Use IDE rename tools to capture all references.
+Use when: names are misleading, abbreviated, or domain terminology has changed.
 
-### 内联变量
-替换只赋值一次、使用一次的变量为其值。
-适用：变量名对表达式无额外清晰度。
+### Inline Variable
+Replace variables that are assigned once and used once with their value.
+Use when: variable name adds no clarity to the expression.
 
-### 移动函数/模块
-将函数移至其操作数据所属的模块。
-适用：函数使用另一模块数据多于本模块。
+### Move Function/Module
+Move functions to the module where their data resides.
+Use when: a function uses data from another module more than its own.
 
-### 魔法数替换为命名常量
-\`const MAX_RETRIES = 3\` 而非 \`if (attempts > 3)\`
+### Replace Magic Number with Named Constant
+\`const MAX_RETRIES = 3\` instead of \`if (attempts > 3)\`
 
-### 引入参数对象
-函数参数过多且相关时，分组为类型化对象。
+### Introduce Parameter Object
+When function has too many related parameters, group them into a typed object.
 
-## 破坏性变更迁移策略
+## Breaking Change Migration Strategy
 
-1. 在旧接口旁添加新接口
-2. 增量迁移调用方
-3. 所有调用方迁移后删除旧接口
-4. 有外部消费者时，禁止在同一提交中删除旧接口并添加新接口
+1. Add new interface alongside old one
+2. Incrementally migrate callers
+3. Remove old interface after all callers migrated
+4. When there are external consumers, never remove old and add new in the same commit
 
-## 验证
+## Verification
 
-每个重构步骤后：
-- 运行完整测试套件
-- 确认行为完全一致
-- 检查diff是否有意外更改`,
+After each refactoring step:
+- Run full test suite
+- Confirm behavior is completely unchanged
+- Check diff for unexpected changes`,
 	},
 	{
 		name: "documentation-standards",
-		description: "文档结构、API文档、README规范",
+		description: "Documentation structure, API docs, README standards",
 		version: "1.0",
-		content: `# 文档规范
+		content: `# Documentation Standards
 
-## README 结构
+## README Structure
 
-项目README必须包含（按顺序）：
-1. 一句话描述
-2. 快速开始（最小运行步骤）
-3. 安装说明
-4. 使用示例
-5. 配置参考
-6. 贡献指南（或链接）
-7. 许可证
+Project README must include (in order):
+1. One-sentence description
+2. Quick start (minimal steps to run)
+3. Installation instructions
+4. Usage examples
+5. Configuration reference
+6. Contributing guide (or link)
+7. License
 
-## API 文档
+## API Documentation
 
-每个公开函数/方法需文档：
-- 用途（一句话）
-- 参数（含类型和约束）
-- 返回值（含类型）
-- 抛出/reject条件
-- 使用示例
+Each public function/method needs documentation of:
+- Purpose (one sentence)
+- Parameters (with types and constraints)
+- Return value (with type)
+- Throw/reject conditions
+- Usage examples
 
-## 代码注释
+## Code Comments
 
-注释原因，而非内容：
+Comment why, not what:
 
 \`\`\`typescript
-// 错误：增加计数器
+// Wrong: increment counter
 counter++;
 
-// 正确：补偿上游API响应的越界问题
+// Correct: compensate for off-by-one in upstream API response
 counter++;
 \`\`\`
 
-复杂算法需引用注释：
+Complex algorithms need reference comments:
 \`\`\`typescript
-// 使用 Fisher-Yates 洗牌算法：https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+// Using Fisher-Yates shuffle: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 \`\`\`
 
-## Markdown 规范
+## Markdown Standards
 
-- 节之间空一行
-- 代码块必须有语言标签
-- 长链接使用引用式
-- 表格表头分隔符对齐
+- Blank line between sections
+- Code blocks must have language tags
+- Use reference-style for long links
+- Align table header separators
 
-## 更新日志
+## Changelog
 
-格式：Keep a Changelog (https://keepachangelog.com)
-分区：Added, Changed, Deprecated, Removed, Fixed, Security`,
+Format: Keep a Changelog (https://keepachangelog.com)
+Sections: Added, Changed, Deprecated, Removed, Fixed, Security`,
 	},
 	{
 		name: "project-setup",
-		description: "项目脚手架和配置模式",
+		description: "Project scaffolding and configuration patterns",
 		version: "1.0",
-		content: `# 项目配置
+		content: `# Project Configuration
 
-## 目录规范
+## Directory Standards
 
 \`\`\`
-src/          # 源代码
-tests/        # 测试文件（镜像src/结构）
-docs/         # 文档
-dist/         # 构建输出（gitignore）
-scripts/      # 构建和工具脚本
+src/          # Source code
+tests/        # Test files (mirror src/ structure)
+docs/         # Documentation
+dist/         # Build output (gitignore)
+scripts/      # Build and tool scripts
 \`\`\`
 
-## 配置文件
+## Configuration Files
 
-项目根目录必须包含：
-- \`.gitignore\` — 忽略构建产物、密钥、编辑器文件
-- \`README.md\` — 项目概述
-- \`package.json\` / \`Cargo.toml\` / 语言相应清单
+Project root must contain:
+- \`.gitignore\` — ignore build artifacts, secrets, editor files
+- \`README.md\` — project overview
+- \`package.json\` / \`Cargo.toml\` / language-appropriate manifest
 
-TypeScript项目还需：
-- \`tsconfig.json\` — 推荐严格模式
-- \`biome.jsonc\` 或 \`eslint.config.js\` — 代码检查/格式化
+TypeScript projects also need:
+- \`tsconfig.json\` — strict mode recommended
+- \`biome.jsonc\` or \`eslint.config.js\` — linting/formatting
 
-## 环境变量
+## Environment Variables
 
-1. 在 \`.env.example\` 中文档化所有环境变量
-2. 禁止提交 \`.env\` 文件
-3. 环境变量名使用 \`SCREAMING_SNAKE_CASE\`
-4. 启动时验证必需环境变量，快速失败并给出清晰错误
+1. Document all environment variables in \`.env.example\`
+2. Never commit \`.env\` files
+3. Use \`SCREAMING_SNAKE_CASE\` for environment variable names
+4. Validate required environment variables at startup, fail fast with clear errors
 
-## 依赖管理
+## Dependency Management
 
-- 在lockfile中锁定精确版本（\`bun.lock\`, \`package-lock.json\`）
-- 分离开发依赖和运行时依赖
-- 添加前审计依赖
-- 优先选择小型聚焦包而非大型框架
+- Lock exact versions in lockfile (\`bun.lock\`, \`package-lock.json\`)
+- Separate dev dependencies from runtime dependencies
+- Audit dependencies before adding
+- Prefer small focused packages over large frameworks
 
-## 脚本命名
+## Script Naming
 
-跨项目统一脚本名称：
-| 脚本 | 用途 |
+Use consistent script names across projects:
+| Script | Purpose |
 |---|---|
-| \`build\` | 编译/打包 |
-| \`test\` | 运行测试套件 |
-| \`lint\` | 运行代码检查 |
-| \`format\` | 运行格式化 |
-| \`start\` / \`dev\` | 运行应用`,
+| \`build\` | Compile/bundle |
+| \`test\` | Run test suite |
+| \`lint\` | Run code linting |
+| \`format\` | Run formatting |
+| \`start\` / \`dev\` | Run application`,
 	},
 	{
 		name: "security-checklist",
-		description: "常见漏洞模式检查清单",
+		description: "Common vulnerability patterns checklist",
 		version: "1.0",
-		content: `# 安全检查清单
+		content: `# Security Checklist
 
-## 输入验证
+## Input Validation
 
-- [ ] 所有用户输入使用前验证（类型、长度、格式、范围）
-- [ ] 验证失败直接拒绝——禁止净化后继续
-- [ ] 文件路径验证防止遍历（\`../\`序列）
-- [ ] URL验证防止SSRF（服务端请求伪造）
+- [ ] Validate all user input before use (type, length, format, range)
+- [ ] Reject on validation failure — do not sanitize and continue
+- [ ] Validate file paths against traversal (\`../\` sequences)
+- [ ] Validate URLs against SSRF (Server-Side Request Forgery)
 
-## 认证与授权
+## Authentication & Authorization
 
-- [ ] 敏感操作前要求认证
-- [ ] 按资源检查授权，而非仅按端点
-- [ ] Token/Session可过期且可撤销
-- [ ] 密码使用bcrypt/argon2哈希（禁止MD5/SHA1单独使用）
-- [ ] 登录端点有暴力破解保护
+- [ ] Require authentication before sensitive operations
+- [ ] Check authorization per resource, not just per endpoint
+- [ ] Tokens/Sessions can expire and be revoked
+- [ ] Hash passwords with bcrypt/argon2 (never MD5/SHA1 alone)
+- [ ] Login endpoints have brute-force protection
 
-## 数据处理
+## Data Handling
 
-- [ ] 密钥禁止记录到日志
-- [ ] PII最小化——只收集必需数据
-- [ ] 敏感数据静态加密
-- [ ] 外部通信强制TLS
-- [ ] SQL查询参数化（禁止字符串拼接）
+- [ ] Secrets never logged
+- [ ] PII minimized — only collect required data
+- [ ] Sensitive data encrypted at rest
+- [ ] Enforce TLS for external communication
+- [ ] SQL queries parameterized (no string concatenation)
 
-## 依赖
+## Dependencies
 
-- [ ] 直接依赖无已知CVE
-- [ ] 依赖版本锁定
-- [ ] 关键路径无废弃包
+- [ ] No known CVEs in direct dependencies
+- [ ] Dependency versions locked
+- [ ] No deprecated packages in critical paths
 
-## API 安全
+## API Security
 
-- [ ] 公开端点限流
-- [ ] CORS配置仅允许已知来源
-- [ ] Content-Security-Policy 头已设置
-- [ ] 敏感端点未在无认证情况下公开
+- [ ] Rate limiting on public endpoints
+- [ ] CORS configured to allow only known origins
+- [ ] Content-Security-Policy header set
+- [ ] Sensitive endpoints not exposed without authentication
 
-## 密钥管理
+## Secret Management
 
-- [ ] 源代码中无API密钥或密码
-- [ ] 环境变量名不含会被记录的凭证
-- [ ] 密钥通过环境变量注入，禁止配置文件入仓库
-- [ ] 密钥轮换流程已文档化`,
+- [ ] No API keys or passwords in source code
+- [ ] Environment variable names don't contain loggable credentials
+- [ ] Secrets injected via environment variables, never config files in repo
+- [ ] Secret rotation process documented`,
 	},
 	{
 		name: "performance-guide",
-		description: "性能优化模式",
+		description: "Performance optimization patterns",
 		version: "1.0",
-		content: `# 性能指南
+		content: `# Performance Guide
 
-## 先测量
+## Measure First
 
-优化前先分析。对瓶颈的假设通常是错的。
+Profile before optimizing. Assumptions about bottlenecks are usually wrong.
 
-工具：
-| 平台 | 工具 |
+Tools:
+| Platform | Tool |
 |---|---|
 | Node.js | \`--prof\`, \`clinic.js\`, Chrome DevTools |
-| Bun | 内置分析器 |
-| 数据库 | \`EXPLAIN ANALYZE\`, 慢查询日志 |
+| Bun | Built-in profiler |
+| Database | \`EXPLAIN ANALYZE\`, slow query log |
 
-## 常见瓶颈
+## Common Bottlenecks
 
-### 数据库
+### Database
 
-- N+1查询：批量加载关联数据，使用JOIN或\`IN\`子句
-- 缺失索引：在WHERE/JOIN/ORDER BY列上添加索引
-- 过度获取：只SELECT需要的列
-- 连接池耗尽：调整池大小，及时释放连接
+- N+1 queries: batch load related data, use JOIN or \`IN\` clause
+- Missing indexes: add indexes on WHERE/JOIN/ORDER BY columns
+- Over-fetching: only SELECT needed columns
+- Connection pool exhaustion: tune pool size, release connections promptly
 
-### 计算
+### Computation
 
-- 重复计算：对输入稳定的纯函数进行记忆化
-- 不必要序列化：进程内传递对象而非JSON字符串
-- 阻塞事件循环：将CPU密集工作移至worker线程
+- Repeated computation: memoize pure functions with stable inputs
+- Unnecessary serialization: pass objects in-process instead of JSON strings
+- Blocking event loop: move CPU-intensive work to worker threads
 
-### 内存
+### Memory
 
-- 内存泄漏：事件监听器未移除、缓存无驱逐策略增长
-- 大对象图：流式处理大数据集而非一次性加载
-- 频繁GC：减少热路径分配率
+- Memory leaks: event listeners not removed, caches growing without eviction
+- Large object graphs: stream large datasets instead of loading all at once
+- Frequent GC: reduce allocation rate in hot paths
 
-## 缓存策略
+## Caching Strategies
 
-在正确层级缓存：
-1. 进程内（最快，实例间不共享）
-2. Redis/Memcached（共享，重启后保留）
-3. CDN（静态资源和可缓存API响应）
+Cache at the right layer:
+1. In-process (fastest, not shared across instances)
+2. Redis/Memcached (shared, survives restarts)
+3. CDN (static assets and cacheable API responses)
 
-缓存失效规则：
-- 设置显式TTL——禁止永久缓存
-- 写入时失效
-- 缓存击穿保护：使用概率提前过期或锁
+Cache invalidation rules:
+- Set explicit TTL — no permanent cache
+- Invalidate on write
+- Cache stampede protection: use probabilistic early expiration or locks
 
-## 前端性能
+## Frontend Performance
 
-- 包体积：代码分割、tree-shake、用source-map-explorer分析
-- 图片：使用WebP、懒加载首屏以下内容
-- 关键路径：内联关键CSS、延迟非关键JS
-- Core Web Vitals：LCP < 2.5s, FID < 100ms, CLS < 0.1`,
+- Bundle size: code splitting, tree-shaking, analyze with source-map-explorer
+- Images: use WebP, lazy load below-the-fold content
+- Critical path: inline critical CSS, defer non-critical JS
+- Core Web Vitals: LCP < 2.5s, FID < 100ms, CLS < 0.1`,
 	},
 	{
 		name: "bun-file-io",
-		description: "使用Bun原生API进行文件I/O和目录操作",
+		description: "Using Bun native APIs for file I/O and directory operations",
 		version: "1.0",
-		content: `# Bun 文件 I/O
+		content: `# Bun File I/O
 
-使用Bun原生API进行文件操作。禁止将 \`cat\`, \`ls\`, \`mkdir\`, \`rm\` 作为shell命令执行。
+Use Bun native APIs for file operations. Do not execute \`cat\`, \`ls\`, \`mkdir\`, \`rm\` as shell commands.
 
-## 读取文件
+## Reading Files
 
 \`\`\`typescript
 const file = Bun.file(path);
-const exists = await file.exists(); // 目录返回 false
+const exists = await file.exists(); // returns false for directories
 const text = await file.text();
 const json = await file.json<T>();
 const buffer = await file.arrayBuffer();
-// 元数据：file.size, file.type, file.name
+// Metadata: file.size, file.type, file.name
 \`\`\`
 
-## 写入文件
+## Writing Files
 
 \`\`\`typescript
 await Bun.write(path, "text content");
 await Bun.write(path, buffer);
 await Bun.write(path, blob);
-// 增量写入：file.writer() → FileSink
+// Incremental writes: file.writer() → FileSink
 \`\`\`
 
-## 扫描目录
+## Scanning Directories
 
 \`\`\`typescript
 const glob = new Bun.Glob("**/*.ts");
@@ -450,9 +450,9 @@ const files = await Array.fromAsync(
 );
 \`\`\`
 
-## 目录操作
+## Directory Operations
 
-使用 \`node:fs/promises\` 处理目录（Bun.file不支持目录）：
+Use \`node:fs/promises\` for directories (Bun.file doesn't support directories):
 
 \`\`\`typescript
 import { mkdir, readdir, rm } from "node:fs/promises";
@@ -462,14 +462,14 @@ const entries = await readdir(path);
 await rm(path, { recursive: true, force: true });
 \`\`\`
 
-## 追加和日志
+## Appending and Logging
 
 \`\`\`typescript
 import { appendFile } from "node:fs/promises";
 await appendFile(logFile, \`\${new Date().toISOString()} \${message}\n\`);
 \`\`\`
 
-## 运行外部工具
+## Running External Tools
 
 \`\`\`typescript
 const bin = Bun.which("tool-name");
@@ -478,72 +478,73 @@ const stdout = await Bun.readableStreamToText(proc.stdout);
 await proc.exited;
 \`\`\`
 
-## 规则
+## Rules
 
-1. \`Bun.file(path).exists()\` 仅用于文件——路径可能是目录时使用 \`node:fs/promises\` 的 \`stat()\`
-2. 必须使用 \`path.join\` 或 \`path.resolve\` 处理路径，禁止字符串拼接
-3. 优先使用 \`Bun.write\` 而非创建 WritableStream，除非需要增量写入
-4. 并行化独立读取：\`await Promise.all(paths.map(p => Bun.file(p).text()))\``,
+1. \`Bun.file(path).exists()\` is for files only — use \`stat()\` from \`node:fs/promises\` when path might be a directory
+2. Must use \`path.join\` or \`path.resolve\` for paths, no string concatenation
+3. Prefer \`Bun.write\` over creating WritableStream unless incremental writes are needed
+4. Parallelize independent reads: \`await Promise.all(paths.map(p => Bun.file(p).text()))\``,
 	},
 	{
 		name: "ts-performance",
-		description: "TypeScript/JavaScript性能模式——算法、异步、数据结构、内存",
+		description:
+			"TypeScript/JavaScript performance patterns—algorithms, async, data structures, memory",
 		version: "1.0",
-		content: `# TypeScript 性能优化
+		content: `# TypeScript Performance Optimization
 
-优化前先分析。大多数瓶颈是算法层面的，而非微优化。O(n²)→O(n log n)的提升永远比2倍微优化更有价值。
+Profile before optimizing. Most bottlenecks are algorithmic, not micro-optimizations. An O(n²)→O(n log n) improvement always beats a 2x micro-optimization.
 
-## 核心原则
+## Core Principles
 
-**测量 → 定位真实瓶颈 → 修复算法 → 仍需时再微优化。**
+**Measure → Identify real bottleneck → Fix algorithm → Micro-optimize only if still needed.**
 
 \`\`\`typescript
-// 每次改动前后测量基线
+// Measure baseline before and after each change
 const start = performance.now();
 doWork();
 console.log(\`\${performance.now() - start}ms\`);
 
-// Bun 分析
+// Bun profiling
 bun --prof script.ts
 \`\`\`
 
-## 数据结构
+## Data Structures
 
-根据访问模式选择正确结构：
+Choose the right structure based on access patterns:
 
 \`\`\`typescript
-// O(1) 查找 — 使用 Map 或 Set，而非 Array.find()
+// O(1) lookup — use Map or Set, not Array.find()
 const index = new Map(items.map(item => [item.id, item]));
 const found = index.get(id); // vs items.find(x => x.id === id) O(n)
 
 const seen = new Set<string>();
 if (!seen.has(key)) { seen.add(key); process(key); }
 
-// 类型化数组处理数值数据 — 内存减少3-10倍，速度提升5倍
+// Typed arrays for numeric data — 3-10x less memory, 5x faster
 const data = new Float64Array(1_000_000);
 
-// WeakMap 存储元数据 — GC友好，无泄漏风险
+// WeakMap for metadata — GC-friendly, no leak risk
 const meta = new WeakMap<object, Metadata>();
 \`\`\`
 
-| 结构 | 查找复杂度 | 使用场景 |
+| Structure | Lookup Complexity | Use Case |
 |---|---|---|
-| Map | O(1) | 动态键、任意键类型 |
-| Set | O(1) | 成员检测/去重 |
-| Object | O(1) | 字符串键、静态形状、JSON |
-| Array | O(n) | 有序、索引访问 |
-| Typed Array | O(1) | 数值数据、图像、音频 |
-| WeakMap | O(1) | 对象元数据无泄漏 |
+| Map | O(1) | Dynamic keys, arbitrary key types |
+| Set | O(1) | Membership testing/deduplication |
+| Object | O(1) | String keys, static shape, JSON |
+| Array | O(n) | Ordered, indexed access |
+| Typed Array | O(1) | Numeric data, images, audio |
+| WeakMap | O(1) | Object metadata without leaks |
 
-## 算法
+## Algorithms
 
-单次遍历优于链式数组方法。已知大小时预分配。
+Single pass over chained array methods. Preallocate when size is known.
 
 \`\`\`typescript
-// 错误 — 三个中间数组
+// Wrong — three intermediate arrays
 const out = items.filter(x => x > 0).map(x => x * 2).filter(x => x < 100);
 
-// 正确 — 单次遍历
+// Correct — single pass
 const out: number[] = [];
 for (const x of items) {
   if (x > 0) {
@@ -552,46 +553,46 @@ for (const x of items) {
   }
 }
 
-// 已知大小时预分配
+// Preallocate when size is known
 const result = new Array<number>(items.length);
 for (let i = 0; i < items.length; i++) result[i] = transform(items[i]);
 
-// 字符串构建 — 用 join，禁止 +=
+// String building — use join, not +=
 const parts: string[] = [];
 for (const item of items) parts.push(\`<li>\${item}</li>\`);
 const html = parts.join("");
 
-// 循环外编译正则
+// Compile regex outside loops
 const RE = /^[\\w.-]+@[\\w.-]+\\.[\\w]+$/;
 function valid(email: string) { return RE.test(email); }
 
-// 缓存循环不变量
+// Cache loop invariants
 const factor = config.settings.factor * 2;
 for (const x of items) process(x * factor);
 \`\`\`
 
-循环速度：\`for\` > \`for-of\` > \`forEach\` > \`reduce\`。默认用 \`for-of\`；仅在验证的热路径用 \`for\`。
+Loop speed: \`for\` > \`for-of\` > \`forEach\` > \`reduce\`. Default to \`for-of\`; use \`for\` only in validated hot paths.
 
-## 异步
+## Async
 
-禁止在循环中顺序 \`await\`。独立操作使用 \`Promise.all\`。
+Never sequential \`await\` in loops. Use \`Promise.all\` for independent operations.
 
 \`\`\`typescript
-// 错误 — 顺序执行，n × 延迟
+// Wrong — sequential execution, n × latency
 const results = [];
 for (const item of items) results.push(await process(item));
 
-// 正确 — 并行执行
+// Correct — parallel execution
 const results = await Promise.all(items.map(process));
 
-// 大工作负载分批限制并发
+// Batch large workloads to limit concurrency
 async function batch<T>(items: T[], fn: (x: T) => Promise<unknown>, size = 50) {
   for (let i = 0; i < items.length; i += size) {
     await Promise.all(items.slice(i, i + size).map(fn));
   }
 }
 
-// 缓存进行中请求，去重并发请求
+// Cache in-flight requests, dedupe concurrent requests
 const inflight = new Map<string, Promise<Data>>();
 async function fetch_once(key: string): Promise<Data> {
   if (!inflight.has(key)) inflight.set(key, fetchData(key).finally(() => inflight.delete(key)));
@@ -599,20 +600,20 @@ async function fetch_once(key: string): Promise<Data> {
 }
 \`\`\`
 
-## 内存
+## Memory
 
 \`\`\`typescript
-// 复用缓冲区 — 避免在热路径创建新数组
+// Reuse buffers — avoid creating new arrays in hot paths
 class Processor {
   private buf: number[] = [];
   run(input: number[]) {
-    this.buf.length = 0; // 清空但不重新分配
+    this.buf.length = 0; // clear without reallocating
     for (const x of input) this.buf.push(transform(x));
     return this.buf;
   }
 }
 
-// 有界缓存 — 防止无限增长
+// Bounded cache — prevent unbounded growth
 class BoundedCache<K, V> {
   private m = new Map<K, V>();
   constructor(private max: number) {}
@@ -623,24 +624,24 @@ class BoundedCache<K, V> {
   get(k: K) { return this.m.get(k); }
 }
 
-// WeakMap 存储 DOM/对象元数据 — 自动 GC
+// WeakMap for DOM/object metadata — automatic GC
 const cache = new WeakMap<Node, ComputedData>();
 \`\`\`
 
-## Bun 特定
+## Bun Specific
 
 \`\`\`typescript
-// 原生哈希 — 非安全用途比 crypto 更快
+// Native hashing — faster than crypto for non-security use
 const hash = Bun.hash(data);
 const crc = Bun.hash.crc32(str);
 
-// 内置 SQLite 使用预编译语句
+// Built-in SQLite with prepared statements
 import { Database } from "bun:sqlite";
 const db = new Database("app.db");
 const stmt = db.prepare("SELECT * FROM users WHERE id = ?");
-const user = stmt.get(id); // 复用预编译语句
+const user = stmt.get(id); // reuse prepared statement
 
-// 测量内存
+// Measure memory
 Bun.gc(true);
 const before = Bun.memoryUsage().heapUsed;
 doWork();
@@ -648,17 +649,17 @@ Bun.gc(true);
 const used = Bun.memoryUsage().heapUsed - before;
 \`\`\`
 
-## 快速清单
+## Quick Checklist
 
-1. 查找用 \`Map\`/\`Set\` 而非 \`Array.find\`/\`includes\`
-2. 并行用 \`Promise.all\` 而非顺序 await
-3. 单次遍历而非链式 \`filter().map()\`
-4. 已知大小时预分配数组
-5. 循环外编译正则
-6. 将昂贵的属性访问缓存到局部变量
-7. 字符串构建用 \`array.join("")\` 而非 \`+=\`
-8. 深拷贝用 \`structuredClone\` 而非 \`JSON.parse(JSON.stringify(...))\`
-9. 数值密集数据用 \`Typed Array\`
-10. 对象元数据用 \`WeakMap\``,
+1. Use \`Map\`/\`Set\` for lookups, not \`Array.find\`/\`includes\`
+2. Use \`Promise.all\` for parallelism, not sequential await
+3. Single pass instead of chained \`filter().map()\`
+4. Preallocate arrays when size is known
+5. Compile regex outside loops
+6. Cache expensive property access to local variables
+7. Use \`array.join("")\` for string building, not \`+=\`
+8. Use \`structuredClone\` for deep copy, not \`JSON.parse(JSON.stringify(...))\`
+9. Use \`Typed Array\` for numeric-dense data
+10. Use \`WeakMap\` for object metadata`,
 	},
 ];
