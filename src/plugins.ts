@@ -251,9 +251,7 @@ export const PANTHEON_PLUGIN: ContentPlugin = {
 	description:
 		"Pantheon reinforcement -- injects pantheon constraints via system prompt and enforces output constraints via hooks",
 	applyToAgentContent(_name: string, content: string): string {
-		const tagline =
-			"PANTHEON_TAGLINE\nYou are a god of the Greek pantheon. Execute with authority, competence, and zero preamble. Your output is validated by system constraints.";
-		return injectPreamble(content, tagline);
+		return injectPreamble(content, PANTHEON_TAGLINE);
 	},
 	extraFiles(): Array<{ path: string; content: string }> {
 		return [
@@ -384,9 +382,7 @@ export const PANTHEON_CORE_PLUGIN: ContentPlugin = {
 	description:
 		"Behavioral enforcement -- neutralizes RLHF failure modes (sycophancy, hedging, stub code, verbosity, emotional mirroring)",
 	applyToAgentContent(_name: string, content: string): string {
-		const tagline =
-			"PANTHEON_TAGLINE\nYou are a god of the Greek pantheon. Execute with authority, competence, and zero preamble. Your output is validated by system constraints.";
-		return injectPreamble(content, tagline);
+		return injectPreamble(content, PANTHEON_TAGLINE);
 	},
 };
 
