@@ -2,13 +2,9 @@ import type { ProviderAvailability } from "./types.ts";
 
 export const MODELS = {
 	BAILIAN_GLM_5: "bailian-coding-plan/glm-5",
-	BAILIAN_GLM_4_7: "bailian-coding-plan/glm-4.7",
 	BAILIAN_KIMI_K2_5: "bailian-coding-plan/kimi-k2.5",
 	BAILIAN_MINIMAX_M2_5: "bailian-coding-plan/MiniMax-M2.5",
 	BAILIAN_QWEN3_5_PLUS: "bailian-coding-plan/qwen3.5-plus",
-	BAILIAN_QWEN3_CODER_NEXT: "bailian-coding-plan/qwen3-coder-next",
-	BAILIAN_QWEN3_CODER_PLUS: "bailian-coding-plan/qwen3-coder-plus",
-	BAILIAN_QWEN3_MAX_2026_01_23: "bailian-coding-plan/qwen3-max-2026-01-23",
 	COPILOT_GPT_5_MINI: "github-copilot/gpt-5-mini",
 	OPENCODE_BIG_PICKLE: "opencode/big-pickle",
 	OPENCODE_GPT_5_NANO: "opencode/gpt-5-nano",
@@ -36,7 +32,7 @@ interface ModelConfig {
 
 const BAILIAN_OPTIMAL: Record<AgentRole, ModelConfig> = {
 	build: {
-		model: MODELS.BAILIAN_QWEN3_CODER_NEXT, // NOTE: swap back to "KIMI_K2_5" when Alibaba fixes command invocation doom-loop
+		model: MODELS.BAILIAN_QWEN3_5_PLUS, // NOTE: swap back to "KIMI_K2_5" when Alibaba fixes command invocation doom-loop
 		temperature: 0.7,
 		thinking: true,
 	},
