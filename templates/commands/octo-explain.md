@@ -3,6 +3,6 @@ description: Explain architecture or code structure
 agent: hermes
 ---
 
-解释以下架构和代码结构。描述工作原理、关键抽象、数据流。
+Explain the following architecture and code structure. Describe how it works, key abstractions, and data flow.
 
-目标:
+Target:

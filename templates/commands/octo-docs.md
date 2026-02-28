@@ -3,6 +3,6 @@ description: Generate or update documentation
 agent: calliope
 ---
 
-为以下内容生成或更新文档。
+Generate or update documentation for the following content.
 
-目标:
+Target:
