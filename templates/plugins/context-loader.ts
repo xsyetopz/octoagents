@@ -19,7 +19,7 @@ export const ContextLoader: Plugin = ({ directory }) => {
 			);
 		} catch (err) {
 			sections.push(
-				`[context-loader 警告] 无法读取上下文目录：${(err as Error).message ?? String(err)}`,
+				`[context-loader WARNING] Failed to read context directory: ${(err as Error).message ?? String(err)}`,
 			);
 		}
 
@@ -31,13 +31,13 @@ export const ContextLoader: Plugin = ({ directory }) => {
 						sections.push(content.trim());
 					} catch (err) {
 						sections.push(
-							`[context-loader 警告] 无法读取 "${filePath}"：${(err as Error).message ?? String(err)}`,
+							`[context-loader WARNING] Failed to read "${filePath}": ${(err as Error).message ?? String(err)}`,
 						);
 					}
 				}),
 			);
 		} else if (sections.length === 0) {
-			sections.push("[context-loader] 未找到项目上下文文件。");
+			sections.push("[context-loader] No project context files found.");
 		}
 
 		cachedContext = sections.join("\n\n---\n\n");
